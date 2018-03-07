@@ -24,6 +24,8 @@ func mainLoop() {
 		lastTileX = outsideGrid
 		lastTileY = 0
 		selectedTile = 4
+		cameraX = 0.0
+		cameraY = 0.0
 	)
 
 	for !win.Closed() {
@@ -60,8 +62,13 @@ func mainLoop() {
 			vScale = hScale * aspect
 		}
 
-		tileX := int(cursorX / hScale)
-		tileY := int(cursorY / vScale)
+		if win.Pressed(pixelgl.KeyW) { cameraY -= 25 }
+		if win.Pressed(pixelgl.KeyS) { cameraY += 25 }
+		if win.Pressed(pixelgl.KeyD) { cameraX -= 25 }
+		if win.Pressed(pixelgl.KeyA) { cameraX += 25 }
+
+		tileX := int((cursorX - cameraX*scale) / hScale)
+		tileY := int((cursorY + cameraY*scale) / vScale)
 		onGrid := tileX > -gridCentre && tileY > -gridCentre && tileX < gridCentre && tileY < gridCentre
 
 		leftDown := win.Pressed(pixelgl.MouseButtonLeft)
@@ -117,34 +124,46 @@ func mainLoop() {
 		jRange := float64(math.Floor(screenHeight/(2*vScale))) + 1
 
 		for i := -iRange; i < iRange; i++ {
-			for j:= -jRange; j < jRange; j++ {
+			for j:= -jRange; j < jRange ; j++ {
 
 				if int(i) > -gridCentre && int(j) > -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
 					tileNo := grid[int(i)+gridCentre][int(j)+gridCentre][0]
 
+
+					matrix := pixel.IM.
+						Moved(pixel.V(cameraX, cameraY)).
+						ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+						Moved(pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale))))
+
 					if tileNo > 0 {
 
-						matrix := pixel.IM.ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale))))
 						tileSprite[tileNo-1].Draw(win, matrix)
 
+					} else {
+
+						tileSprite[16].Draw(win, matrix)
+
 					}
+
 
 				}
 			}
 		}
 
-		matrix := pixel.IM.ScaledXY(pixel.ZV, pixel.V(scale,scale*aspect)).Moved(pixel.V(screenWidth/2 + cursorX + hScale/2, screenHeight/2 - (cursorY + vScale/2)))
+		matrix := pixel.IM.
+			Moved(pixel.V(cameraX, cameraY)).
+			ScaledXY(pixel.ZV, pixel.V(scale,scale*aspect)).
+			Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale))))
 		tileSprite[selectedTile-1].Draw(win, matrix)
 		tileSprite[16].Draw(win, matrix)
-
 
 		win.Update()
 
 		frames++
 		select {
 		case <-second:
-			win.SetTitle(fmt.Sprintf("%s | FPS: %d | X: %d | Y: %d | Aspect: %d%%", windowTitlePrefix, frames, tileX, tileY, int(100*(1-aspect))))
+			win.SetTitle(fmt.Sprintf("%s | FPS: %d | X: %d | Y: %d | Aspect: %d%% | Camera: %d, %d", windowTitlePrefix, frames, tileX, tileY, int(100*(1-aspect)), int(cameraX), int(cameraY)))
 			frames = 0
 			default:
 		}
