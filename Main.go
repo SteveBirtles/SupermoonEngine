@@ -8,8 +8,8 @@ import (
 
 var L *lua.LState
 
-const screenWidth = 1024
-const screenHeight = 768
+const screenWidth = 1280
+const screenHeight = 720
 
 func main() {
 
