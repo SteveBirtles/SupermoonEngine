@@ -4,8 +4,8 @@ import (
 	"golang.org/x/image/colornames"
 	"fmt"
 	"github.com/faiface/pixel"
-	"engo/math"
 	"github.com/faiface/pixel/pixelgl"
+	"math"
 )
 
 func mainLoop() {
@@ -16,14 +16,14 @@ func mainLoop() {
 	const outsideGrid = gridCentre + 1
 
 	var (
-		grid [2*gridCentre][2*gridCentre]int
+		grid [2*gridCentre][2*gridCentre][2]int
 		scale = 0.5
 		aspect = 1.0
 		hScale = 64.0
 		vScale = hScale * aspect
 		lastTileX = outsideGrid
 		lastTileY = 0
-		selectedTile = 3
+		selectedTile = 4
 	)
 
 	for !win.Closed() {
@@ -39,22 +39,22 @@ func mainLoop() {
 			vScale = 128 * aspect * scale
 		}
 
-		cursorX := float64(math.Floor(float32(mouseX / hScale))) * hScale
-		cursorY := float64(math.Floor(float32(mouseY / vScale))) * vScale
+		cursorX := float64(math.Floor(mouseX / hScale)) * hScale
+		cursorY := float64(math.Floor(mouseY / vScale)) * vScale
 
 		if win.JustPressed(pixelgl.KeyMinus) {
 			selectedTile++
-			if selectedTile > 15 { selectedTile = 1 }
+			if selectedTile > 16 { selectedTile = 1 }
 		} else if win.JustPressed(pixelgl.KeyEqual) {
 			selectedTile--
-			if selectedTile < 1 { selectedTile = 15 }
+			if selectedTile < 1 { selectedTile = 16 }
 		}
 
-		if win.JustPressed(pixelgl.KeyRightBracket) {
+		if win.JustPressed(pixelgl.KeyPageDown) {
 			aspect += 0.1
 			if aspect > 1.0 { aspect = 1.0 }
 			vScale = hScale * aspect
-		} else if win.JustPressed(pixelgl.KeyLeftBracket) {
+		} else if win.JustPressed(pixelgl.KeyPageUp) {
 			aspect -= 0.1
 			if aspect < 0.5 { aspect = 0.5 }
 			vScale = hScale * aspect
@@ -71,7 +71,7 @@ func mainLoop() {
 		if onGrid {
 			if middleDown {
 
-				selectedTile = grid[tileX+gridCentre][tileY+gridCentre]
+				selectedTile = grid[tileX+gridCentre][tileY+gridCentre][0]
 
 			} else if leftDown || rightDown {
 
@@ -82,9 +82,9 @@ func mainLoop() {
 
 				if lastTileX != outsideGrid {
 
-					if math.Abs(float32(tileX-lastTileX)) > 1 || math.Abs(float32(tileY-lastTileY)) > 1 {
+					if math.Abs(float64(tileX-lastTileX)) > 1 || math.Abs(float64(tileY-lastTileY)) > 1 {
 
-						d := 1.0 / float64(math.Abs(float32(lastTileX-tileX))+math.Abs(float32(lastTileY-tileY)))
+						d := 1.0 / float64(math.Abs(float64(lastTileX-tileX))+math.Abs(float64(lastTileY-tileY)))
 
 						if d > 0 && d < 100 {
 
@@ -92,7 +92,7 @@ func mainLoop() {
 							dy := float64(lastTileY - tileY)
 
 							for s := 0.0; s < 1.0; s += d {
-								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre] = newValue
+								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][0] = newValue
 							}
 						}
 
@@ -100,7 +100,7 @@ func mainLoop() {
 
 				}
 
-				grid[tileX+gridCentre][tileY+gridCentre] = newValue
+				grid[tileX+gridCentre][tileY+gridCentre][0] = newValue
 
 				lastTileX = tileX
 				lastTileY = tileY
@@ -113,25 +113,29 @@ func mainLoop() {
 		win.Clear(colornames.Black)
 		win.SetComposeMethod(pixel.ComposeOver)
 
-		iRange := float64(math.Floor(float32(screenWidth/(2*hScale)))) + 1
-		jRange := float64(math.Floor(float32(screenHeight/(2*vScale)))) + 1
+		iRange := float64(math.Floor(screenWidth/(2*hScale))) + 1
+		jRange := float64(math.Floor(screenHeight/(2*vScale))) + 1
 
 		for i := -iRange; i < iRange; i++ {
 			for j:= -jRange; j < jRange; j++ {
 
 				if int(i) > -gridCentre && int(j) > -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
-					tileNo := grid[int(i)+gridCentre][int(j)+gridCentre]
+					tileNo := grid[int(i)+gridCentre][int(j)+gridCentre][0]
 
-					matrix := pixel.IM.ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale))))
-					tileSprite[tileNo].Draw(win, matrix)
+					if tileNo > 0 {
+
+						matrix := pixel.IM.ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale))))
+						tileSprite[tileNo-1].Draw(win, matrix)
+
+					}
 
 				}
 			}
 		}
 
 		matrix := pixel.IM.ScaledXY(pixel.ZV, pixel.V(scale,scale*aspect)).Moved(pixel.V(screenWidth/2 + cursorX + hScale/2, screenHeight/2 - (cursorY + vScale/2)))
-		tileSprite[selectedTile].Draw(win, matrix)
+		tileSprite[selectedTile-1].Draw(win, matrix)
 		tileSprite[16].Draw(win, matrix)
 
 
@@ -140,7 +144,7 @@ func mainLoop() {
 		frames++
 		select {
 		case <-second:
-			win.SetTitle(fmt.Sprintf("%s | FPS: %d | X: %d | Y: %d | Aspect: %d%%", windowTitlePrefix, frames, tileX, tileY, int(100*aspect)))
+			win.SetTitle(fmt.Sprintf("%s | FPS: %d | X: %d | Y: %d | Aspect: %d%%", windowTitlePrefix, frames, tileX, tileY, int(100*(1-aspect))))
 			frames = 0
 			default:
 		}
