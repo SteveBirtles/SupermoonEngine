@@ -7,6 +7,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"math"
 	"github.com/faiface/pixel/imdraw"
+	"os"
+	"encoding/gob"
 )
 
 func floor(x float64) float64 {
@@ -42,18 +44,35 @@ func centreCursor() {
 	cameraY = float64(tileY)*128 + 64
 	lastMouseX = float64(win.MousePosition().X - screenWidth/2)
 	lastMouseY = float64(screenHeight/2 - win.MousePosition().Y)
-	win.GetWindow().SetCursorPos(screenWidth/2, screenHeight/2)
 	mouseX = 0.0
 	mouseY = 0.0
 	ignoreMouse = true
+	win.SetCursorVisible(false)
 	tileX = int(floor((mouseX - cameraX*scale) / hScale))
 	tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
 }
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 func mainLoop() {
 
 	initiate()
+
+	f, err := os.Open("resources/level.dat")
+	if err == nil {
+		decoder := gob.NewDecoder(f)
+		check(decoder.Decode(&grid))
+		f, err = os.Create("resources/level.bak")
+		if err == nil {
+			encoder := gob.NewEncoder(f)
+			check(encoder.Encode(grid))
+		}
+	}
+
 	centreCursor()
 
 	for !win.Closed() {
@@ -62,6 +81,7 @@ func mainLoop() {
 			if lastMouseX != float64(win.MousePosition().X - screenWidth/2) ||
 				lastMouseY != float64(screenHeight/2 - win.MousePosition().Y) {
 					ignoreMouse = false
+					win.SetCursorVisible(true)
 			}
 		}
 
@@ -79,14 +99,10 @@ func mainLoop() {
 			if scale > 2.0 { scale = 2.0 }
 			hScale = 128 * scale
 			vScale = 128 * aspect * scale
-
-			if win.MouseScroll().Y > 0 {
-				centreCursor()
-			}
+			if win.MouseScroll().Y > 0 { centreCursor() }
 		}
 
-		//cursorX := floor(mouseX / hScale) * hScale
-		//cursorY := floor(mouseY / vScale) * vScale
+		if win.JustPressed(pixelgl.KeyEscape) { break }
 
 		if win.JustPressed(pixelgl.KeyMinus) {
 			selectedTile++
@@ -113,9 +129,9 @@ func mainLoop() {
 
 		onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre
 
-		leftDown := win.Pressed(pixelgl.MouseButtonLeft)
-		rightDown := win.Pressed(pixelgl.MouseButtonRight)
-		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle)
+		leftDown := win.Pressed(pixelgl.MouseButtonLeft) || win.Pressed(pixelgl.KeySpace)
+		rightDown := win.Pressed(pixelgl.MouseButtonRight) || win.Pressed(pixelgl.KeyDelete)
+		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle) || win.Pressed(pixelgl.KeyTab)
 
 		if onGrid {
 			if middleDown {
@@ -134,19 +150,14 @@ func mainLoop() {
 				if lastTileX != outsideGrid {
 
 					if math.Abs(float64(tileX-lastTileX)) > 1 || math.Abs(float64(tileY-lastTileY)) > 1 {
-
 						d := 1.0 / float64(math.Abs(float64(lastTileX-tileX))+math.Abs(float64(lastTileY-tileY)))
-
 						if d > 0 && d < 100 {
-
 							dx := float64(lastTileX - tileX)
 							dy := float64(lastTileY - tileY)
-
 							for s := 0.0; s < 1.0; s += d {
 								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][0] = newValue
 							}
 						}
-
 					}
 
 				}
@@ -182,17 +193,11 @@ func mainLoop() {
 					tileDrawn := false
 
 				if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
-
 					tileNo := grid[int(i)+gridCentre][int(j)+gridCentre][0]
-
 					if tileNo > 0 {
-
 						tileSprite[tileNo-1].Draw(batch, matrix)
-
 						tileDrawn = true
-
 					}
-
 				}
 
 				if !tileDrawn {
@@ -258,4 +263,10 @@ func mainLoop() {
 		}
 
 	}
+
+	f, err = os.Create("resources/level.dat")
+	check(err)
+	encoder := gob.NewEncoder(f)
+	check(encoder.Encode(grid))
+
 }
