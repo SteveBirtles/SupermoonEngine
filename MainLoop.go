@@ -9,6 +9,7 @@ import (
 	"github.com/faiface/pixel/imdraw"
 	"os"
 	"encoding/gob"
+	"image/color"
 )
 
 func floor(x float64) float64 {
@@ -58,74 +59,124 @@ func check(e error) {
 	}
 }
 
-func mainLoop() {
+const levelFile = "resources/level.dat"
 
-	initiate()
+func save() {
+	f, err := os.Create(levelFile)
+	check(err)
+	encoder := gob.NewEncoder(f)
+	check(encoder.Encode(grid))
+}
 
-	f, err := os.Open("resources/level.dat")
+func load() {
+	f, err := os.Open(levelFile)
 	if err == nil {
 		decoder := gob.NewDecoder(f)
 		check(decoder.Decode(&grid))
-		f, err = os.Create("resources/level.bak")
-		if err == nil {
-			encoder := gob.NewEncoder(f)
-			check(encoder.Encode(grid))
-		}
 	}
+}
+
+func backup() {
+	f, err := os.Create(levelFile + ".bak")
+	if err == nil {
+		encoder := gob.NewEncoder(f)
+		check(encoder.Encode(grid))
+	}
+}
+
+func mainLoop() {
+
+	initiate()
+	load()
+	backup()
 
 	centreCursor()
 
 	for !win.Closed() {
 
-		if ignoreMouse {
-			if lastMouseX != float64(win.MousePosition().X - screenWidth/2) ||
-				lastMouseY != float64(screenHeight/2 - win.MousePosition().Y) {
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyQ) {
+			break
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
+			grid = [2*gridCentre][2*gridCentre][2]int{}
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyS) {
+			save()
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyL) {
+			load()
+		}
+
+		altPressed := win.Pressed(pixelgl.KeyLeftAlt)
+
+		if altPressed {
+
+			selectedTile = int(16 * win.MousePosition().X / screenWidth) + 1
+			if selectedTile < 1 { selectedTile = 1 }
+			if selectedTile > 16 { selectedTile = 16 }
+
+		} else {
+
+			if ignoreMouse {
+				if lastMouseX != float64(win.MousePosition().X-screenWidth/2) ||
+					lastMouseY != float64(screenHeight/2-win.MousePosition().Y) {
 					ignoreMouse = false
 					win.SetCursorVisible(true)
+				}
 			}
+
+			if !ignoreMouse {
+				mouseX = float64(win.MousePosition().X - screenWidth/2)
+				mouseY = float64(screenHeight/2 - win.MousePosition().Y)
+			}
+
+			tileX = int(floor((mouseX - cameraX*scale) / hScale))
+			tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
+
+			if win.MouseScroll().Y != 0 {
+				scale /= 1 - win.MouseScroll().Y/10
+				if scale < 0.1 {
+					scale = 0.1
+				}
+				if scale > 2.0 {
+					scale = 2.0
+				}
+				hScale = 128 * scale
+				vScale = 128 * aspect * scale
+				if win.MouseScroll().Y > 0 {
+					centreCursor()
+				}
+			}
+
+
+			if win.JustPressed(pixelgl.KeyMinus) {
+				selectedTile++
+				if selectedTile > 16 { selectedTile = 1 }
+			} else if win.JustPressed(pixelgl.KeyEqual) {
+				selectedTile--
+				if selectedTile < 1 { selectedTile = 16 }
+			}
+
+			if win.JustPressed(pixelgl.KeyPageDown) {
+				aspect += 0.1
+				if aspect > 1.0 { aspect = 1.0 }
+				vScale = hScale * aspect
+			} else if win.JustPressed(pixelgl.KeyPageUp) {
+				aspect -= 0.1
+				if aspect < 0.5 { aspect = 0.5 }
+				vScale = hScale * aspect
+			}
+
+			if win.Pressed(pixelgl.KeyW) { cameraY -= 10/scale }
+			if win.Pressed(pixelgl.KeyS) { cameraY += 10/scale }
+			if win.Pressed(pixelgl.KeyD) { cameraX -= 10/scale }
+			if win.Pressed(pixelgl.KeyA) { cameraX += 10/scale }
+
 		}
 
-		if !ignoreMouse {
-			mouseX = float64(win.MousePosition().X - screenWidth/2)
-			mouseY = float64(screenHeight/2 - win.MousePosition().Y)
-		}
-
-		tileX = int(floor((mouseX - cameraX*scale) / hScale))
-		tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
-
-		if win.MouseScroll().Y != 0 {
-			scale /= 1 - win.MouseScroll().Y/10
-			if scale < 0.1 { scale = 0.1 }
-			if scale > 2.0 { scale = 2.0 }
-			hScale = 128 * scale
-			vScale = 128 * aspect * scale
-			if win.MouseScroll().Y > 0 { centreCursor() }
-		}
-
-		if win.JustPressed(pixelgl.KeyEscape) { break }
-
-		if win.JustPressed(pixelgl.KeyMinus) {
-			selectedTile++
-			if selectedTile > 16 { selectedTile = 1 }
-		} else if win.JustPressed(pixelgl.KeyEqual) {
-			selectedTile--
-			if selectedTile < 1 { selectedTile = 16 }
-		}
-
-		if win.JustPressed(pixelgl.KeyPageDown) {
-			aspect += 0.1
-			if aspect > 1.0 { aspect = 1.0 }
-			vScale = hScale * aspect
-		} else if win.JustPressed(pixelgl.KeyPageUp) {
-			aspect -= 0.1
-			if aspect < 0.5 { aspect = 0.5 }
-			vScale = hScale * aspect
-		}
-
-		if win.Pressed(pixelgl.KeyW) { cameraY -= 10/scale }
-		if win.Pressed(pixelgl.KeyS) { cameraY += 10/scale }
-		if win.Pressed(pixelgl.KeyD) { cameraX -= 10/scale }
-		if win.Pressed(pixelgl.KeyA) { cameraX += 10/scale }
 
 		onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre
 
@@ -242,15 +293,37 @@ func mainLoop() {
 		win.SetComposeMethod(pixel.ComposeOver)
 		batch.Draw(win)
 
-		matrix := pixel.IM.
-			Moved(pixel.V(cameraX, cameraY)).
-			ScaledXY(pixel.ZV, pixel.V(scale,scale*aspect)).
-			Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale))))
-		tileSprite[selectedTile-1].Draw(win, matrix)
-		tileSprite[16].Draw(win, matrix)
+		if !altPressed {
+			matrix := pixel.IM.
+				Moved(pixel.V(cameraX, cameraY)).
+				ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+				Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale))))
+			tileSprite[selectedTile-1].Draw(win, matrix)
+			tileSprite[16].Draw(win, matrix)
+		}
 
 		win.SetComposeMethod(pixel.ComposeOver)
 		imd.Draw(win)
+
+		if altPressed {
+
+			tileOverlay := pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
+
+			for i := 0; i < 16; i++ {
+
+				if i == selectedTile - 1 {
+					tileOverlay.SetColorMask(color.RGBA{R: 255, G: 255, B: 255, A: 255})
+				} else {
+					tileOverlay.SetColorMask(color.RGBA{R: 128, G: 128, B: 128, A: 128})
+				}
+
+				matrix := pixel.IM.Moved(pixel.V(float64(i)*150+150, 100)).ScaledXY(pixel.ZV, pixel.V(0.5, 0.5))
+				tileSprite[i].Draw(tileOverlay, matrix)
+			}
+
+			win.SetComposeMethod(pixel.ComposeOver)
+			tileOverlay.Draw(win)
+		}
 
 		win.Update()
 
@@ -264,9 +337,6 @@ func mainLoop() {
 
 	}
 
-	f, err = os.Create("resources/level.dat")
-	check(err)
-	encoder := gob.NewEncoder(f)
-	check(encoder.Encode(grid))
+	save()
 
 }
