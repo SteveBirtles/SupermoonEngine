@@ -17,11 +17,11 @@ func floor(x float64) float64 {
 }
 
 
-const gridCentre = 512
+const gridCentre = 128
 const outsideGrid = gridCentre + 1
 
 var (
-	grid [2*gridCentre][2*gridCentre][2]int
+	grid [2*gridCentre][2*gridCentre][16][2]int
 	scale = 0.5
 	aspect = 0.5
 	hScale = 64.0
@@ -36,6 +36,7 @@ var (
 	mouseY = 0.0
 	tileX = 0
 	tileY = 0
+	tileZ = 0
 	showGrid = true
 )
 
@@ -96,7 +97,7 @@ func mainLoop() {
 		}
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
-			grid = [2 * gridCentre][2 * gridCentre][2]int{}
+			grid = [2 * gridCentre][2 * gridCentre][16][2]int{}
 		}
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyS) {
@@ -110,7 +111,8 @@ func mainLoop() {
 		leftAltPressed := win.Pressed(pixelgl.KeyLeftAlt)
 		rightAltPressed := win.Pressed(pixelgl.KeyRightAlt)
 		backspacePressed := win.Pressed(pixelgl.KeyBackspace)
-		tabPressed := win.Pressed(pixelgl.KeyTab)
+		xPressed := win.Pressed(pixelgl.KeyX)
+		zPressed := win.Pressed(pixelgl.KeyZ)
 
 		if backspacePressed {
 
@@ -164,18 +166,30 @@ func mainLoop() {
 
 			}
 
-			if win.JustPressed(pixelgl.KeyPageDown) {
+			if win.JustPressed(pixelgl.KeyRightBracket) {
 				aspect += 0.1
 				if aspect > 1.0 {
 					aspect = 1.0
 				}
 				vScale = hScale * aspect
-			} else if win.JustPressed(pixelgl.KeyPageUp) {
+			} else if win.JustPressed(pixelgl.KeyLeftBracket) {
 				aspect -= 0.1
 				if aspect < 0.5 {
 					aspect = 0.5
 				}
 				vScale = hScale * aspect
+			}
+
+			if win.JustPressed(pixelgl.KeyPageUp) {
+				tileZ += 1
+				if tileZ > 15 { tileZ = 15 }
+			} else if win.JustPressed(pixelgl.KeyPageDown) {
+				tileZ -= 1
+				if tileZ < 0 { tileZ = 0 }
+			} else if win.JustPressed(pixelgl.KeyHome) {
+				tileZ = 15
+			} else if win.JustPressed(pixelgl.KeyEnd) {
+				tileZ = 0
 			}
 
 			if win.Pressed(pixelgl.KeyW) {
@@ -202,11 +216,11 @@ func mainLoop() {
 		if onGrid {
 			if middleDown {
 
-				t := grid[tileX+gridCentre][tileY+gridCentre][0]
+				t := grid[tileX+gridCentre][tileY+gridCentre][tileZ][0]
 				if t > 0 {
 					selectedTile1 = t
 				}
-				t = grid[tileX+gridCentre][tileY+gridCentre][1]
+				t = grid[tileX+gridCentre][tileY+gridCentre][tileZ][1]
 				if t > 0 {
 					selectedTile2 = t
 				}
@@ -228,16 +242,16 @@ func mainLoop() {
 							dx := float64(lastTileX - tileX)
 							dy := float64(lastTileY - tileY)
 							for s := 0.0; s < 1.0; s += d {
-								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][0] = newValue1
-								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][1] = newValue2
+								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0] = newValue1
+								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1] = newValue2
 							}
 						}
 					}
 
 				}
 
-				grid[tileX+gridCentre][tileY+gridCentre][0] = newValue1
-				grid[tileX+gridCentre][tileY+gridCentre][1] = newValue2
+				grid[tileX+gridCentre][tileY+gridCentre][tileZ][0] = newValue1
+				grid[tileX+gridCentre][tileY+gridCentre][tileZ][1] = newValue2
 
 				lastTileX = tileX
 				lastTileY = tileY
@@ -258,117 +272,119 @@ func mainLoop() {
 
 		for i := -iRange + iOffset; i <= iRange+iOffset; i++ {
 			for j := -jRange + jOffset; j <= jRange+jOffset; j++ {
+				for k := 0.0; k < 16; k++ {
 
-				if tabPressed && int(j) != tileY { continue }
+					if (zPressed && int(k) != tileZ) || (xPressed && int(j) != tileY) {
+						continue
+					}
 
-				cam := pixel.V(cameraX, cameraY)
-				pos := pixel.V(screenWidth/2 + float64(i*hScale)+hScale/2,  screenHeight/2+(-vScale/2-float64(j*vScale)))
+					if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
-				matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
+						baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][0]
 
-				tileDrawn := false
+						if baseTile > 0 || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
 
-				if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
+							cam := pixel.V(cameraX, cameraY)
+							pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j-k)*vScale)))
 
-					baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][0]
+							frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][1]
 
-					if baseTile > 0 || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY) {
+							if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
 
-						frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][1]
+								if aspect < 1 {
 
-						if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY) {
-
-							if aspect < 1 {
-
-								matrix := pixel.IM.
-									ScaledXY(pixel.ZV, pixel.V(1, 4*(1-aspect))).
+									matrix := pixel.IM.
+										ScaledXY(pixel.ZV, pixel.V(1, 4*(1-aspect))).
 										Moved(cam).
 										ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
 										Moved(pos).
 										Moved(pixel.V(0, -vScale/2+vScale*2*(1-aspect)))
 
-
-								if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY {
-									tileSprite[selectedTile2-1].Draw(batch, matrix)
-								} else {
-									tileSprite[frontTile-1].Draw(batch, matrix)
-									tileDrawn = true
+									if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+										tileSprite[selectedTile2-1].Draw(batch, matrix)
+									} else {
+										tileSprite[frontTile-1].Draw(batch, matrix)
+									}
 								}
-							}
 
-							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
-								Moved(pixel.V(0, hScale*(1-aspect)*2))
+								matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
+									Moved(pixel.V(0, hScale*(1-aspect)*2))
 
-							if int(i) == tileX && int(j) == tileY {
-								tileSprite[selectedTile1-1].Draw(batch, matrix)
+								if int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+									tileSprite[selectedTile1-1].Draw(batch, matrix)
+								} else {
+									tileSprite[baseTile-1].Draw(batch, matrix)
+								}
+
 							} else {
-								tileSprite[baseTile-1].Draw(batch, matrix)
-								tileDrawn = true
-							}
 
-						} else {
+								matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 
-							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
+								if int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+									tileSprite[selectedTile1-1].Draw(batch, matrix)
+								} else {
+									tileSprite[baseTile-1].Draw(batch, matrix)
+								}
 
-
-							if int(i) == tileX && int(j) == tileY {
-								tileSprite[selectedTile1-1].Draw(batch, matrix)
-							} else {
-								tileSprite[baseTile-1].Draw(batch, matrix)
-								tileDrawn = true
 							}
 
 						}
 
+					}
+
+					if k == 0 && showGrid && !(xPressed || zPressed) {
+
+						cam := pixel.V(cameraX, cameraY)
+						pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale)))
+
+						matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
+						imd.SetMatrix(matrix)
+
+						gridIntensity := math.Sqrt(scale / 2)
+
+						if (int(i) == tileX || int(i) == tileX+1) && int(j) == tileY {
+							imd.Color = pixel.RGB(255, 255, 255)
+						} else if int(i) == 0 || int(i) == 1 {
+							imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
+						} else if int(i)+gridCentre < 0 || int(i)+gridCentre > 2*gridCentre-1 ||
+							int(j)+gridCentre <= 0 || int(j)+gridCentre > 2*gridCentre-1 {
+							imd.Color = pixel.RGB(gridIntensity, 0, 0)
+						} else {
+							imd.Color = pixel.RGB(0, gridIntensity, 0)
+						}
+
+						imd.Push(pixel.V(-64, -64))
+						imd.Push(pixel.V(-64, 64))
+						imd.Line(1.0 / scale)
+
+						if int(i) == tileX && (int(j) == tileY || int(j) == tileY-1) {
+							imd.Color = pixel.RGB(255, 255, 255)
+						} else if int(j) == 0 || int(j) == -1 {
+							imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
+						} else if int(i)+gridCentre < 0 || int(i)+gridCentre >= 2*gridCentre-1 ||
+							int(j)+gridCentre < 0 || int(j)+gridCentre > 2*gridCentre-1 {
+							imd.Color = pixel.RGB(gridIntensity, 0, 0)
+						} else {
+							imd.Color = pixel.RGB(0, gridIntensity, 0)
+						}
+
+						imd.Push(pixel.V(-64, -64))
+						imd.Push(pixel.V(64, -64))
+						imd.Line(2.0 / scale)
 
 					}
 
 				}
-
-				if !tileDrawn && showGrid && !tabPressed {
-
-					imd.SetMatrix(matrix)
-
-					gridIntensity := math.Sqrt(scale / 2)
-
-					if int(i) == 0 || int(i) == 1 {
-						imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
-					} else if int(i)+gridCentre < 0 || int(i)+gridCentre > 2*gridCentre-1 ||
-						int(j)+gridCentre <= 0 || int(j)+gridCentre > 2*gridCentre-1 {
-						imd.Color = pixel.RGB(gridIntensity, 0, 0)
-					} else {
-						imd.Color = pixel.RGB(0, gridIntensity, 0)
-					}
-
-					imd.Push(pixel.V(-64, -64))
-					imd.Push(pixel.V(-64, 64))
-					imd.Line(1.0 / scale)
-
-					if int(j) == 0 || int(j) == -1 {
-						imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
-					} else if int(i)+gridCentre < 0 || int(i)+gridCentre >= 2*gridCentre-1 ||
-						int(j)+gridCentre < 0 || int(j)+gridCentre > 2*gridCentre-1 {
-						imd.Color = pixel.RGB(gridIntensity, 0, 0)
-					} else {
-						imd.Color = pixel.RGB(0, gridIntensity, 0)
-					}
-
-					imd.Push(pixel.V(-64, -64))
-					imd.Push(pixel.V(64, -64))
-					imd.Line(2.0 / scale)
-
-				}
-
 			}
 		}
 
 		win.Clear(colornames.Black)
 
 		win.SetComposeMethod(pixel.ComposeOver)
-		batch.Draw(win)
+		imd.Draw(win)
 
 		win.SetComposeMethod(pixel.ComposeOver)
-		imd.Draw(win)
+		batch.Draw(win)
 
 		if leftAltPressed || rightAltPressed {
 
