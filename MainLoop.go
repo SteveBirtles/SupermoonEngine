@@ -32,12 +32,11 @@ var (
 	selectedTile2 = 0
 	cameraX = 0.0 //128.0*gridCentre
 	cameraY = 0.0 //128.0*gridCentre
-	lastMouseX = 0.0
-	lastMouseY = 0.0
 	mouseX = 0.0
 	mouseY = 0.0
 	tileX = 0
 	tileY = 0
+	showGrid = true
 )
 
 func check(e error) {
@@ -92,6 +91,10 @@ func mainLoop() {
 			break
 		}
 
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyG) {
+			showGrid = !showGrid
+		}
+
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
 			grid = [2 * gridCentre][2 * gridCentre][2]int{}
 		}
@@ -107,6 +110,7 @@ func mainLoop() {
 		leftAltPressed := win.Pressed(pixelgl.KeyLeftAlt)
 		rightAltPressed := win.Pressed(pixelgl.KeyRightAlt)
 		backspacePressed := win.Pressed(pixelgl.KeyBackspace)
+		tabPressed := win.Pressed(pixelgl.KeyTab)
 
 		if backspacePressed {
 
@@ -193,7 +197,7 @@ func mainLoop() {
 
 		leftDown := win.Pressed(pixelgl.MouseButtonLeft) || win.Pressed(pixelgl.KeySpace)
 		rightDown := win.Pressed(pixelgl.MouseButtonRight) || win.Pressed(pixelgl.KeyDelete)
-		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle) || win.Pressed(pixelgl.KeyTab)
+		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle)
 
 		if onGrid {
 			if middleDown {
@@ -254,6 +258,8 @@ func mainLoop() {
 
 		for i := -iRange + iOffset; i <= iRange+iOffset; i++ {
 			for j := -jRange + jOffset; j <= jRange+jOffset; j++ {
+
+				if tabPressed && int(j) != tileY { continue }
 
 				cam := pixel.V(cameraX, cameraY)
 				pos := pixel.V(screenWidth/2 + float64(i*hScale)+hScale/2,  screenHeight/2+(-vScale/2-float64(j*vScale)))
@@ -319,7 +325,7 @@ func mainLoop() {
 
 				}
 
-				if !tileDrawn {
+				if !tileDrawn && showGrid && !tabPressed {
 
 					imd.SetMatrix(matrix)
 
@@ -360,35 +366,6 @@ func mainLoop() {
 
 		win.SetComposeMethod(pixel.ComposeOver)
 		batch.Draw(win)
-
-		/*if !leftAltPressed && !rightAltPressed {
-
-			if selectedTile2 > 0 {
-
-				matrix := pixel.IM.
-					Moved(pixel.V(cameraX, cameraY)).
-					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-					Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale))))
-				tileSprite[selectedTile2-1].Draw(win, matrix)
-
-				matrix = pixel.IM.
-					Moved(pixel.V(cameraX, cameraY)).
-					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-					Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale)))).
-					Moved(pixel.V(0, vScale*4*(1-aspect)))
-				tileSprite[selectedTile1-1].Draw(win, matrix)
-
-			} else {
-
-				matrix := pixel.IM.
-					Moved(pixel.V(cameraX, cameraY)).
-					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-					Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale))))
-				tileSprite[selectedTile1-1].Draw(win, matrix)
-
-			}
-
-		}*/
 
 		win.SetComposeMethod(pixel.ComposeOver)
 		imd.Draw(win)
