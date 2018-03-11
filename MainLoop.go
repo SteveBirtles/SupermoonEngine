@@ -10,7 +10,6 @@ import (
 	"os"
 	"encoding/gob"
 	"image/color"
-
 )
 
 func floor(x float64) float64 {
@@ -256,31 +255,68 @@ func mainLoop() {
 		for i := -iRange + iOffset; i <= iRange+iOffset; i++ {
 			for j := -jRange + jOffset; j <= jRange+jOffset; j++ {
 
-				matrix := pixel.IM.
-					Moved(pixel.V(cameraX, cameraY)).
-					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-					Moved(pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale))))
+				cam := pixel.V(cameraX, cameraY)
+				pos := pixel.V(screenWidth/2 + float64(i*hScale)+hScale/2,  screenHeight/2+(-vScale/2-float64(j*vScale)))
+
+				matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 
 				tileDrawn := false
 
 				if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
-					tileNo := grid[int(i)+gridCentre][int(j)+gridCentre][0]
-					if tileNo > 0 {
-						tileSprite[tileNo-1].Draw(batch, matrix)
-						tileDrawn = true
+					baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][0]
+
+					if baseTile > 0 || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY) {
+
+						frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][1]
+
+						if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY) {
+
+							if aspect < 1 {
+
+								matrix := pixel.IM.
+									ScaledXY(pixel.ZV, pixel.V(1, 4*(1-aspect))).
+										Moved(cam).
+										ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+										Moved(pos).
+										Moved(pixel.V(0, -vScale/2+vScale*2*(1-aspect)))
+
+
+								if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY {
+									tileSprite[selectedTile2-1].Draw(batch, matrix)
+								} else {
+									tileSprite[frontTile-1].Draw(batch, matrix)
+									tileDrawn = true
+								}
+							}
+
+							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
+								Moved(pixel.V(0, hScale*(1-aspect)*2))
+
+							if int(i) == tileX && int(j) == tileY {
+								tileSprite[selectedTile1-1].Draw(batch, matrix)
+							} else {
+								tileSprite[baseTile-1].Draw(batch, matrix)
+								tileDrawn = true
+							}
+
+						} else {
+
+							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
+
+
+							if int(i) == tileX && int(j) == tileY {
+								tileSprite[selectedTile1-1].Draw(batch, matrix)
+							} else {
+								tileSprite[baseTile-1].Draw(batch, matrix)
+								tileDrawn = true
+							}
+
+						}
+
+
 					}
-					tileNo = grid[int(i)+gridCentre][int(j)+gridCentre][1]
-					if tileNo > 0 {
 
-						matrix := pixel.IM.
-							Moved(pixel.V(cameraX, cameraY)).
-							ScaledXY(pixel.ZV, pixel.V(scale, scale*(aspect-0.5)*2)).
-							Moved(pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale))))
-
-						tileSprite[tileNo-1].Draw(batch, matrix)
-
-					}
 				}
 
 				if !tileDrawn {
@@ -290,7 +326,7 @@ func mainLoop() {
 					gridIntensity := math.Sqrt(scale / 2)
 
 					if int(i) == 0 || int(i) == 1 {
-						imd.Color = pixel.RGB(gridIntensity*2, gridIntensity*2, 0)
+						imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
 					} else if int(i)+gridCentre < 0 || int(i)+gridCentre > 2*gridCentre-1 ||
 						int(j)+gridCentre <= 0 || int(j)+gridCentre > 2*gridCentre-1 {
 						imd.Color = pixel.RGB(gridIntensity, 0, 0)
@@ -303,7 +339,7 @@ func mainLoop() {
 					imd.Line(1.0 / scale)
 
 					if int(j) == 0 || int(j) == -1 {
-						imd.Color = pixel.RGB(gridIntensity*2, gridIntensity*2, 0)
+						imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
 					} else if int(i)+gridCentre < 0 || int(i)+gridCentre >= 2*gridCentre-1 ||
 						int(j)+gridCentre < 0 || int(j)+gridCentre > 2*gridCentre-1 {
 						imd.Color = pixel.RGB(gridIntensity, 0, 0)
@@ -325,22 +361,21 @@ func mainLoop() {
 		win.SetComposeMethod(pixel.ComposeOver)
 		batch.Draw(win)
 
-		if !leftAltPressed && !rightAltPressed {
+		/*if !leftAltPressed && !rightAltPressed {
 
 			if selectedTile2 > 0 {
 
 				matrix := pixel.IM.
 					Moved(pixel.V(cameraX, cameraY)).
 					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-					Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/4+(-vScale/2-float64(float64(tileY)*vScale))/2)).
-					ScaledXY(pixel.ZV, pixel.V(1, 2))
+					Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale))))
 				tileSprite[selectedTile2-1].Draw(win, matrix)
 
 				matrix = pixel.IM.
 					Moved(pixel.V(cameraX, cameraY)).
 					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
 					Moved(pixel.V(screenWidth/2+float64(float64(tileX)*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(float64(tileY)*vScale)))).
-					Moved(pixel.V(0, vScale*2))
+					Moved(pixel.V(0, vScale*4*(1-aspect)))
 				tileSprite[selectedTile1-1].Draw(win, matrix)
 
 			} else {
@@ -353,7 +388,7 @@ func mainLoop() {
 
 			}
 
-		}
+		}*/
 
 		win.SetComposeMethod(pixel.ComposeOver)
 		imd.Draw(win)
