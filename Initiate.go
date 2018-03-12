@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	windowTitlePrefix   = "Go Pixel & Lua Test"
-	frames                                    = 0
-	second                                    = time.Tick(time.Second)
+	windowTitlePrefix = "Go Pixel & Lua Test"
+	frames            = 0
+	undoFrame         = 1
+	second            = time.Tick(time.Second)
 	win               *pixelgl.Window
 	tilePic           pixel.Picture
 	tileSprite        [17]*pixel.Sprite

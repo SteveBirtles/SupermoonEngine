@@ -19,27 +19,38 @@ func floor(x float64) float64 {
 
 const gridCentre = 128
 const outsideGrid = gridCentre + 1
+const maxUndo = 10000
 
 var (
-	grid [2*gridCentre][2*gridCentre][16][2]uint16
-	scale = 0.5
-	aspect = 0.5
-	hScale = 64.0
-	vScale = hScale * aspect
-	lastTileX = outsideGrid
-	lastTileY = 0
-	selectedTile1 uint16 = 4
-	selectedTile2 uint16 = 0
-	cameraX = 0.0 //128.0*gridCentre
-	cameraY = 0.0 //128.0*gridCentre
-	mouseX = 0.0
-	mouseY = 0.0
-	tileX = 0
-	tileY = 0
-	tileZ = 0
-	showGrid = true
-	xPressed = false
-	zPressed = false
+	grid            [2*gridCentre][2*gridCentre][16][2]uint16
+	clipboard       [2*gridCentre][2*gridCentre][16][2]uint16
+	clipboardWidth   = -1
+	clipboardHeight  = -1
+	undo            [maxUndo][6]uint16 //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
+	undoCounter      = 0
+	scale            = 0.5
+	aspect           = 0.5
+	hScale           = 64.0
+	vScale           = hScale * aspect
+	lastTileX        = outsideGrid
+	lastTileY        = 0
+	selectedTile1   uint16 = 4
+	selectedTile2   uint16 = 0
+	cameraX          = 0.0 //128.0*gridCentre
+	cameraY          = 0.0 //128.0*gridCentre
+	mouseX           = 0.0
+	mouseY           = 0.0
+	tileX            = 0
+	tileY            = 0
+	tileZ            = 0
+	showGrid         = true
+	xPressed         = false
+	zPressed         = false
+	selectionStartX  = 0
+	selectionStartY  = 0
+	selectionEndX    = 0
+	selectionEndY    = 0
+	selectionLive = false
 )
 
 func check(e error) {
@@ -115,19 +126,50 @@ func mainLoop() {
 			showGrid = !showGrid
 		}
 
-		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyX) {
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyJ) {
+			xPressed = !xPressed
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyK) {
 			zPressed = !zPressed
 		}
 
-		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyZ) {
-			xPressed = !xPressed
+		if win.JustPressed(pixelgl.KeyLeftShift) {
+			selectionStartX = tileX
+			selectionStartY = tileY
+			selectionLive = true
+		}
+		if win.Pressed(pixelgl.KeyLeftShift) {
+			selectionEndX = tileX
+			selectionEndY = tileY
 		}
 
 		if win.JustPressed(pixelgl.KeyEscape) {
 			showGrid = true
 			xPressed = false
 			zPressed = false
+			selectionLive = false
 		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyZ) {
+			m := uint16(0)
+			for i := 0; i < maxUndo; i++ {
+				if undo[i][0] > m {
+					m = undo[i][0]
+				}
+			}
+
+			for i := 0; i < maxUndo; i++ {
+				if undo[i][0] == m {
+					grid[undo[i][1]][undo[i][2]][undo[i][3]][0] = undo[i][4]
+					grid[undo[i][1]][undo[i][2]][undo[i][3]][1] = undo[i][5]
+					undo[i][0] = 0
+				}
+			}
+
+		}
+
+
 
 		if backspacePressed {
 
@@ -223,10 +265,106 @@ func mainLoop() {
 
 		}
 
+		copy := win.JustPressed(pixelgl.KeyC)
+		cut := win.JustPressed(pixelgl.KeyX)
+		clear := win.JustPressed(pixelgl.KeyDelete)
+		fill := win.JustPressed(pixelgl.KeyInsert)
+
+		if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (copy || cut || clear || fill) {
+
+			startX := selectionStartX + gridCentre
+			startY := selectionStartY + gridCentre
+			endX := selectionEndX + gridCentre
+			endY := selectionEndY + gridCentre
+
+			if startX > endX {
+				temp := startX
+				startX = endX
+				endX = temp
+			}
+			if startY > endY {
+				temp := startY
+				startY = endY
+				endY = temp
+			}
+
+			if copy || cut {
+				clipboardWidth = endX - startX
+				clipboardHeight = endY - startY
+			}
+
+			for i := startX; i <= endX; i++ {
+				for j := startY; j <= endY; j++ {
+
+					if copy || cut {
+
+						for k := 0; k < 16; k++ {
+
+							clipboard[i-startX][j-startY][k][0] = grid[i][j][k][0]
+							clipboard[i-startX][j-startY][k][1] = grid[i][j][k][1]
+
+							if cut {
+
+								undoCounter = (undoCounter + 1) % maxUndo
+								undo[undoCounter][0] = uint16(undoFrame)
+								undo[undoCounter][1] = uint16(i)
+								undo[undoCounter][2] = uint16(j)
+								undo[undoCounter][3] = uint16(k)
+								undo[undoCounter][4] = grid[i][j][k][0]
+								undo[undoCounter][5] = grid[i][j][k][1]
+
+								grid[i][j][k][0] = 0
+								grid[i][j][k][1] = 0
+							}
+						}
+
+					} else if clear || fill {
+
+						undoCounter = (undoCounter + 1) % maxUndo
+						undo[undoCounter][0] = uint16(undoFrame)
+						undo[undoCounter][1] = uint16(i)
+						undo[undoCounter][2] = uint16(j)
+						undo[undoCounter][3] = uint16(tileZ)
+						undo[undoCounter][4] = grid[i][j][tileZ][0]
+						undo[undoCounter][5] = grid[i][j][tileZ][1]
+
+						if clear {
+							grid[i][j][tileZ][0] = 0
+							grid[i][j][tileZ][1] = 0
+						} else if fill {
+							grid[i][j][tileZ][0] = selectedTile1
+							grid[i][j][tileZ][1] = selectedTile2
+						}
+
+					}
+
+				}
+			}
+
+			selectionLive = false
+
+		}
+
+
+		if clipboardWidth >= 0 && win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyV) {
+
+			for i := tileX; i <= tileX + clipboardWidth; i++ {
+				for j := tileY; j <= tileY + clipboardHeight; j++ {
+					for k := 0; k < 16; k++ {
+						grid[i + gridCentre][j + gridCentre][k][0] = clipboard[i - tileX][j - tileY][k][0]
+						grid[i + gridCentre][j + gridCentre][k][1] = clipboard[i - tileX][j - tileY][k][1]
+					}
+				}
+			}
+
+		}
+
+
+
 		onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre
 
 		leftDown := win.Pressed(pixelgl.MouseButtonLeft) || win.Pressed(pixelgl.KeySpace)
-		rightDown := win.Pressed(pixelgl.MouseButtonRight) || win.Pressed(pixelgl.KeyDelete)
+		rightDown := win.Pressed(pixelgl.MouseButtonRight) || clear
 		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle)
 
 		if onGrid {
@@ -258,16 +396,42 @@ func mainLoop() {
 							dx := float64(lastTileX - tileX)
 							dy := float64(lastTileY - tileY)
 							for s := 0.0; s < 1.0; s += d {
-								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0] = newValue1
-								grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1] = newValue2
+
+								if grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0] != newValue1 ||
+								   grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1] != newValue2 {
+
+									undoCounter = (undoCounter + 1) % maxUndo
+									undo[undoCounter][0] = uint16(undoFrame)
+									undo[undoCounter][1] = uint16(tileX + int(s*dx) + gridCentre)
+									undo[undoCounter][2] = uint16(tileY + int(s*dy) + gridCentre)
+									undo[undoCounter][3] = uint16(tileZ)
+									undo[undoCounter][4] = grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0]
+									undo[undoCounter][5] = grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1]
+
+									grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0] = newValue1
+									grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1] = newValue2
+								}
 							}
 						}
 					}
 
 				}
 
-				grid[tileX+gridCentre][tileY+gridCentre][tileZ][0] = newValue1
-				grid[tileX+gridCentre][tileY+gridCentre][tileZ][1] = newValue2
+				if grid[tileX+gridCentre][tileY+gridCentre][tileZ][0] != newValue1 ||
+				   grid[tileX+gridCentre][tileY+gridCentre][tileZ][1] != newValue2 {
+
+					undoCounter = (undoCounter + 1) % maxUndo
+					undo[undoCounter][0] = uint16(undoFrame)
+					undo[undoCounter][1] = uint16(tileX + gridCentre)
+					undo[undoCounter][2] = uint16(tileY + gridCentre)
+					undo[undoCounter][3] = uint16(tileZ)
+					undo[undoCounter][4] = grid[tileX+gridCentre][tileY+gridCentre][tileZ][0]
+					undo[undoCounter][5] = grid[tileX+gridCentre][tileY+gridCentre][tileZ][1]
+
+					grid[tileX+gridCentre][tileY+gridCentre][tileZ][0] = newValue1
+					grid[tileX+gridCentre][tileY+gridCentre][tileZ][1] = newValue2
+
+				}
 
 				lastTileX = tileX
 				lastTileY = tileY
@@ -282,6 +446,22 @@ func mainLoop() {
 
 		iOffset := -floor(scale * cameraX / hScale)
 		jOffset := floor(scale * aspect * cameraY / vScale)
+
+		startX := selectionStartX
+		startY := selectionStartY
+		endX := selectionEndX
+		endY := selectionEndY
+
+		if startX > endX {
+			temp := startX
+			startX = endX
+			endX = temp
+		}
+		if startY > endY {
+			temp := startY
+			startY = endY
+			endY = temp
+		}
 
 		imd.Clear()
 		batch.Clear()
@@ -372,35 +552,50 @@ func mainLoop() {
 
 						gridIntensity := math.Sqrt(scale / 2)
 
-						if (int(i) == tileX || int(i) == tileX+1) && int(j) == tileY {
-							imd.Color = pixel.RGB(255, 255, 255)
-						} else if int(i) == 0 || int(i) == 1 {
-							imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
-						} else if int(i)+gridCentre < 0 || int(i)+gridCentre > 2*gridCentre-1 ||
-							int(j)+gridCentre <= 0 || int(j)+gridCentre > 2*gridCentre-1 {
-							imd.Color = pixel.RGB(gridIntensity, 0, 0)
+						if selectionLive &&
+							int(i) >= startX && int(j) >= startY &&
+							int(i) <= endX && int(j) <= endY {
+
+							imd.Color = pixel.RGBA{R: 0.0, G: 0.333, B: 0.333}
+							imd.Push(pixel.V(-64, -64))
+							imd.Push(pixel.V(-64, 64))
+							imd.Push(pixel.V(64, 64))
+							imd.Push(pixel.V(64, -64))
+							imd.Polygon(0)
+
 						} else {
-							imd.Color = pixel.RGB(0, gridIntensity, 0)
+
+							if (int(i) == tileX || int(i) == tileX+1) && int(j) == tileY {
+								imd.Color = pixel.RGB(255, 255, 255)
+							} else if int(i) == 0 || int(i) == 1 {
+								imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
+							} else if int(i)+gridCentre < 0 || int(i)+gridCentre > 2*gridCentre-1 ||
+								int(j)+gridCentre <= 0 || int(j)+gridCentre > 2*gridCentre-1 {
+								imd.Color = pixel.RGB(gridIntensity, 0, 0)
+							} else {
+								imd.Color = pixel.RGB(0, gridIntensity, 0)
+							}
+
+							imd.Push(pixel.V(-64, -64))
+							imd.Push(pixel.V(-64, 64))
+							imd.Line(1.0 / scale)
+
+							if int(i) == tileX && (int(j) == tileY || int(j) == tileY-1) {
+								imd.Color = pixel.RGB(255, 255, 255)
+							} else if int(j) == 0 || int(j) == -1 {
+								imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
+							} else if int(i)+gridCentre < 0 || int(i)+gridCentre >= 2*gridCentre-1 ||
+								int(j)+gridCentre < 0 || int(j)+gridCentre > 2*gridCentre-1 {
+								imd.Color = pixel.RGB(gridIntensity, 0, 0)
+							} else {
+								imd.Color = pixel.RGB(0, gridIntensity, 0)
+							}
+
+							imd.Push(pixel.V(-64, -64))
+							imd.Push(pixel.V(64, -64))
+							imd.Line(2.0 / scale)
+
 						}
-
-						imd.Push(pixel.V(-64, -64))
-						imd.Push(pixel.V(-64, 64))
-						imd.Line(1.0 / scale)
-
-						if int(i) == tileX && (int(j) == tileY || int(j) == tileY-1) {
-							imd.Color = pixel.RGB(255, 255, 255)
-						} else if int(j) == 0 || int(j) == -1 {
-							imd.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
-						} else if int(i)+gridCentre < 0 || int(i)+gridCentre >= 2*gridCentre-1 ||
-							int(j)+gridCentre < 0 || int(j)+gridCentre > 2*gridCentre-1 {
-							imd.Color = pixel.RGB(gridIntensity, 0, 0)
-						} else {
-							imd.Color = pixel.RGB(0, gridIntensity, 0)
-						}
-
-						imd.Push(pixel.V(-64, -64))
-						imd.Push(pixel.V(64, -64))
-						imd.Line(2.0 / scale)
 
 					}
 
@@ -443,6 +638,7 @@ func mainLoop() {
 		frames++
 		select {
 		case <-second:
+			undoFrame++
 			win.SetTitle(fmt.Sprintf("%s | FPS: %d | X: %d | Y: %d | Aspect: %d%% | Camera: %d, %d", windowTitlePrefix, frames, tileX, tileY, int(100*(1-aspect)), int(cameraX), int(cameraY)))
 			frames = 0
 		default:
