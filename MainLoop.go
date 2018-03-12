@@ -38,6 +38,8 @@ var (
 	tileY = 0
 	tileZ = 0
 	showGrid = true
+	xPressed = false
+	zPressed = false
 )
 
 func check(e error) {
@@ -94,6 +96,8 @@ func mainLoop() {
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyG) {
 			showGrid = !showGrid
+			xPressed = false
+			zPressed = false
 		}
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
@@ -111,8 +115,19 @@ func mainLoop() {
 		leftAltPressed := win.Pressed(pixelgl.KeyLeftAlt)
 		rightAltPressed := win.Pressed(pixelgl.KeyRightAlt)
 		backspacePressed := win.Pressed(pixelgl.KeyBackspace)
-		xPressed := win.Pressed(pixelgl.KeyX)
-		zPressed := win.Pressed(pixelgl.KeyZ)
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyX) {
+			zPressed = !zPressed
+			showGrid = true
+			xPressed = false
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyZ) {
+			xPressed = !xPressed
+			showGrid = true
+			zPressed = false
+		}
+
 
 		if backspacePressed {
 
@@ -166,14 +181,14 @@ func mainLoop() {
 
 			}
 
-			if win.JustPressed(pixelgl.KeyRightBracket) {
-				aspect += 0.1
+			if win.Pressed(pixelgl.KeyRightBracket) {
+				aspect += 0.01
 				if aspect > 1.0 {
 					aspect = 1.0
 				}
 				vScale = hScale * aspect
-			} else if win.JustPressed(pixelgl.KeyLeftBracket) {
-				aspect -= 0.1
+			} else if win.Pressed(pixelgl.KeyLeftBracket) {
+				aspect -= 0.01
 				if aspect < 0.5 {
 					aspect = 0.5
 				}
@@ -278,34 +293,21 @@ func mainLoop() {
 						continue
 					}
 
+
 					if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
 						baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][0]
 
 						if baseTile > 0 || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
 
+							s := 4*(1-aspect)
+
 							cam := pixel.V(cameraX, cameraY)
-							pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j-k)*vScale)))
+							pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j-k*s)*vScale)))
 
 							frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][1]
 
 							if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
-
-								if aspect < 1 {
-
-									matrix := pixel.IM.
-										ScaledXY(pixel.ZV, pixel.V(1, 4*(1-aspect))).
-										Moved(cam).
-										ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-										Moved(pos).
-										Moved(pixel.V(0, -vScale/2+vScale*2*(1-aspect)))
-
-									if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ {
-										tileSprite[selectedTile2-1].Draw(batch, matrix)
-									} else {
-										tileSprite[frontTile-1].Draw(batch, matrix)
-									}
-								}
 
 								matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
 									Moved(pixel.V(0, hScale*(1-aspect)*2))
@@ -315,6 +317,23 @@ func mainLoop() {
 								} else {
 									tileSprite[baseTile-1].Draw(batch, matrix)
 								}
+
+								if aspect < 1 {
+
+									matrix := pixel.IM.
+										ScaledXY(pixel.ZV, pixel.V(1, s)).
+										Moved(cam).
+										ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+										Moved(pos).
+										Moved(pixel.V(0, -vScale/2 + (aspect-0.5)*vScale*0.5))
+
+									if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+										tileSprite[selectedTile2-1].Draw(batch, matrix)
+									} else {
+										tileSprite[frontTile-1].Draw(batch, matrix)
+									}
+								}
+
 
 							} else {
 
