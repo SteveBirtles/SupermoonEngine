@@ -310,7 +310,7 @@ func mainLoop() {
 							if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
 
 								matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
-									Moved(pixel.V(0, hScale*(1-aspect)*2))
+									Moved(pixel.V(0, vScale*(1-aspect)*4))
 
 								if int(i) == tileX && int(j) == tileY && int(k) == tileZ {
 									tileSprite[selectedTile1-1].Draw(batch, matrix)
@@ -325,7 +325,7 @@ func mainLoop() {
 										Moved(cam).
 										ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
 										Moved(pos).
-										Moved(pixel.V(0, -vScale/2 + (aspect-0.5)*vScale*0.5))
+										Moved(pixel.V(0, vScale/2 - 2*(aspect-0.5)*vScale))
 
 									if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ {
 										tileSprite[selectedTile2-1].Draw(batch, matrix)
