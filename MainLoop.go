@@ -27,7 +27,6 @@ func mainLoop() {
 			break
 		}
 
-
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
 			backup()
 			grid = [2 * gridCentre][2 * gridCentre][16][2]uint16{}
@@ -151,8 +150,6 @@ func mainLoop() {
 
 		}
 
-
-
 		if backspacePressed {
 
 			selectedTile2 = 0
@@ -256,8 +253,9 @@ func mainLoop() {
 		cut := win.JustPressed(pixelgl.KeyX)
 		clr := win.JustPressed(pixelgl.KeyDelete)
 		fill := win.JustPressed(pixelgl.KeyInsert)
+		bfill := win.JustPressed(pixelgl.KeyF)
 
-		if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || fill) {
+		if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || fill || bfill) {
 
 			startX := selectionStartX + gridCentre
 			startY := selectionStartY + gridCentre
@@ -285,7 +283,7 @@ func mainLoop() {
 			startZ := 0
 			endZ := 15
 
-			if fill {
+			if fill || bfill {
 				startZ = tileZ
 				endZ = tileZ+1
 			}
@@ -297,6 +295,10 @@ func mainLoop() {
 
 						for k := startZ; k < endZ; k++ {
 
+							if bfill && (grid[i][j][k][0] != 0 || grid[i][j][k][1] != 0) {
+								continue
+							}
+
 							if cpy || cut {
 								clipboard[currentClipboard][i-startX][j-startY][k][0] = grid[i][j][k][0]
 								clipboard[currentClipboard][i-startX][j-startY][k][1] = grid[i][j][k][1]
@@ -305,12 +307,12 @@ func mainLoop() {
 							temp1 := uint16(0)
 							temp2 := uint16(0)
 
-							if fill {
+							if fill || bfill {
 								temp1 = selectedTile1
 								temp2 = selectedTile2
 							}
 
-							if !cpy && (grid[i][j][tileZ][0] != temp1 || grid[i][j][tileZ][1] != temp2) {
+							if !cpy && (grid[i][j][k][0] != temp1 || grid[i][j][k][1] != temp2) {
 
 								undoCounter = (undoCounter + 1) % maxUndo
 								for i := 0; i < maxUndo; i++ {
@@ -319,12 +321,12 @@ func mainLoop() {
 								undo[undoCounter][0] = undoFrame
 								undo[undoCounter][1] = i
 								undo[undoCounter][2] = j
-								undo[undoCounter][3] = tileZ
-								undo[undoCounter][4] = int(grid[i][j][tileZ][0])
-								undo[undoCounter][5] = int(grid[i][j][tileZ][1])
+								undo[undoCounter][3] = k
+								undo[undoCounter][4] = int(grid[i][j][k][0])
+								undo[undoCounter][5] = int(grid[i][j][k][1])
 
-								grid[i][j][tileZ][0] = temp1
-								grid[i][j][tileZ][1] = temp2
+								grid[i][j][k][0] = temp1
+								grid[i][j][k][1] = temp2
 							}
 
 
@@ -381,8 +383,8 @@ func mainLoop() {
 
 		onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre
 
-		leftDown := previewClipboard != -1 && win.Pressed(pixelgl.MouseButtonLeft)
-		rightDown := previewClipboard != -1 && win.Pressed(pixelgl.MouseButtonRight)
+		leftDown := previewClipboard == -1 && win.Pressed(pixelgl.MouseButtonLeft)
+		rightDown := previewClipboard == -1 && win.Pressed(pixelgl.MouseButtonRight)
 		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle)
 
 		if onGrid {
@@ -527,7 +529,7 @@ func mainLoop() {
 						if previewClipboard != -1 {
 							deltaX = int(i) - tileX
 							deltaY = int(j) - tileY
-							if deltaX >= 0 && deltaY >= 0 && deltaX < clipboardWidth[previewClipboard] && deltaY < clipboardHeight[previewClipboard] {
+							if deltaX >= 0 && deltaY >= 0 && deltaX <= clipboardWidth[previewClipboard] && deltaY <= clipboardHeight[previewClipboard] {
 								if clobber || clipboard[previewClipboard][deltaX][deltaY][int(k)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(k)][1] != 0 {
 									preview = true
 								}
