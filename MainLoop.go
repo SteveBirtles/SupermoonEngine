@@ -8,7 +8,7 @@ func mainLoop() {
 
 	for !win.Closed() && !quit {
 		processEditorInputs()
-		renderEditorOuputs()
+		renderEditorOutputs()
 		endFrame()
 	}
 

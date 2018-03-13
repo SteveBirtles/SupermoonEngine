@@ -7,7 +7,7 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-func renderEditorOuputs() {
+func renderEditorOutputs() {
 
 	win.Clear(colornames.Black)
 
