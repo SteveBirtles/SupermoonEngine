@@ -16,11 +16,6 @@ func main() {
 	L = lua.NewState()
 	defer L.Close()
 
-	//linkToLua(L, up, "up")
-	//linkToLua(L, down, "down")
-	//linkToLua(L, left, "left")
-	//linkToLua(L, right, "right")
-
 	pixelgl.Run(mainLoop)
 
 }
