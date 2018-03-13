@@ -7,101 +7,9 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"math"
 	"github.com/faiface/pixel/imdraw"
-	"os"
-	"encoding/gob"
 	"image/color"
 )
 
-func floor(x float64) float64 {
-	return math.Floor(x)
-}
-
-const gridCentre = 128
-const outsideGrid = gridCentre + 1
-const maxUndo = 10000
-const clipboardSize = 64
-
-var (
-	grid            [2*gridCentre][2*gridCentre][16][2]uint16
-	clipboard       [10][clipboardSize][clipboardSize][16][2]uint16
-	clipboardWidth  [10]int
-	clipboardHeight [10]int
-	currentClipboard = 1
-	previewClipboard = -1
-	undo            [maxUndo][6]int //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
-	undoCounter      = 0
-	scale            = 0.5
-	aspect           = 0.5
-	hScale           = 64.0
-	vScale           = hScale * aspect
-	lastTileX        = outsideGrid
-	lastTileY        = 0
-	selectedTile1   uint16 = 4
-	selectedTile2   uint16 = 0
-	cameraX          = 0.0 //128.0*gridCentre
-	cameraY          = 0.0 //128.0*gridCentre
-	mouseX           = 0.0
-	mouseY           = 0.0
-	tileX            = 0
-	tileY            = 0
-	tileZ            = 0
-	showGrid         = true
-	xPressed         = false
-	zPressed         = false
-	selectionStartX  = 0
-	selectionStartY  = 0
-	selectionEndX    = 0
-	selectionEndY    = 0
-	selectionLive = false
-)
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-const levelFile = "resources/level.dat"
-const clipboardFile = "resources/clipboards.dat"
-
-
-func save() {
-	f1, err := os.Create(levelFile)
-	check(err)
-	encoder1 := gob.NewEncoder(f1)
-	check(encoder1.Encode(grid))
-
-	f2, err := os.Create(clipboardFile)
-	check(err)
-	encoder2 := gob.NewEncoder(f2)
-	check(encoder2.Encode(clipboard))
-	check(encoder2.Encode(clipboardWidth))
-	check(encoder2.Encode(clipboardHeight))
-}
-
-func load() {
-	f1, err := os.Open(levelFile)
-	if err == nil {
-		decoder1 := gob.NewDecoder(f1)
-		check(decoder1.Decode(&grid))
-	}
-
-	f2, err := os.Open(clipboardFile)
-	if err == nil {
-		decoder2 := gob.NewDecoder(f2)
-		check(decoder2.Decode(&clipboard))
-		check(decoder2.Decode(&clipboardWidth))
-		check(decoder2.Decode(&clipboardHeight))
-	}
-}
-
-func backup() {
-	f, err := os.Create(levelFile + ".bak")
-	if err == nil {
-		encoder := gob.NewEncoder(f)
-		check(encoder.Encode(grid))
-	}
-}
 
 func mainLoop() {
 
@@ -133,12 +41,10 @@ func mainLoop() {
 			load()
 		}
 
-		leftAltPressed := win.Pressed(pixelgl.KeyLeftAlt)
-		rightAltPressed := win.Pressed(pixelgl.KeyRightAlt)
 		backspacePressed := win.Pressed(pixelgl.KeyBackspace)
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyG) {
-			showGrid = !showGrid
+			showGrid = (showGrid + 1) % 3
 		}
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyJ) {
@@ -160,7 +66,6 @@ func mainLoop() {
 		}
 
 		if win.JustPressed(pixelgl.KeyEscape) {
-			showGrid = true
 			xPressed = false
 			zPressed = false
 			selectionLive = false
@@ -189,6 +94,17 @@ func mainLoop() {
 		if win.Pressed(pixelgl.Key7) { previewClipboard = 7 }
 		if win.Pressed(pixelgl.Key8) { previewClipboard = 8 }
 		if win.Pressed(pixelgl.Key9) { previewClipboard = 9 }
+
+		if win.JustPressed(pixelgl.KeyE) {
+			clipboardWidth[currentClipboard] = -1
+		}
+
+		if win.JustPressed(pixelgl.KeyB) {
+			clobber = !clobber
+		}
+
+		leftAltPressed := win.Pressed(pixelgl.KeyLeftAlt)
+		rightAltPressed := win.Pressed(pixelgl.KeyRightAlt)
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyZ) {
 			m := 0
@@ -336,12 +252,12 @@ func mainLoop() {
 
 		}
 
-		copy := win.JustPressed(pixelgl.KeyC)
+		cpy := win.JustPressed(pixelgl.KeyC)
 		cut := win.JustPressed(pixelgl.KeyX)
-		clear := win.JustPressed(pixelgl.KeyDelete)
+		clr := win.JustPressed(pixelgl.KeyDelete)
 		fill := win.JustPressed(pixelgl.KeyInsert)
 
-		if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (copy || cut || clear || fill) {
+		if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || fill) {
 
 			startX := selectionStartX + gridCentre
 			startY := selectionStartY + gridCentre
@@ -359,7 +275,7 @@ func mainLoop() {
 				endY = temp
 			}
 
-			if copy || cut {
+			if cpy || cut {
 				clipboardWidth[currentClipboard] = endX - startX
 				if clipboardWidth[currentClipboard] > clipboardSize { clipboardWidth[currentClipboard] = clipboardSize }
 				clipboardHeight[currentClipboard] = endY - startY
@@ -381,12 +297,21 @@ func mainLoop() {
 
 						for k := startZ; k < endZ; k++ {
 
-							if copy || cut {
+							if cpy || cut {
 								clipboard[currentClipboard][i-startX][j-startY][k][0] = grid[i][j][k][0]
 								clipboard[currentClipboard][i-startX][j-startY][k][1] = grid[i][j][k][1]
 							}
 
-							if !copy {
+							temp1 := uint16(0)
+							temp2 := uint16(0)
+
+							if fill {
+								temp1 = selectedTile1
+								temp2 = selectedTile2
+							}
+
+							if !cpy && (grid[i][j][tileZ][0] != temp1 || grid[i][j][tileZ][1] != temp2) {
+
 								undoCounter = (undoCounter + 1) % maxUndo
 								for i := 0; i < maxUndo; i++ {
 									if undo[i][0] < 0 { undo[i][0] = 0 }
@@ -397,15 +322,12 @@ func mainLoop() {
 								undo[undoCounter][3] = tileZ
 								undo[undoCounter][4] = int(grid[i][j][tileZ][0])
 								undo[undoCounter][5] = int(grid[i][j][tileZ][1])
+
+								grid[i][j][tileZ][0] = temp1
+								grid[i][j][tileZ][1] = temp2
 							}
 
-							if clear || cut {
-								grid[i][j][tileZ][0] = 0
-								grid[i][j][tileZ][1] = 0
-							} else if fill {
-								grid[i][j][tileZ][0] = selectedTile1
-								grid[i][j][tileZ][1] = selectedTile2
-							}
+
 
 						}
 					}
@@ -417,15 +339,39 @@ func mainLoop() {
 
 		}
 
+		paste := win.JustPressed(pixelgl.KeyV) && win.Pressed(pixelgl.KeyLeftControl) ||
+			previewClipboard != -1 && win.JustPressed(pixelgl.MouseButtonLeft)
 
-		if clipboardWidth[currentClipboard] >= 0 && win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyV) {
+		if paste && clipboardWidth[currentClipboard] >= 0 {
 
 			for i := tileX; i <= tileX + clipboardWidth[currentClipboard]; i++ {
 				for j := tileY; j <= tileY + clipboardHeight[currentClipboard]; j++ {
 					if i < gridCentre && j < gridCentre {
 						for k := 0; k < 16; k++ {
-							grid[i+gridCentre][j+gridCentre][k][0] = clipboard[currentClipboard][i-tileX][j-tileY][k][0]
-							grid[i+gridCentre][j+gridCentre][k][1] = clipboard[currentClipboard][i-tileX][j-tileY][k][1]
+
+							if grid[i+gridCentre][j+gridCentre][k][0] != clipboard[currentClipboard][i-tileX][j-tileY][k][0] ||
+								grid[i+gridCentre][j+gridCentre][k][1] != clipboard[currentClipboard][i-tileX][j-tileY][k][1] {
+
+								if !clobber && clipboard[currentClipboard][i-tileX][j-tileY][k][0] == 0 && clipboard[currentClipboard][i-tileX][j-tileY][k][1] == 0 {
+									continue
+								}
+
+								undoCounter = (undoCounter + 1) % maxUndo
+								for i := 0; i < maxUndo; i++ {
+									if undo[i][0] < 0 {
+										undo[i][0] = 0
+									}
+								}
+								undo[undoCounter][0] = undoFrame
+								undo[undoCounter][1] = i + gridCentre
+								undo[undoCounter][2] = j + gridCentre
+								undo[undoCounter][3] = k
+								undo[undoCounter][4] = int(grid[i+gridCentre][j+gridCentre][k][0])
+								undo[undoCounter][5] = int(grid[i+gridCentre][j+gridCentre][k][1])
+
+								grid[i+gridCentre][j+gridCentre][k][0] = clipboard[currentClipboard][i-tileX][j-tileY][k][0]
+								grid[i+gridCentre][j+gridCentre][k][1] = clipboard[currentClipboard][i-tileX][j-tileY][k][1]
+							}
 						}
 					}
 				}
@@ -433,12 +379,10 @@ func mainLoop() {
 
 		}
 
-
-
 		onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre
 
-		leftDown := win.Pressed(pixelgl.MouseButtonLeft) || win.Pressed(pixelgl.KeySpace)
-		rightDown := win.Pressed(pixelgl.MouseButtonRight) || clear
+		leftDown := previewClipboard != -1 && win.Pressed(pixelgl.MouseButtonLeft)
+		rightDown := previewClipboard != -1 && win.Pressed(pixelgl.MouseButtonRight)
 		middleDown := win.JustPressed(pixelgl.MouseButtonMiddle)
 
 		if onGrid {
@@ -537,11 +481,21 @@ func mainLoop() {
 			startX = endX
 			endX = temp
 		}
+
+		if endX - startX > clipboardSize {
+			endX = startX + clipboardSize
+		}
+
 		if startY > endY {
 			temp := startY
 			startY = endY
 			endY = temp
 		}
+
+		if endY - startY > clipboardSize {
+			endY = startY + clipboardSize
+		}
+
 
 		imd.Clear()
 		batch.Clear()
@@ -574,7 +528,9 @@ func mainLoop() {
 							deltaX = int(i) - tileX
 							deltaY = int(j) - tileY
 							if deltaX >= 0 && deltaY >= 0 && deltaX < clipboardWidth[previewClipboard] && deltaY < clipboardHeight[previewClipboard] {
-								preview = true
+								if clobber || clipboard[previewClipboard][deltaX][deltaY][int(k)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(k)][1] != 0 {
+									preview = true
+								}
 							}
 						}
 
@@ -641,7 +597,7 @@ func mainLoop() {
 
 					}
 
-					if k == 0 && showGrid {
+					if k == 0 && showGrid > 0 {
 
 						cam := pixel.V(cameraX, cameraY)
 						pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale)))
@@ -649,7 +605,7 @@ func mainLoop() {
 						matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 						imd.SetMatrix(matrix)
 
-						gridIntensity := math.Sqrt(scale / 2)
+						gridIntensity := math.Sqrt(scale / 2) * float64(showGrid) * 0.5
 
 						if selectionLive &&
 							int(i) >= startX && int(j) >= startY &&
@@ -704,11 +660,18 @@ func mainLoop() {
 
 		win.Clear(colornames.Black)
 
+		if showGrid == 1 {
+			win.SetComposeMethod(pixel.ComposeOver)
+			imd.Draw(win)
+		}
+
 		win.SetComposeMethod(pixel.ComposeOver)
 		batch.Draw(win)
 
-		win.SetComposeMethod(pixel.ComposeOver)
-		imd.Draw(win)
+		if showGrid == 2 {
+			win.SetComposeMethod(pixel.ComposeOver)
+			imd.Draw(win)
+		}
 
 		if leftAltPressed || rightAltPressed {
 
