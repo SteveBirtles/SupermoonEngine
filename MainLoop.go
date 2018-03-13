@@ -16,18 +16,19 @@ func floor(x float64) float64 {
 	return math.Floor(x)
 }
 
-
 const gridCentre = 128
 const outsideGrid = gridCentre + 1
 const maxUndo = 10000
+const clipboardSize = 64
 
 var (
 	grid            [2*gridCentre][2*gridCentre][16][2]uint16
-	clipboard       [10][2*gridCentre][2*gridCentre][16][2]uint16
+	clipboard       [10][clipboardSize][clipboardSize][16][2]uint16
 	clipboardWidth  [10]int
 	clipboardHeight [10]int
 	currentClipboard = 1
-	undo            [maxUndo][6]uint16 //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
+	previewClipboard = -1
+	undo            [maxUndo][6]int //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
 	undoCounter      = 0
 	scale            = 0.5
 	aspect           = 0.5
@@ -61,19 +62,36 @@ func check(e error) {
 }
 
 const levelFile = "resources/level.dat"
+const clipboardFile = "resources/clipboards.dat"
+
 
 func save() {
-	f, err := os.Create(levelFile)
+	f1, err := os.Create(levelFile)
 	check(err)
-	encoder := gob.NewEncoder(f)
-	check(encoder.Encode(grid))
+	encoder1 := gob.NewEncoder(f1)
+	check(encoder1.Encode(grid))
+
+	f2, err := os.Create(clipboardFile)
+	check(err)
+	encoder2 := gob.NewEncoder(f2)
+	check(encoder2.Encode(clipboard))
+	check(encoder2.Encode(clipboardWidth))
+	check(encoder2.Encode(clipboardHeight))
 }
 
 func load() {
-	f, err := os.Open(levelFile)
+	f1, err := os.Open(levelFile)
 	if err == nil {
-		decoder := gob.NewDecoder(f)
-		check(decoder.Decode(&grid))
+		decoder1 := gob.NewDecoder(f1)
+		check(decoder1.Decode(&grid))
+	}
+
+	f2, err := os.Open(clipboardFile)
+	if err == nil {
+		decoder2 := gob.NewDecoder(f2)
+		check(decoder2.Decode(&clipboard))
+		check(decoder2.Decode(&clipboardWidth))
+		check(decoder2.Decode(&clipboardHeight))
 	}
 }
 
@@ -91,10 +109,6 @@ func mainLoop() {
 	load()
 	backup()
 
-	for c := 0; c < 10; c++ {
-		clipboardWidth[currentClipboard] = -1
-	}
-
 	tileOverlay := pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
 	imd := imdraw.New(nil)
 	batch := pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
@@ -107,6 +121,7 @@ func mainLoop() {
 
 
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
+			backup()
 			grid = [2 * gridCentre][2 * gridCentre][16][2]uint16{}
 		}
 
@@ -151,6 +166,8 @@ func mainLoop() {
 			selectionLive = false
 		}
 
+		previewClipboard = -1
+
 		if win.JustPressed(pixelgl.Key0) { currentClipboard = 0 }
 		if win.JustPressed(pixelgl.Key1) { currentClipboard = 1 }
 		if win.JustPressed(pixelgl.Key2) { currentClipboard = 2 }
@@ -162,19 +179,57 @@ func mainLoop() {
 		if win.JustPressed(pixelgl.Key8) { currentClipboard = 8 }
 		if win.JustPressed(pixelgl.Key9) { currentClipboard = 9 }
 
+		if win.Pressed(pixelgl.Key0) { previewClipboard = 0 }
+		if win.Pressed(pixelgl.Key1) { previewClipboard = 1 }
+		if win.Pressed(pixelgl.Key2) { previewClipboard = 2 }
+		if win.Pressed(pixelgl.Key3) { previewClipboard = 3 }
+		if win.Pressed(pixelgl.Key4) { previewClipboard = 4 }
+		if win.Pressed(pixelgl.Key5) { previewClipboard = 5 }
+		if win.Pressed(pixelgl.Key6) { previewClipboard = 6 }
+		if win.Pressed(pixelgl.Key7) { previewClipboard = 7 }
+		if win.Pressed(pixelgl.Key8) { previewClipboard = 8 }
+		if win.Pressed(pixelgl.Key9) { previewClipboard = 9 }
+
 		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyZ) {
-			m := uint16(0)
+			m := 0
 			for i := 0; i < maxUndo; i++ {
 				if undo[i][0] > m {
 					m = undo[i][0]
 				}
 			}
 
+			if m != 0 {
+				for i := 0; i < maxUndo; i++ {
+					if undo[i][0] == m {
+						temp1 := grid[undo[i][1]][undo[i][2]][undo[i][3]][0]
+						temp2 := grid[undo[i][1]][undo[i][2]][undo[i][3]][1]
+						grid[undo[i][1]][undo[i][2]][undo[i][3]][0] = uint16(undo[i][4])
+						grid[undo[i][1]][undo[i][2]][undo[i][3]][1] = uint16(undo[i][5])
+						undo[i][4] = int(temp1)
+						undo[i][5] = int(temp2)
+						undo[i][0] = -m
+					}
+				}
+			}
+		}
+
+		if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyY) {
+			n := -undoFrame - 1
 			for i := 0; i < maxUndo; i++ {
-				if undo[i][0] == m {
-					grid[undo[i][1]][undo[i][2]][undo[i][3]][0] = undo[i][4]
-					grid[undo[i][1]][undo[i][2]][undo[i][3]][1] = undo[i][5]
-					undo[i][0] = 0
+				if undo[i][0] < 0 && undo[i][0] > n {
+					n = undo[i][0]
+				}
+			}
+
+			for i := 0; i < maxUndo; i++ {
+				if undo[i][0] == n {
+					temp1 := grid[undo[i][1]][undo[i][2]][undo[i][3]][0]
+					temp2 := grid[undo[i][1]][undo[i][2]][undo[i][3]][1]
+					grid[undo[i][1]][undo[i][2]][undo[i][3]][0] = uint16(undo[i][4])
+					grid[undo[i][1]][undo[i][2]][undo[i][3]][1] = uint16(undo[i][5])
+					undo[i][4] = int(temp1)
+					undo[i][5] = int(temp2)
+					undo[i][0] = -n
 				}
 			}
 
@@ -306,7 +361,9 @@ func mainLoop() {
 
 			if copy || cut {
 				clipboardWidth[currentClipboard] = endX - startX
+				if clipboardWidth[currentClipboard] > clipboardSize { clipboardWidth[currentClipboard] = clipboardSize }
 				clipboardHeight[currentClipboard] = endY - startY
+				if clipboardHeight[currentClipboard] > clipboardSize { clipboardHeight[currentClipboard] = clipboardSize }
 			}
 
 			startZ := 0
@@ -320,7 +377,7 @@ func mainLoop() {
 			for i := startX; i <= endX; i++ {
 				for j := startY; j <= endY; j++ {
 
-					if i < 2*gridCentre && j < 2 * gridCentre {
+					if i < 2*gridCentre && j < 2 * gridCentre && i-startX < clipboardSize && j-startY < clipboardSize {
 
 						for k := startZ; k < endZ; k++ {
 
@@ -331,12 +388,15 @@ func mainLoop() {
 
 							if !copy {
 								undoCounter = (undoCounter + 1) % maxUndo
-								undo[undoCounter][0] = uint16(undoFrame)
-								undo[undoCounter][1] = uint16(i)
-								undo[undoCounter][2] = uint16(j)
-								undo[undoCounter][3] = uint16(tileZ)
-								undo[undoCounter][4] = grid[i][j][tileZ][0]
-								undo[undoCounter][5] = grid[i][j][tileZ][1]
+								for i := 0; i < maxUndo; i++ {
+									if undo[i][0] < 0 { undo[i][0] = 0 }
+								}
+								undo[undoCounter][0] = undoFrame
+								undo[undoCounter][1] = i
+								undo[undoCounter][2] = j
+								undo[undoCounter][3] = tileZ
+								undo[undoCounter][4] = int(grid[i][j][tileZ][0])
+								undo[undoCounter][5] = int(grid[i][j][tileZ][1])
 							}
 
 							if clear || cut {
@@ -415,12 +475,15 @@ func mainLoop() {
 								   grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1] != newValue2 {
 
 									undoCounter = (undoCounter + 1) % maxUndo
-									undo[undoCounter][0] = uint16(undoFrame)
-									undo[undoCounter][1] = uint16(tileX + int(s*dx) + gridCentre)
-									undo[undoCounter][2] = uint16(tileY + int(s*dy) + gridCentre)
-									undo[undoCounter][3] = uint16(tileZ)
-									undo[undoCounter][4] = grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0]
-									undo[undoCounter][5] = grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1]
+									for i := 0; i < maxUndo; i++ {
+										if undo[i][0] < 0 { undo[i][0] = 0 }
+									}
+									undo[undoCounter][0] = undoFrame
+									undo[undoCounter][1] = tileX + int(s*dx) + gridCentre
+									undo[undoCounter][2] = tileY + int(s*dy) + gridCentre
+									undo[undoCounter][3] = tileZ
+									undo[undoCounter][4] = int(grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0])
+									undo[undoCounter][5] = int(grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1])
 
 									grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][0] = newValue1
 									grid[tileX+int(s*dx)+gridCentre][tileY+int(s*dy)+gridCentre][tileZ][1] = newValue2
@@ -435,12 +498,15 @@ func mainLoop() {
 				   grid[tileX+gridCentre][tileY+gridCentre][tileZ][1] != newValue2 {
 
 					undoCounter = (undoCounter + 1) % maxUndo
-					undo[undoCounter][0] = uint16(undoFrame)
-					undo[undoCounter][1] = uint16(tileX + gridCentre)
-					undo[undoCounter][2] = uint16(tileY + gridCentre)
-					undo[undoCounter][3] = uint16(tileZ)
-					undo[undoCounter][4] = grid[tileX+gridCentre][tileY+gridCentre][tileZ][0]
-					undo[undoCounter][5] = grid[tileX+gridCentre][tileY+gridCentre][tileZ][1]
+					for i := 0; i < maxUndo; i++ {
+						if undo[i][0] < 0 { undo[i][0] = 0 }
+					}
+					undo[undoCounter][0] = undoFrame
+					undo[undoCounter][1] = tileX + gridCentre
+					undo[undoCounter][2] = tileY + gridCentre
+					undo[undoCounter][3] = tileZ
+					undo[undoCounter][4] = int(grid[tileX+gridCentre][tileY+gridCentre][tileZ][0])
+					undo[undoCounter][5] = int(grid[tileX+gridCentre][tileY+gridCentre][tileZ][1])
 
 					grid[tileX+gridCentre][tileY+gridCentre][tileZ][0] = newValue1
 					grid[tileX+gridCentre][tileY+gridCentre][tileZ][1] = newValue2
@@ -496,18 +562,37 @@ func mainLoop() {
 
 					batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 
+					deltaX := 0
+					deltaY := 0
+					preview := false
+
 					if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
 						baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][0]
 
+						if previewClipboard != -1 {
+							deltaX = int(i) - tileX
+							deltaY = int(j) - tileY
+							if deltaX >= 0 && deltaY >= 0 && deltaX < clipboardWidth[previewClipboard] && deltaY < clipboardHeight[previewClipboard] {
+								preview = true
+							}
+						}
+
+						if preview {
+							baseTile = clipboard[previewClipboard][deltaX][deltaY][int(k)][0]
+						}
+
 						if baseTile > 0 || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
 
 							s := 4*(1-aspect)
-
 							cam := pixel.V(cameraX, cameraY)
 							pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j-k*s)*vScale)))
 
 							frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][1]
+
+							if preview {
+								frontTile = clipboard[previewClipboard][deltaX][deltaY][int(k)][1]
+							}
 
 							if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
 
