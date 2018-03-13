@@ -1,12 +1,8 @@
 package main
 
 import (
-	"time"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel"
-	"os"
-	"encoding/gob"
-	"math"
 	"github.com/faiface/pixel/imdraw"
 )
 
@@ -23,7 +19,6 @@ func initiate() {
 	if initError != nil {
 		panic(initError)
 	}
-
 
 	spriteImage, initError := loadImageFile("textures/blocks.png")
 	if initError != nil {
