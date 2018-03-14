@@ -8,12 +8,22 @@ import (
 func processEditorInputs() {
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyQ) {
-		quit = true
+		if win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt) {
+			quit = -1
+		} else {
+			quit = 1
+		}
+	}
+
+	if win.JustPressed(pixelgl.KeyH) {
+		help = !help
 	}
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
-		backup()
-		grid = [2 * gridCentre][2 * gridCentre][16][2]uint16{}
+		if win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt) {
+			backup()
+			grid = [2 * gridCentre][2 * gridCentre][16][2]uint16{}
+		}
 	}
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyS) {
@@ -29,11 +39,11 @@ func processEditorInputs() {
 	}
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyJ) {
-		xPressed = !xPressed
+		xRay = !xRay
 	}
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyK) {
-		zPressed = !zPressed
+		zRay = !zRay
 	}
 
 	if win.JustPressed(pixelgl.KeyLeftShift) {
@@ -47,9 +57,10 @@ func processEditorInputs() {
 	}
 
 	if win.JustPressed(pixelgl.KeyEscape) {
-		xPressed = false
-		zPressed = false
+		xRay = false
+		zRay = false
 		selectionLive = false
+		help = false
 	}
 
 	previewClipboard = -1

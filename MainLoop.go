@@ -6,12 +6,16 @@ func mainLoop() {
 	load()
 	backup()
 
-	for !win.Closed() && !quit {
+	for !win.Closed() && quit==0 {
+
+		startFrame()
+
 		processEditorInputs()
 		renderEditorOutputs()
+
 		endFrame()
 	}
 
-	save()
+	if quit > 0 { save() }
 
 }

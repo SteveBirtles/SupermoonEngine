@@ -4,6 +4,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
+	"github.com/faiface/pixel/text"
+	"golang.org/x/image/colornames"
 )
 
 func initiate() {
@@ -16,20 +18,23 @@ func initiate() {
 	}
 
 	win, initError = pixelgl.NewWindow(cfg)
-	if initError != nil {
-		panic(initError)
-	}
+	check(initError)
+
+	textFace, initError := loadTTF("resources/font.ttf", 14)
+	check(initError)
+
+	textAtlas := text.NewAtlas(textFace, text.ASCII)
+
+	textRenderer = text.New(pixel.ZV, textAtlas)
+	textRenderer.LineHeight = textAtlas.LineHeight() * 1.5
+	textRenderer.Color = colornames.Limegreen
+	textRenderer.Orig = pixel.V(10, screenHeight-22)
 
 	spriteImage, initError := loadImageFile("textures/blocks.png")
-	if initError != nil {
-		panic(initError)
-	}
+	check(initError)
 
 	playerImage, initError := loadImageFile("textures/player.png")
-	if initError != nil {
-		panic(initError)
-	}
-
+	check(initError)
 
 	tilePic = pixel.PictureDataFromImage(spriteImage)
 	for i := 0; i <= 16; i++ {
@@ -45,7 +50,8 @@ func initiate() {
 	}
 
 	tileOverlay = pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
-	imd = imdraw.New(nil)
+	imd1 = imdraw.New(nil)
 	batch = pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
+	imd2 = imdraw.New(nil)
 
 }
