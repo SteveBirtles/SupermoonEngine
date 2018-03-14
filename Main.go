@@ -20,7 +20,7 @@ func main() {
 	args := os.Args[1:]
 
 	if len(args) >= 1 {
-		levelFile = args[0]
+		levelFile = "resources/" + args[0]
 	}
 
 	if len(args) >= 2 {
