@@ -12,7 +12,6 @@ const gridCentre = 128
 const outsideGrid = gridCentre + 1
 const maxUndo = 10000
 const clipboardSize = 64
-const levelFile = "resources/level.dat"
 const clipboardFile = "resources/clipboards.dat"
 
 var (

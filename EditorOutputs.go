@@ -254,11 +254,11 @@ func renderEditorOutputs() {
 		print(fmt.Sprintf("Tiles: %d/%d", selectedTile1, selectedTile2))
 		switch showGrid {
 		case 0:
-			print("Grid off")
+			print("Grid: Off")
 		case 1:
-			print("Grid behind")
+			print("Grid: Behind")
 		case 2:
-			print("Grid in front")
+			print("Grid: Front")
 		}
 		if clobber {
 			print(fmt.Sprintf("Clipboard: %d", currentClipboard))

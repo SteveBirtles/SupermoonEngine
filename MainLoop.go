@@ -16,6 +16,6 @@ func mainLoop() {
 		endFrame()
 	}
 
-	if quit > 0 { save() }
+	if quit >= 0 { save() }
 
 }
