@@ -103,6 +103,7 @@ func renderEditorOutputs() {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 								tileSprite[selectedTile1-1].Draw(batch, matrix)
 							} else {
+								batch.SetColorMask(color.RGBA{255, 255, 255, 255})
 								tileSprite[baseTile-1].Draw(batch, matrix)
 							}
 
@@ -119,6 +120,7 @@ func renderEditorOutputs() {
 									batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 									tileSprite[selectedTile2-1].Draw(batch, matrix)
 								} else {
+									batch.SetColorMask(color.RGBA{192, 192, 192, 255})
 									tileSprite[frontTile-1].Draw(batch, matrix)
 								}
 							}
@@ -132,6 +134,7 @@ func renderEditorOutputs() {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 								tileSprite[selectedTile1-1].Draw(batch, matrix)
 							} else {
+								batch.SetColorMask(color.RGBA{255, 255, 255, 255})
 								tileSprite[baseTile-1].Draw(batch, matrix)
 							}
 
@@ -180,7 +183,7 @@ func renderEditorOutputs() {
 
 						imd1.Push(pixel.V(-64, -64))
 						imd1.Push(pixel.V(-64, 64))
-						imd1.Line(1.0 / scale)
+						imd1.Line(2.5 / scale)
 
 						if int(i) == tileX && (int(j) == tileY || int(j) == tileY-1) {
 							imd1.Color = pixel.RGB(255, 255, 255)
@@ -195,7 +198,7 @@ func renderEditorOutputs() {
 
 						imd1.Push(pixel.V(-64, -64))
 						imd1.Push(pixel.V(64, -64))
-						imd1.Line(2.0 / scale)
+						imd1.Line(2.5 / scale)
 
 					}
 
@@ -312,4 +315,3 @@ func renderEditorOutputs() {
 
 
 }
-
