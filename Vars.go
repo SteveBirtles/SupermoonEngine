@@ -33,6 +33,7 @@ var (
 	clipboard         [10][clipboardSize][clipboardSize][16][2]uint16
 	clipboardWidth    [10]int
 	clipboardHeight   [10]int
+	clipboardShift       = 0
 	currentClipboard     = 1
 	previewClipboard     = -1
 	clobber                       		 = true
@@ -40,6 +41,7 @@ var (
 	undoCounter            = 0
 	scale                  = 0.5
 	aspect                 = 0.5
+	viewDirection		   = 0
 	hScale                 = 64.0
 	vScale                 = hScale * aspect
 	lastTileX              = outsideGrid
@@ -53,6 +55,9 @@ var (
 	tileX                  = 0
 	tileY                  = 0
 	tileZ                  = 0
+	viewTileX              = 0
+	viewTileY              = 0
+	hideTile			   = false
 	showGrid               = 1
 	xRay                   = false
 	zRay                   = false

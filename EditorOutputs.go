@@ -9,11 +9,30 @@ import (
 
 func renderEditorOutputs() {
 
-	iRange := floor(screenWidth/(2*hScale)) + 2
-	jRange := floor(screenHeight/(2*vScale)) + 2
+	iStart := -floor(screenWidth/(2*hScale)) - 2
+	jStart := -floor(screenHeight/(2*vScale)) - 2
+	iEnd := floor(screenWidth/(2*hScale)) + 2
+	jEnd := floor(screenHeight/(2*vScale)) + 20
 
-	iOffset := -floor(scale * cameraX / hScale)
-	jOffset := floor(scale * aspect * cameraY / vScale)
+	var cX, cY float64
+
+	switch viewDirection {
+	case 0:
+		cX = cameraX
+		cY = cameraY
+	case 1:
+		cX = -cameraY
+		cY = cameraX
+	case 2:
+		cX = -cameraX
+		cY = -cameraY
+	case 3:
+		cX = cameraY
+		cY = -cameraX
+	}
+
+	iOffset := -floor(scale * cX / hScale)
+	jOffset := floor(scale * aspect * cY / vScale)
 
 	startX := selectionStartX
 	startY := selectionStartY
@@ -44,16 +63,41 @@ func renderEditorOutputs() {
 	imd2.Clear()
 	batch.Clear()
 
-	for i := -iRange + iOffset; i <= iRange+iOffset; i++ {
-		for j := -jRange + jOffset; j <= jRange+jOffset; j++ {
+	if viewDirection == 0 {
+		viewTileX = tileX
+		viewTileY = tileY
+	}
+
+	for i0 := iStart + iOffset; i0 <= iEnd+ iOffset; i0++ {
+		for j0 := jStart + jOffset; j0 <= jEnd+ jOffset; j0++ {
+
+			var i, j float64
+
+			switch viewDirection {
+			case 0:
+				i = i0
+				j = j0
+			case 1:
+				i = -j0
+				j = i0
+			case 2:
+				i = -i0
+				j = -j0
+			case 3:
+				i = j0
+				j = -i0
+			}
+
 			for k := 0.0; k < 16; k++ {
+
+				kC := k - float64(clipboardShift)
 
 				var alpha uint8 = 255
 
-				if zRay && int(k) > tileZ || xRay && int(j) > tileY {
+				if zRay && int(k) > tileZ || xRay && int(j) > viewTileY {
 					continue
 				} else {
-					if zRay && int(k) < tileZ || xRay && int(j) < tileY {
+					if zRay && int(k) < tileZ || xRay && int(j) < viewTileY {
 						alpha = 128
 					}
 				}
@@ -68,38 +112,38 @@ func renderEditorOutputs() {
 
 					baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][0]
 
-					if previewClipboard != -1 {
-						deltaX = int(i) - tileX
-						deltaY = int(j) - tileY
+					if previewClipboard != -1 && !(kC < 0 || kC > 15) {
+						deltaX = int(i) - viewTileX
+						deltaY = int(j) - viewTileY
 						if deltaX >= 0 && deltaY >= 0 && deltaX <= clipboardWidth[previewClipboard] && deltaY <= clipboardHeight[previewClipboard] {
-							if clobber || clipboard[previewClipboard][deltaX][deltaY][int(k)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(k)][1] != 0 {
+							if clobber || clipboard[previewClipboard][deltaX][deltaY][int(kC)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(kC)][1] != 0 {
 								preview = true
 							}
 						}
 					}
 
 					if preview {
-						baseTile = clipboard[previewClipboard][deltaX][deltaY][int(k)][0]
+						baseTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][0]
 					}
 
-					if baseTile > 0 || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
+					if baseTile > 0 || (selectedTile1 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
 
 						s := 4*(1-aspect)
-						cam := pixel.V(cameraX, cameraY)
-						pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j-k*s)*vScale)))
+						cam := pixel.V(cX, cY)
+						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
 
 						frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][1]
 
 						if preview {
-							frontTile = clipboard[previewClipboard][deltaX][deltaY][int(k)][1]
+							frontTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][1]
 						}
 
-						if frontTile > 0 || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ) {
+						if frontTile > 0 || (selectedTile2 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
 
 							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
 								Moved(pixel.V(0, vScale*(1-aspect)*4))
 
-							if int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+							if int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 								tileSprite[selectedTile1-1].Draw(batch, matrix)
 							} else {
@@ -116,7 +160,7 @@ func renderEditorOutputs() {
 									Moved(pos).
 									Moved(pixel.V(0, vScale/2 - 2*(aspect-0.5)*vScale))
 
-								if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+								if selectedTile2 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 									batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 									tileSprite[selectedTile2-1].Draw(batch, matrix)
 								} else {
@@ -130,7 +174,7 @@ func renderEditorOutputs() {
 
 							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 
-							if int(i) == tileX && int(j) == tileY && int(k) == tileZ {
+							if int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 								tileSprite[selectedTile1-1].Draw(batch, matrix)
 							} else {
@@ -146,15 +190,15 @@ func renderEditorOutputs() {
 
 				if k == 0 && (showGrid > 0 || selectionLive) {
 
-					cam := pixel.V(cameraX, cameraY)
-					pos := pixel.V(screenWidth/2+float64(i*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j*vScale)))
+					cam := pixel.V(cX, cY)
+					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j0*vScale)))
 
 					matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 					imd1.SetMatrix(matrix)
 
 					gridIntensity := math.Sqrt(scale / 2) * float64(showGrid) * 0.5
 
-					if selectionLive &&
+					if selectionLive && viewDirection == 0 &&
 						int(i) >= startX && int(j) >= startY &&
 						int(i) <= endX && int(j) <= endY {
 						imd2.SetMatrix(matrix)
@@ -165,12 +209,13 @@ func renderEditorOutputs() {
 						imd2.Push(pixel.V(64, 64))
 						imd2.Push(pixel.V(64, -64))
 						imd2.Polygon(0)
-
 					}
 
 					if showGrid > 0 {
 
-						if (int(i) == tileX || int(i) == tileX+1) && int(j) == tileY {
+						if viewDirection != 0 {
+							imd1.Color = pixel.RGB(0, gridIntensity, gridIntensity)
+						} else if (int(i) == viewTileX || int(i) == viewTileX+1) && int(j) == viewTileY {
 							imd1.Color = pixel.RGB(255, 255, 255)
 						} else if int(i) == 0 || int(i) == 1 {
 							imd1.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
@@ -185,7 +230,9 @@ func renderEditorOutputs() {
 						imd1.Push(pixel.V(-64, 64))
 						imd1.Line(2.5 / scale)
 
-						if int(i) == tileX && (int(j) == tileY || int(j) == tileY-1) {
+						if viewDirection != 0 {
+							imd1.Color = pixel.RGB(0, gridIntensity, gridIntensity)
+						} else if int(i) == viewTileX && (int(j) == viewTileY || int(j) == viewTileY-1) {
 							imd1.Color = pixel.RGB(255, 255, 255)
 						} else if int(j) == 0 || int(j) == -1 {
 							imd1.Color = pixel.RGB(gridIntensity, gridIntensity, 0)
@@ -250,9 +297,13 @@ func renderEditorOutputs() {
 
 		print ("Level: " + levelFile)
 		print ("")
-		print(fmt.Sprintf("Cursor: %d, %d, %d", tileX, tileY, tileZ))
+		if viewDirection == 0 {
+			print(fmt.Sprintf("Cursor: %d, %d, %d", viewTileX, viewTileY, tileZ))
+		} else {
+			print(fmt.Sprintf("View direction: %d", viewDirection))
+		}
 		print(fmt.Sprintf("Aspect: %d%%", int(100*(1-aspect))))
-		print(fmt.Sprintf("Camera: %d, %d", int(cameraX), int(cameraY)))
+		print(fmt.Sprintf("Camera: %d, %d", int(cX), int(cY)))
 		print(fmt.Sprintf("Scale: %.2f", scale))
 		print(fmt.Sprintf("Tiles: %d/%d", selectedTile1, selectedTile2))
 		switch showGrid {
@@ -268,6 +319,7 @@ func renderEditorOutputs() {
 		} else {
 			print(fmt.Sprintf("Clipboard: %d*", currentClipboard))
 		}
+		print(fmt.Sprintf("Clipboard shift: %d", clipboardShift))
 
 		if xRay {
 			print("Vertical slice on")
@@ -275,13 +327,18 @@ func renderEditorOutputs() {
 		if zRay {
 			print("Horizontal slice on")
 		}
+		if hideTile {
+			print("Cursor tile hidden")
+		}
 		print("")
 		print("H for help...")
 	} else {
 		print("Left click : Draw tile")
 		print("Right click : Clear tile")
 		print("Middle click : Pick tile")
-		print("PgUp / PgDn / Home / End : Vertical")
+		print("PgUp / PgDn : Cursor up / down")
+		print("Home / End : Cursor top / bottom")
+		print("Tab : Toggle cursor tile visibility")
 		print("Left Alt : Choose base tile")
 		print("Right Alt : Choose front tile")
 		print("Backspace : Clear front tile")
@@ -290,26 +347,24 @@ func renderEditorOutputs() {
 		print("Ctrl+Q : Save and quit")
 		print("Ctrl+Alt+Q : Quit without saving")
 		print("Ctrl+Alt+N : Clear map")
-		print("Ctrl+S : Save")
-		print("Ctrl+L : Load")
+		print("Ctrl+S / Ctrl+L : Save / Load")
 		print("Ctrl+G : Change grid mode")
 		print("Ctrl+J : Vertical slice")
 		print("Ctrl+K : Horizontal slice")
-		print("Shift : Selection")
+		print("Shift : Make selection")
 		print("Esc : Reset slice/selection")
-		print("Number : Choose clipboard")
+		print("Number : Choose & preview clipboard")
+		print("- / = : Clipboard vertical shift")
 		print("Ctrl+E : Clear clipboard")
-		print("Ctrl+C : Copy")
-		print("Ctrl+X : Cut")
-		print("Ctrl+V : Paste")
+		print("Ctrl+C / Ctrl+X / Ctrl+V : Copy / Cut / Paste")
 		print("Number+Click : Quick paste")
 		print("Ctrl+B : Toggle pasting blanks")
 		print("Ctrl+Del : Clear selection")
 		print("Ctrl+Ins : Fill selection")
 		print("Ctrl+F : Fill selection gaps")
-		print("Ctrl+Z : Undo")
-		print("Ctrl+Y : Redo")
+		print("Ctrl+Z / Ctrl+Y : Undo / Redo")
 		print("[ / ] : Change view angle")
+		print("Arrows : Change view direction")
 
 	}
 
