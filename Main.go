@@ -10,7 +10,7 @@ import (
 
 var (
 	L *lua.LState
-	levelFile = "resources/default.dat"
+	levelFile = "maps/default.dat"
 	screenWidth = 1280.0
 	screenHeight = 720.0
 )
@@ -20,7 +20,7 @@ func main() {
 	args := os.Args[1:]
 
 	if len(args) >= 1 {
-		levelFile = "resources/" + args[0]
+		levelFile = "maps/" + args[0]
 	}
 
 	if len(args) >= 2 {

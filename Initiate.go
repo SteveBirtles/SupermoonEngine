@@ -30,22 +30,18 @@ func initiate() {
 	textRenderer.Color = colornames.Limegreen
 	textRenderer.Orig = pixel.V(10, screenHeight-22)
 
-	spriteImage, initError := loadImageFile("textures/blocks.png")
+	textureImage, initError := loadImageFile("textures/super.png")
 	check(initError)
 
-	playerImage, initError := loadImageFile("textures/player.png")
-	check(initError)
-
-	tilePic = pixel.PictureDataFromImage(spriteImage)
-	for i := 0; i <= 16; i++ {
-		tileSprite[i] = pixel.NewSprite(tilePic, pixel.Rect{Min: pixel.V(0,float64((16-i)*128)), Max: pixel.V(128,128+float64((16-i)*128))})
-	}
-
-	playerPic := pixel.PictureDataFromImage(playerImage)
-
-	for j := 0; j < 2; j++ {
-		for i := 0; i < 6; i++ {
-			playerSprite[i+j*6] = pixel.NewSprite(playerPic, pixel.Rect{Min: pixel.V(float64(i*104), float64((1-j)*151)), Max: pixel.V(float64((i+1)*104), 151+float64((1-j)*151))})
+	tilePic = pixel.PictureDataFromImage(textureImage)
+	n := 0
+	for j := 0; j < superHeight/128; j++ {
+		for i := 0; i < superWidth/128; i++ {
+			if n >= superTiles { panic("Super texture error!") }
+			u := float64(i*128)
+			v := float64(superHeight-(j+1)*128)
+			tileTexture[n] = pixel.NewSprite(tilePic, pixel.Rect{Min: pixel.V(u, v), Max: pixel.V(u + 128, v + 128)})
+			n++
 		}
 	}
 

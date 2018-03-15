@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/faiface/pixel/pixelgl"
 	"math"
+	"math/rand"
+	"time"
 )
 
 func processEditorInputs() {
@@ -12,6 +14,32 @@ func processEditorInputs() {
 			quit = -1
 		} else {
 			quit = 1
+		}
+	}
+
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyR) {
+		if win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt) {
+
+			s := rand.NewSource(time.Now().UnixNano())
+			r := rand.New(s)
+			grid = [2 * gridCentre][2 * gridCentre][16][2]uint16{}
+			for i := 0; i < 2 * gridCentre; i++ {
+				for j := 0; j < 2 * gridCentre; j++ {
+					h := r.Intn(15)
+					h -= 8
+					if h < 1 { h = 1 }
+					for k := 0; k < h; k++ {
+						u := r.Intn(superTiles) + 1
+						grid[i][j][k][0] = uint16(u)
+						if h > 1 {
+							v := r.Intn(superTiles) + 1
+							grid[i][j][k][1] = uint16(v)
+						}
+					}
+				}
+			}
+
+
 		}
 	}
 
@@ -152,6 +180,14 @@ func processEditorInputs() {
 
 	}
 
+	if win.JustPressed(pixelgl.KeyLeftAlt) {
+		tileRow1 = uint16(selectedTile1 / tileOverlayWidth)
+	}
+
+	if win.JustPressed(pixelgl.KeyRightAlt) {
+		tileRow2 = uint16(selectedTile2 / tileOverlayWidth)
+	}
+
 	leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt)
 	rightAltPressed = win.Pressed(pixelgl.KeyRightAlt)
 
@@ -161,22 +197,48 @@ func processEditorInputs() {
 
 	} else if leftAltPressed {
 
-		selectedTile1 = uint16(16*win.MousePosition().X/screenWidth) + 1
+		if win.JustPressed(pixelgl.KeyW) {
+			if tileRow1 == 0 {
+				tileRow1 = tileOverlayHeight-1
+			} else {
+				tileRow1 -= 1
+			}
+		} else if win.JustPressed(pixelgl.KeyS) {
+			tileRow1 += 1
+			if tileRow1 >= tileOverlayHeight { tileRow1 = 0 }
+		}
+
+		selectedTile1 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
+			tileOverlayWidth*tileRow1 + 1
+
 		if selectedTile1 < 1 {
 			selectedTile1 = 1
 		}
-		if selectedTile1 > 16 {
-			selectedTile1 = 16
+		if selectedTile1 > superTiles {
+			selectedTile1 = superTiles
 		}
 
 	} else if rightAltPressed {
 
-		selectedTile2 = uint16(16*win.MousePosition().X/screenWidth) + 1
+		if win.JustPressed(pixelgl.KeyW) {
+			if tileRow2 == 0 {
+				tileRow2 = tileOverlayHeight-1
+			} else {
+				tileRow2 -= 1
+			}
+		} else if win.JustPressed(pixelgl.KeyS) {
+			tileRow2 += 1
+			if tileRow2 >= tileOverlayHeight { tileRow2 = 0 }
+		}
+
+		selectedTile2 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
+			tileOverlayWidth*tileRow2 + 1
+
 		if selectedTile2 < 1 {
 			selectedTile2 = 1
 		}
-		if selectedTile2 > 16 {
-			selectedTile2 = 16
+		if selectedTile2 > superTiles {
+			selectedTile2 = superTiles
 		}
 
 	} else {

@@ -126,7 +126,7 @@ func renderEditorOutputs() {
 						baseTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][0]
 					}
 
-					if baseTile > 0 || (selectedTile1 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
+					if baseTile > 0 && baseTile <= superTiles || (selectedTile1 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
 
 						s := 4*(1-aspect)
 						cam := pixel.V(cX, cY)
@@ -138,17 +138,17 @@ func renderEditorOutputs() {
 							frontTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][1]
 						}
 
-						if frontTile > 0 || (selectedTile2 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
+						if frontTile > 0 && frontTile <= superTiles || (selectedTile2 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
 
 							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
 								Moved(pixel.V(0, vScale*(1-aspect)*4))
 
 							if int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
-								tileSprite[selectedTile1-1].Draw(batch, matrix)
+								tileTexture[selectedTile1-1].Draw(batch, matrix)
 							} else {
 								batch.SetColorMask(color.RGBA{255, 255, 255, 255})
-								tileSprite[baseTile-1].Draw(batch, matrix)
+								tileTexture[baseTile-1].Draw(batch, matrix)
 							}
 
 							if aspect < 1 {
@@ -162,10 +162,10 @@ func renderEditorOutputs() {
 
 								if selectedTile2 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 									batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
-									tileSprite[selectedTile2-1].Draw(batch, matrix)
+									tileTexture[selectedTile2-1].Draw(batch, matrix)
 								} else {
 									batch.SetColorMask(color.RGBA{192, 192, 192, 255})
-									tileSprite[frontTile-1].Draw(batch, matrix)
+									tileTexture[frontTile-1].Draw(batch, matrix)
 								}
 							}
 
@@ -176,10 +176,10 @@ func renderEditorOutputs() {
 
 							if int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
-								tileSprite[selectedTile1-1].Draw(batch, matrix)
+								tileTexture[selectedTile1-1].Draw(batch, matrix)
 							} else {
 								batch.SetColorMask(color.RGBA{255, 255, 255, 255})
-								tileSprite[baseTile-1].Draw(batch, matrix)
+								tileTexture[baseTile-1].Draw(batch, matrix)
 							}
 
 						}
@@ -275,18 +275,36 @@ func renderEditorOutputs() {
 
 		tileOverlay.Clear()
 
-		for i := uint16(0); i < 16; i++ {
+		n := 0
+		
+		for j := uint16(0); j < tileOverlayHeight; j++ {
 
-			if leftAltPressed && i == selectedTile1-1 {
-				tileOverlay.SetColorMask(color.RGBA{R: 255, G: 255, B: 255, A: 255})
-			} else if rightAltPressed && i == selectedTile2-1 {
-				tileOverlay.SetColorMask(color.RGBA{R: 255, G: 255, B: 255, A: 255})
-			} else {
-				tileOverlay.SetColorMask(color.RGBA{R: 128, G: 128, B: 128, A: 255})
+			yes := leftAltPressed && int(j) == int(float64(selectedTile1-1) / float64(tileOverlayWidth)) ||
+				rightAltPressed && int(j) == int(float64(selectedTile2-1) / float64(tileOverlayWidth))
+
+			if !yes {
+				n += int(tileOverlayWidth)
+				continue
 			}
 
-			matrix := pixel.IM.Moved(pixel.V(float64(i)*150+150, 100)).ScaledXY(pixel.ZV, pixel.V(0.5, 0.5))
-			tileSprite[i].Draw(tileOverlay, matrix)
+			for i := uint16(0); i < tileOverlayWidth; i++ {
+
+				if leftAltPressed && uint16(n) == selectedTile1-1 {
+					tileOverlay.SetColorMask(color.RGBA{R: 255, G: 255, B: 255, A: 255})
+				} else if rightAltPressed && uint16(n) == selectedTile2-1 {
+					tileOverlay.SetColorMask(color.RGBA{R: 255, G: 255, B: 255, A: 255})
+				} else {
+					tileOverlay.SetColorMask(color.RGBA{R: 128, G: 128, B: 128, A: 255})
+				}
+
+				u := (float64(i) + 0.5) * 150
+				v := 100.0
+
+				matrix := pixel.IM.Moved(pixel.V(u, v)).ScaledXY(pixel.ZV, pixel.V(0.5, 0.5))
+				tileTexture[n].Draw(tileOverlay, matrix)
+				n++
+
+			}
 		}
 
 		win.SetComposeMethod(pixel.ComposeOver)
@@ -332,15 +350,17 @@ func renderEditorOutputs() {
 		}
 		print("")
 		print("H for help...")
+
 	} else {
+
 		print("Left click : Draw tile")
 		print("Right click : Clear tile")
 		print("Middle click : Pick tile")
 		print("PgUp / PgDn : Cursor up / down")
 		print("Home / End : Cursor top / bottom")
 		print("Tab : Toggle cursor tile visibility")
-		print("Left Alt : Choose base tile")
-		print("Right Alt : Choose front tile")
+		print("Left / Right Alt : Choose base / front tile")
+		print("Alt + W / S : Cycle tile row up / down")
 		print("Backspace : Clear front tile")
 		print("W / S / A / D : Move camera")
 		print("Mouse wheel : Zoom camera")
