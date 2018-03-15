@@ -25,7 +25,9 @@ var (
 	second                                              = time.Tick(time.Second)
 	win               *pixelgl.Window
 	textRenderer      *text.Text
+	luaRenderer      *text.Text
 	textLine          int
+	luaLine			  int
 	tilePic           pixel.Picture
 	tileTexture       [superTiles]*pixel.Sprite
 	tileOverlay       *pixel.Batch

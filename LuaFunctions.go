@@ -3,7 +3,23 @@ package main
 import (
 	"github.com/yuin/gopher-lua"
 	"fmt"
+	"github.com/faiface/pixel"
 )
+
+func lua_print(L *lua.LState) int {
+	text := L.ToString(1)
+	luaRenderer.Dot = pixel.V(screenWidth*0.75, screenHeight-22 - float64(luaLine)*22)
+	luaRenderer.WriteString(text + "\n")
+	luaLine++
+	return 0
+}
+
+
+func lua_clear(L *lua.LState) int {
+	luaRenderer.Clear()
+	luaLine = 0
+	return 0
+}
 
 func linkToLua(luaState *lua.LState, goFunction lua.LGFunction, goFunctionName string) {
 	luaState.SetGlobal(goFunctionName, luaState.NewFunction(goFunction))

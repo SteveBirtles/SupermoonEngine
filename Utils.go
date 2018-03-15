@@ -55,6 +55,7 @@ func print(s string) {
 func endFrame() {
 
 	textRenderer.Draw(win, pixel.IM)
+	luaRenderer.Draw(win, pixel.IM)
 
 	win.Update()
 

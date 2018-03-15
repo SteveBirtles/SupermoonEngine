@@ -30,6 +30,11 @@ func initiate() {
 	textRenderer.Color = colornames.Limegreen
 	textRenderer.Orig = pixel.V(10, screenHeight-22)
 
+	luaRenderer = text.New(pixel.ZV, textAtlas)
+	luaRenderer.LineHeight = textAtlas.LineHeight() * 1.5
+	luaRenderer.Color = colornames.Orangered
+	luaRenderer.Orig = pixel.V(screenWidth*0.75, screenHeight-22)
+
 	tileOverlayWidth  = uint16((screenWidth) / 75)
 	tileOverlayHeight = superTiles/tileOverlayWidth
 
@@ -52,5 +57,21 @@ func initiate() {
 	imd1 = imdraw.New(nil)
 	batch = pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
 	imd2 = imdraw.New(nil)
+
+	linkToLua(L, lua_print, "print")
+	linkToLua(L, lua_clear, "clear")
+
+	executeLua(L,  `print('Lua virtual machine online...')
+							print ()
+							local bottles = 5
+							local function plural (bottles) if bottles == 1 then return '' end return 's' end
+							while bottles > 0 do
+								print (bottles..' bottle'..plural(bottles)..' of beer on the wall')
+								print (bottles..' bottle'..plural(bottles)..' of beer')
+								print ('Take one down, pass it around')
+								bottles = bottles - 1
+								print (bottles..' bottle'..plural(bottles)..' of beer on the wall')
+								print ()
+							end`)
 
 }
