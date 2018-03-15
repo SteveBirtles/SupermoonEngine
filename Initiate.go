@@ -30,6 +30,9 @@ func initiate() {
 	textRenderer.Color = colornames.Limegreen
 	textRenderer.Orig = pixel.V(10, screenHeight-22)
 
+	tileOverlayWidth  = uint16((screenWidth) / 75)
+	tileOverlayHeight = superTiles/tileOverlayWidth
+
 	textureImage, initError := loadImageFile("textures/super.png")
 	check(initError)
 

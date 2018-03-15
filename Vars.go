@@ -29,8 +29,8 @@ var (
 	tilePic           pixel.Picture
 	tileTexture       [superTiles]*pixel.Sprite
 	tileOverlay       *pixel.Batch
-	tileOverlayWidth  = uint16((screenWidth) / 75)
-	tileOverlayHeight = superTiles/tileOverlayWidth
+	tileOverlayWidth  uint16
+	tileOverlayHeight uint16
 	imd1              *imdraw.IMDraw
 	imd2              *imdraw.IMDraw
 	batch             *pixel.Batch

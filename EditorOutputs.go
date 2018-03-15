@@ -297,7 +297,7 @@ func renderEditorOutputs() {
 					tileOverlay.SetColorMask(color.RGBA{R: 128, G: 128, B: 128, A: 255})
 				}
 
-				u := (float64(i) + 0.5) * 150
+				u := (float64(i) + 0.5) * 150 + (screenWidth - float64(tileOverlayWidth) * 75)
 				v := 100.0
 
 				matrix := pixel.IM.Moved(pixel.V(u, v)).ScaledXY(pixel.ZV, pixel.V(0.5, 0.5))
