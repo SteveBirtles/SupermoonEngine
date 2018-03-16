@@ -58,20 +58,62 @@ func initiate() {
 	batch = pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
 	imd2 = imdraw.New(nil)
 
-	linkToLua(L, lua_print, "print")
-	linkToLua(L, lua_clear, "clear")
+	initiateAPI()
 
-	executeLua(L,  `print('Lua virtual machine online...')
-							print ()
-							local bottles = 5
-							local function plural (bottles) if bottles == 1 then return '' end return 's' end
-							while bottles > 0 do
-								print (bottles..' bottle'..plural(bottles)..' of beer on the wall')
-								print (bottles..' bottle'..plural(bottles)..' of beer')
-								print ('Take one down, pass it around')
-								bottles = bottles - 1
-								print (bottles..' bottle'..plural(bottles)..' of beer on the wall')
-								print ()
-							end`)
+}
+
+
+func initiateAPI() {
+
+	linkToLua(L, APILoadMap, "LoadMap")
+	linkToLua(L, APIGetTile, "GetTile")
+	linkToLua(L, APISetTile, "SetTile")
+	linkToLua(L, APISetFocus, "SetFocus")
+	linkToLua(L, APISetZoom, "SetZoom")
+
+	linkToLua(L, APIGetId, "GetId")
+	linkToLua(L, APIGetEntities, "GetEntities")
+	linkToLua(L, APISetEntityPosition, "SetEntityPosition")
+	linkToLua(L, APIGetEntityPosition, "GetEntityPosition")
+	linkToLua(L, APISetEntityVelocity, "SetEntityVelocity")
+	linkToLua(L, APIPathFind, "PathFind")
+	linkToLua(L, APICreateEntity, "CreateEntity")
+	linkToLua(L, APISetEntitySprite, "SetEntitySprite")
+	linkToLua(L, APIGetEntitySprite, "GetEntitySprite")
+	linkToLua(L, APISetEntityAnimation, "SetEntityAnimation")
+	linkToLua(L, APISetEntityScript, "SetEntityScript")
+	linkToLua(L, APIGetEntityScript, "GetEntityScript")
+	linkToLua(L, APISetEntityProperty, "SetEntityProperty")
+	linkToLua(L, APIGetEntityProperty, "GetEntityProperty")
+	linkToLua(L, APIListEntityProperties, "ListEntityProperties")
+	linkToLua(L, APIDeleteEntity, "DeleteEntity")
+	linkToLua(L, APIEntityProximity, "EntityProximity")
+	linkToLua(L, APISetFocusEntity, "SetFocusEntity")
+	linkToLua(L, APIGetEntityClass, "GetEntityClass")
+	linkToLua(L, APISetEntityClass, "SetEntityClass")
+	linkToLua(L, APIOverrideClassScript, "OverrideClassScript")
+	linkToLua(L, APISetEntityActive, "SetEntityActive")
+	linkToLua(L, APISetClassActive, "SetClassActive")
+	linkToLua(L, APISetAllActive, "SetAllActive")
+
+	linkToLua(L, APIKeyPressed, "KeyPressed")
+	linkToLua(L, APIKeyJustPressed, "KeyJustPressed")
+	linkToLua(L, APIDisplayText, "DisplayText")
+	linkToLua(L, APIDisplayOptions, "DisplayOptions")
+	linkToLua(L, APIPlaySound, "PlaySound")
+	linkToLua(L, APIPlayMusic, "PlayMusic")
+	linkToLua(L, APIPauseMusic, "PauseMusic")
+	linkToLua(L, APIEndGame, "EndGame")
+
+	linkToLua(L, APIStartTimer, "StartTimer")
+	linkToLua(L, APIGetTimer, "GetTimer")
+	linkToLua(L, APICancelTimer, "CancelTimer")
+	linkToLua(L, APISetPersistent, "SetPersistent")
+	linkToLua(L, APIGetPersistent, "GetPersistent")
+
+	linkToLua(L, luaPrint, "print")
+	linkToLua(L, luaClear, "clear")
+
+	executeLua(L,  "print('Lua virtual machine online...')")
 
 }
