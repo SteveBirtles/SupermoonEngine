@@ -15,7 +15,7 @@ const clipboardSize = 64
 const clipboardFile = "cache/clipboards.dat"
 
 const superWidth = 2048
-const superHeight = 2048
+const superHeight = 1280
 const superTiles = (superWidth/128)*(superHeight/128)
 
 var (
