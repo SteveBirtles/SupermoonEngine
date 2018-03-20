@@ -197,13 +197,13 @@ func processEditorInputs() {
 
 	} else if leftAltPressed {
 
-		if win.JustPressed(pixelgl.KeyW) {
+		if win.MouseScroll().Y > 0 {
 			if tileRow1 == 0 {
 				tileRow1 = tileOverlayHeight-1
 			} else {
 				tileRow1 -= 1
 			}
-		} else if win.JustPressed(pixelgl.KeyS) {
+		} else if win.MouseScroll().Y < 0 {
 			tileRow1 += 1
 			if tileRow1 >= tileOverlayHeight { tileRow1 = 0 }
 		}
@@ -220,13 +220,13 @@ func processEditorInputs() {
 
 	} else if rightAltPressed {
 
-		if win.JustPressed(pixelgl.KeyW) {
+		if win.MouseScroll().Y > 0 {
 			if tileRow2 == 0 {
 				tileRow2 = tileOverlayHeight-1
 			} else {
 				tileRow2 -= 1
 			}
-		} else if win.JustPressed(pixelgl.KeyS) {
+		} else if win.MouseScroll().Y < 0 {
 			tileRow2 += 1
 			if tileRow2 >= tileOverlayHeight { tileRow2 = 0 }
 		}
