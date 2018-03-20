@@ -308,10 +308,26 @@ func processEditorInputs() {
 		} else if win.JustPressed(pixelgl.KeyPageDown) {
 			tileZ -= 1
 			if tileZ < 0 { tileZ = 0 }
-		} else if win.JustPressed(pixelgl.KeyHome) {
-			tileZ = 15
 		} else if win.JustPressed(pixelgl.KeyEnd) {
+
 			tileZ = 0
+			for k := 0; k <= 15; k++ {
+				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+					tileZ = k
+					break
+				}
+			}
+
+		} else if win.JustPressed(pixelgl.KeyHome) {
+
+			tileZ = 0
+			for k := 15; k >= 0; k-- {
+				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+					tileZ = k
+					break
+				}
+			}
+
 		}
 
 		if viewDirection == 0 && win.Pressed(pixelgl.KeyW) ||

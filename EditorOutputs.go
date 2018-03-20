@@ -173,7 +173,12 @@ func renderEditorOutputs() {
 
 							if int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile {
 								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
-								tileTexture[selectedTile1-1].Draw(batch, matrix)
+								if selectedTile2 == 0 {
+									tileTexture[selectedTile1-1].Draw(batch, matrix.Moved(pixel.V(0, -vScale*(1-aspect)*4)))
+								} else {
+									tileTexture[selectedTile1-1].Draw(batch, matrix)
+								}
+
 							}
 
 							if aspect < 1 {
@@ -239,6 +244,51 @@ func renderEditorOutputs() {
 						imd2.Push(pixel.V(64, -64))
 						imd2.Polygon(0)
 					}
+
+					if int(i) == viewTileX && int(j) == viewTileY {
+
+						if tileZ > 0 {
+							imd2.SetMatrix(matrix)
+							imd2.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0}
+							imd2.Push(pixel.V(-64, -64))
+							imd2.Push(pixel.V(-64, 64+(1-aspect)*(float64(tileZ)-0.5)*512.0))
+							imd2.Push(pixel.V(64, 64+(1-aspect)*(float64(tileZ)-0.5)*512.0))
+							imd2.Push(pixel.V(64, -64))
+							imd2.Polygon(0)
+						}
+						if selectedTile2 > 0 {
+							imd2.SetMatrix(matrix)
+							imd2.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0.2}
+							imd2.Push(pixel.V(-64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+							imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+							imd2.Push(pixel.V(64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imd2.Polygon(0)
+						} else {
+							imd2.SetMatrix(matrix)
+							imd2.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0.2}
+							imd2.Push(pixel.V(-64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ)*512.0))
+							imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ)*512.0))
+							imd2.Push(pixel.V(64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imd2.Polygon(0)
+
+							if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
+								currentFront := grid[int(i)+gridCentre][int(j)+gridCentre][int(tileZ)][1]
+								if currentFront != 0 {
+									imd2.SetMatrix(matrix)
+									imd2.Color = pixel.RGBA{R: 0.2, G: 0.0, B: 0.0}
+									imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ)*512.0))
+									imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+									imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+									imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ)*512.0))
+									imd2.Polygon(0)
+								}
+							}
+						}
+
+					}
+
 
 					if showGrid > 0 {
 
@@ -386,7 +436,7 @@ func renderEditorOutputs() {
 		print("Right click : Clear tile")
 		print("Middle click : Pick tile")
 		print("PgUp / PgDn : Cursor up / down")
-		print("Home / End : Cursor top / bottom")
+		print("Home / End : Cursor high / low")
 		print("Tab : Toggle cursor tile visibility")
 		print("Left / Right Alt : Choose base / front tile")
 		print("Alt + Mouse Wheel : Cycle tile row")
