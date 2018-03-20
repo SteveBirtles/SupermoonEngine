@@ -66,7 +66,7 @@ func processEditorInputs() {
 		showGrid = (showGrid + 1) % 3
 	}
 
-	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyJ) && viewDirection == 0 {
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyJ) {
 		xRay = !xRay
 	}
 
@@ -78,21 +78,18 @@ func processEditorInputs() {
 		hideTile = !hideTile
 	}
 
-	if win.JustPressed(pixelgl.KeyLeftShift) && viewDirection == 0 {
+	if win.JustPressed(pixelgl.KeyO) {
+		showShadows = !showShadows
+	}
+
+	if win.JustPressed(pixelgl.KeyLeftShift) {
 		selectionStartX = tileX
 		selectionStartY = tileY
 		selectionLive = true
 	}
-	if win.Pressed(pixelgl.KeyLeftShift) && viewDirection == 0 {
+	if win.Pressed(pixelgl.KeyLeftShift) {
 		selectionEndX = tileX
 		selectionEndY = tileY
-	}
-
-	arrowPressed := win.Pressed(pixelgl.KeyUp) || win.Pressed(pixelgl.KeyDown) || win.Pressed(pixelgl.KeyLeft) || win.Pressed(pixelgl.KeyRight)
-
-	if arrowPressed {
-		xRay = false
-		selectionLive = false
 	}
 
 	if win.JustPressed(pixelgl.KeyEscape) {
@@ -101,6 +98,7 @@ func processEditorInputs() {
 		selectionLive = false
 		help = false
 		viewDirection = 0
+		tileZ = 0
 	}
 
 	previewClipboard = -1
@@ -180,6 +178,47 @@ func processEditorInputs() {
 
 	}
 
+	if win.JustPressed(pixelgl.KeyUp) { viewDirection = 0 }
+	if win.JustPressed(pixelgl.KeyRight) { viewDirection = 1 }
+	if win.JustPressed(pixelgl.KeyDown) { viewDirection = 2 }
+	if win.JustPressed(pixelgl.KeyLeft) { viewDirection = 3 }
+
+	if win.JustPressed(pixelgl.KeyEqual) {
+		clipboardShift += 1
+		if clipboardShift > 15 { clipboardShift = 15 }
+	} else if win.JustPressed(pixelgl.KeyMinus) {
+		clipboardShift -= 1
+		if clipboardShift < -15 { clipboardShift = -15 }
+	}
+
+	if win.JustPressed(pixelgl.KeyPageUp) {
+		tileZ += 1
+		if tileZ > 15 { tileZ = 15 }
+	} else if win.JustPressed(pixelgl.KeyPageDown) {
+		tileZ -= 1
+		if tileZ < 0 { tileZ = 0 }
+	} else if win.JustPressed(pixelgl.KeyEnd) {
+
+		tileZ = 0
+		for k := 0; k <= 15; k++ {
+			if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+				tileZ = k
+				break
+			}
+		}
+
+	} else if win.JustPressed(pixelgl.KeyHome) {
+
+		tileZ = 0
+		for k := 15; k >= 0; k-- {
+			if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+				tileZ = k
+				break
+			}
+		}
+
+	}
+
 	if win.JustPressed(pixelgl.KeyLeftAlt) {
 		tileRow1 = uint16(selectedTile1 / tileOverlayWidth)
 	}
@@ -246,8 +285,20 @@ func processEditorInputs() {
 		mouseX = float64(win.MousePosition().X - screenWidth/2)
 		mouseY = float64(screenHeight/2 - win.MousePosition().Y)
 
-		tileX = int(floor((mouseX - cameraX*scale) / hScale))
-		tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
+		switch  viewDirection {
+		case 0:
+			tileX = int(floor((mouseX - cameraX*scale) / hScale))
+			tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
+		case 1:
+			tileX = -int(floor((mouseY + cameraX*scale*aspect) / vScale))
+			tileY = int(floor((mouseX + cameraY*scale) / hScale))
+		case 2:
+			tileX = -int(floor((mouseX + cameraX*scale) / hScale))
+			tileY = -int(floor((mouseY - cameraY*scale*aspect) / vScale))
+		case 3:
+			tileX = int(floor((mouseY - cameraX*scale*aspect) / vScale))
+			tileY = -int(floor((mouseX - cameraY*scale) / hScale))
+		}
 
 		if tileX > gridCentre-1 { tileX = gridCentre-1 }
 		if tileY > gridCentre-1 { tileY = gridCentre-1 }
@@ -289,47 +340,6 @@ func processEditorInputs() {
 			vScale = hScale * aspect
 		}
 
-		if win.JustPressed(pixelgl.KeyUp) { viewDirection = 0 }
-		if win.JustPressed(pixelgl.KeyRight) { viewDirection = 1 }
-		if win.JustPressed(pixelgl.KeyDown) { viewDirection = 2 }
-		if win.JustPressed(pixelgl.KeyLeft) { viewDirection = 3 }
-
-		if win.JustPressed(pixelgl.KeyEqual) {
-			clipboardShift += 1
-			if clipboardShift > 15 { clipboardShift = 15 }
-		} else if win.JustPressed(pixelgl.KeyMinus) {
-			clipboardShift -= 1
-			if clipboardShift < -15 { clipboardShift = -15 }
-		}
-
-		if win.JustPressed(pixelgl.KeyPageUp) {
-			tileZ += 1
-			if tileZ > 15 { tileZ = 15 }
-		} else if win.JustPressed(pixelgl.KeyPageDown) {
-			tileZ -= 1
-			if tileZ < 0 { tileZ = 0 }
-		} else if win.JustPressed(pixelgl.KeyEnd) {
-
-			tileZ = 0
-			for k := 0; k <= 15; k++ {
-				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
-					tileZ = k
-					break
-				}
-			}
-
-		} else if win.JustPressed(pixelgl.KeyHome) {
-
-			tileZ = 0
-			for k := 15; k >= 0; k-- {
-				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
-					tileZ = k
-					break
-				}
-			}
-
-		}
-
 		if viewDirection == 0 && win.Pressed(pixelgl.KeyW) ||
 			viewDirection == 1 && win.Pressed(pixelgl.KeyA) ||
 			viewDirection == 2 && win.Pressed(pixelgl.KeyS) ||
@@ -357,11 +367,11 @@ func processEditorInputs() {
 
 	}
 
-	cpy := win.JustPressed(pixelgl.KeyC) && viewDirection == 0
-	cut := win.JustPressed(pixelgl.KeyX) && viewDirection == 0
-	clr := win.JustPressed(pixelgl.KeyDelete) && viewDirection == 0
-	fill := win.JustPressed(pixelgl.KeyInsert) && viewDirection == 0
-	bill := win.JustPressed(pixelgl.KeyF) && viewDirection == 0
+	cpy := win.JustPressed(pixelgl.KeyC)
+	cut := win.JustPressed(pixelgl.KeyX)
+	clr := win.JustPressed(pixelgl.KeyDelete)
+	fill := win.JustPressed(pixelgl.KeyInsert)
+	bill := win.JustPressed(pixelgl.KeyF)
 
 	if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || fill || bill) {
 
@@ -450,7 +460,7 @@ func processEditorInputs() {
 	}
 
 	paste := win.JustPressed(pixelgl.KeyV) && win.Pressed(pixelgl.KeyLeftControl) ||
-		previewClipboard != -1 && win.JustPressed(pixelgl.MouseButtonLeft) && viewDirection == 0
+		previewClipboard != -1 && win.JustPressed(pixelgl.MouseButtonLeft)
 
 	if paste && clipboardWidth[currentClipboard] >= 0 {
 
@@ -492,7 +502,7 @@ func processEditorInputs() {
 
 	}
 
-	onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre && viewDirection == 0
+	onGrid := tileX >= -gridCentre && tileY >= -gridCentre && tileX < gridCentre && tileY < gridCentre
 
 	leftDown := previewClipboard == -1 && win.Pressed(pixelgl.MouseButtonLeft)
 	rightDown := previewClipboard == -1 && win.Pressed(pixelgl.MouseButtonRight)

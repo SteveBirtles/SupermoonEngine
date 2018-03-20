@@ -19,7 +19,7 @@ const superHeight = 1280
 const superTiles = (superWidth/128)*(superHeight/128)
 
 var (
-	windowTitlePrefix    = "Go Pixel & Lua Test"
+	windowTitlePrefix    = "OrthoEngine"
 	frames                                              = 0
 	undoFrame                                  = 1
 	second                                              = time.Tick(time.Second)
@@ -49,6 +49,7 @@ var (
 	scale                  = 0.5
 	aspect                 = 0.5
 	viewDirection          = 0
+	compass                = [4]string{"North", "East", "South", "West"}
 	hScale                 = 64.0
 	vScale                 = hScale * aspect
 	lastTileX              = outsideGrid
@@ -64,20 +65,19 @@ var (
 	tileX                  = 0
 	tileY                  = 0
 	tileZ                  = 0
-	viewTileX              = 0
-	viewTileY              = 0
 	hideTile               = false
+	showShadows            = true
 	showGrid               = 1
 	xRay                   = false
 	zRay                   = false
 	selectionStartX        = 0
 	selectionStartY        = 0
-	selectionEndX           = 0
+	selectionEndX          = 0
 	selectionEndY          = 0
 	selectionLive          = false
 	leftAltPressed         = false
 	rightAltPressed        = false
 	quit                   = 0
-	help 				   = false
+	help                   = false
 )
 
