@@ -94,6 +94,7 @@ func renderEditorOutputs() {
 
 				var alpha uint8 = 255
 				var beta uint8 = 128
+				var gamma uint8 = 192
 
 				if zRay && int(k) > tileZ || xRay && int(j) > viewTileY {
 					continue
@@ -101,10 +102,9 @@ func renderEditorOutputs() {
 					if zRay && int(k) < tileZ || xRay && int(j) < viewTileY {
 						alpha = 128
 						beta = 64
+						gamma = 96
 					}
 				}
-
-				//batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
 
 				deltaX := 0
 				deltaY := 0
@@ -113,6 +113,27 @@ func renderEditorOutputs() {
 				if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
 					baseTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][0]
+					frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][1]
+					inShadow := false
+
+					if baseTile > 0 {
+
+						for s := 1.0; k+s < 16; s++ {
+
+							if int(j-s) >= -gridCentre && int(j-s) < gridCentre {
+
+								if frontTile == 0 && (grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s-1)][1] > 0 ||
+										grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s)][0] > 0) ||
+									frontTile > 0 && (grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s)][0] > 0 ||
+										grid[int(i)+gridCentre][int(j-s+1)+gridCentre][int(k+s)][0] > 0) {
+									inShadow = true
+									break
+								}
+
+							}
+						}
+
+					}
 
 					if previewClipboard != -1 && !(kC < 0 || kC > 15) {
 						deltaX = int(i) - viewTileX
@@ -126,6 +147,8 @@ func renderEditorOutputs() {
 
 					if preview {
 						baseTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][0]
+					} else if inShadow {
+						alpha = gamma
 					}
 
 					if baseTile > 0 && baseTile <= superTiles || (selectedTile1 > 0 && int(i) == viewTileX && int(j) == viewTileY && int(k) == tileZ && !hideTile) {
@@ -133,8 +156,6 @@ func renderEditorOutputs() {
 						s := 4*(1-aspect)
 						cam := pixel.V(cX, cY)
 						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
-
-						frontTile := grid[int(i)+gridCentre][int(j)+gridCentre][int(k)][1]
 
 						if preview {
 							frontTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][1]

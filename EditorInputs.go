@@ -488,6 +488,7 @@ func processEditorInputs() {
 			t := grid[tileX+gridCentre][tileY+gridCentre][tileZ][0]
 			if t > 0 {
 				selectedTile1 = t
+				selectedTile2 = 0
 			}
 			t = grid[tileX+gridCentre][tileY+gridCentre][tileZ][1]
 			if t > 0 {
