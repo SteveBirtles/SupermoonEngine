@@ -146,7 +146,7 @@ func renderEditorOutputs() {
 						if flipX { deltaX = clipboardWidth[currentClipboard] - (int(i) - tileX) }
 						if flipY { deltaY = clipboardHeight[currentClipboard] - (int(j) - tileY) }
 
-						if deltaX >= 0 && deltaY >= 0 && deltaX <= clipboardWidth[previewClipboard] && deltaY <= clipboardHeight[previewClipboard] {
+						if deltaX >= 0 && deltaY >= 0 && deltaX < clipboardWidth[previewClipboard] && deltaY < clipboardHeight[previewClipboard] {
 							if clobber || clipboard[previewClipboard][deltaX][deltaY][int(kC)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(kC)][1] != 0 {
 								preview = true
 							}
@@ -355,7 +355,7 @@ func renderEditorOutputs() {
 		tileOverlay.Clear()
 
 		n := 0
-		
+
 		for j := uint16(0); j < tileOverlayHeight; j++ {
 
 			yes := leftAltPressed && int(j) == int(float64(selectedTile1-1) / float64(tileOverlayWidth)) ||

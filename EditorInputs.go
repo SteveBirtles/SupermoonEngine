@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"time"
+	"fmt"
 )
 
 func processEditorInputs() {
@@ -482,8 +483,8 @@ func processEditorInputs() {
 
 	if paste && clipboardWidth[currentClipboard] >= 0 {
 
-		for i := tileX; i <= tileX + clipboardWidth[currentClipboard]; i++ {
-			for j := tileY; j <= tileY + clipboardHeight[currentClipboard]; j++ {
+		for i := tileX; i < tileX + clipboardWidth[currentClipboard]; i++ {
+			for j := tileY; j < tileY + clipboardHeight[currentClipboard]; j++ {
 
 				ii := i
 				jj := j
@@ -496,6 +497,8 @@ func processEditorInputs() {
 
 						k := k0 + clipboardShift
 						if k < 0 || k > 15 { continue }
+
+						fmt.Printf("Clipboard bugger up: %d, %d\n", int(ii-tileX), int(jj-tileY))
 
 						if grid[i+gridCentre][j+gridCentre][k][0] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][0] ||
 							grid[i+gridCentre][j+gridCentre][k][1] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][1] {
