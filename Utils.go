@@ -75,7 +75,7 @@ func endFrame() {
 	case <-second:
 		undoFrame++
 		win.SetTitle(fmt.Sprintf("%s | FPS: %d", windowTitlePrefix, frames))
-		executeLua(L, "print('Frame!')")
+		//executeLua(L, "print('Frame!')")
 		frames = 0
 	default:
 	}

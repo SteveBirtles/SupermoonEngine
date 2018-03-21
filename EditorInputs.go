@@ -80,7 +80,7 @@ func processEditorInputs() {
 		zRay = !zRay
 	}
 
-	if win.JustPressed(pixelgl.KeyTab) {
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyP) {
 		hideTile = !hideTile
 	}
 
@@ -88,11 +88,11 @@ func processEditorInputs() {
 		showShadows = !showShadows
 	}
 
-	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyF) {
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyR) {
 		flipX = !flipX
 	}
 
-	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyR) {
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyT) {
 		flipY = !flipY
 	}
 
@@ -210,44 +210,52 @@ func processEditorInputs() {
 		if clipboardShift < -15 { clipboardShift = -15 }
 	}
 
-	if win.JustPressed(pixelgl.KeyPageUp) {
-		tileZ += 1
-		if tileZ > 15 { tileZ = 15 }
-	} else if win.JustPressed(pixelgl.KeyPageDown) {
-		tileZ -= 1
-		if tileZ < 0 { tileZ = 0 }
-	} else if win.JustPressed(pixelgl.KeyEnd) {
+	if !win.Pressed(pixelgl.KeyLeftControl) {
 
-		tileZ = 0
-		for k := 0; k <= 15; k++ {
-			if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
-				tileZ = k
-				break
+		if win.MouseScroll().Y > 0 {
+			tileZ += 1
+			if tileZ > 15 {
+				tileZ = 15
 			}
+		} else if win.MouseScroll().Y < 0 {
+			tileZ -= 1
+			if tileZ < 0 {
+				tileZ = 0
+			}
+		} else if win.JustPressed(pixelgl.KeyEnd) {
+
+			tileZ = 0
+			for k := 0; k <= 15; k++ {
+				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+					tileZ = k
+					break
+				}
+			}
+
+		} else if win.JustPressed(pixelgl.KeyHome) {
+
+			tileZ = 0
+			for k := 15; k >= 0; k-- {
+				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+					tileZ = k
+					break
+				}
+			}
+
 		}
 
-	} else if win.JustPressed(pixelgl.KeyHome) {
-
-		tileZ = 0
-		for k := 15; k >= 0; k-- {
-			if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
-				tileZ = k
-				break
-			}
+		if win.JustPressed(pixelgl.KeyLeftAlt) {
+			tileRow1 = uint16(selectedTile1 / tileOverlayWidth)
 		}
 
-	}
+		if win.JustPressed(pixelgl.KeyRightAlt) {
+			tileRow2 = uint16(selectedTile2 / tileOverlayWidth)
+		}
 
-	if win.JustPressed(pixelgl.KeyLeftAlt) {
-		tileRow1 = uint16(selectedTile1 / tileOverlayWidth)
-	}
+		leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt)
+		rightAltPressed = win.Pressed(pixelgl.KeyRightAlt)
 
-	if win.JustPressed(pixelgl.KeyRightAlt) {
-		tileRow2 = uint16(selectedTile2 / tileOverlayWidth)
 	}
-
-	leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt)
-	rightAltPressed = win.Pressed(pixelgl.KeyRightAlt)
 
 	if win.Pressed(pixelgl.KeyBackspace) {
 
@@ -324,9 +332,10 @@ func processEditorInputs() {
 		if tileX < -gridCentre { tileX = -gridCentre }
 		if tileY < -gridCentre { tileY = -gridCentre }
 
-		if win.MouseScroll().Y != 0 {
+		if win.Pressed(pixelgl.KeyLeftControl) && win.MouseScroll().Y != 0 {
 			lastScale := scale
 			scale /= 1 - win.MouseScroll().Y/10
+
 			if scale < 0.1 {
 				scale = 0.1
 			}
@@ -389,10 +398,10 @@ func processEditorInputs() {
 	cpy := win.JustPressed(pixelgl.KeyC)
 	cut := win.JustPressed(pixelgl.KeyX)
 	clr := win.JustPressed(pixelgl.KeyDelete)
-	fill := win.JustPressed(pixelgl.KeyInsert)
-	bill := win.JustPressed(pixelgl.KeyG)
+	flood := win.JustPressed(pixelgl.KeyInsert)
+	fill := win.JustPressed(pixelgl.KeyF)
 
-	if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || fill || bill) {
+	if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || flood || fill) {
 
 		startX := selectionStartX + gridCentre
 		startY := selectionStartY + gridCentre
@@ -420,9 +429,12 @@ func processEditorInputs() {
 		startZ := 0
 		endZ := 15
 
-		if fill || bill {
+		if flood {
 			startZ = tileZ
-			endZ = tileZ+1
+			endZ = tileZ
+		} else if fill {
+			startZ = 0
+			endZ = tileZ
 		}
 
 		for i := startX; i <= endX; i++ {
@@ -430,9 +442,9 @@ func processEditorInputs() {
 
 				if i < 2*gridCentre && j < 2*gridCentre && i-startX < clipboardSize && j-startY < clipboardSize {
 
-					for k := startZ; k < endZ; k++ {
+					for k := startZ; k <= endZ; k++ {
 
-						if bill && (grid[i][j][k][0] != 0 || grid[i][j][k][1] != 0) {
+						if flood && (grid[i][j][k][0] != 0 || grid[i][j][k][1] != 0) {
 							continue
 						}
 
@@ -444,7 +456,7 @@ func processEditorInputs() {
 						temp1 := uint16(0)
 						temp2 := uint16(0)
 
-						if fill || bill {
+						if flood || fill {
 							temp1 = selectedTile1
 							temp2 = selectedTile2
 						}
@@ -497,8 +509,6 @@ func processEditorInputs() {
 
 						k := k0 + clipboardShift
 						if k < 0 || k > 15 { continue }
-
-						fmt.Printf("Clipboard bugger up: %d, %d\n", int(ii-tileX), int(jj-tileY))
 
 						if grid[i+gridCentre][j+gridCentre][k][0] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][0] ||
 							grid[i+gridCentre][j+gridCentre][k][1] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][1] {
@@ -561,6 +571,7 @@ func processEditorInputs() {
 			if lastTileX != outsideGrid {
 
 				if math.Abs(float64(tileX-lastTileX)) > 1 || math.Abs(float64(tileY-lastTileY)) > 1 {
+
 					d := 1.0 / float64(math.Abs(float64(lastTileX-tileX))+math.Abs(float64(lastTileY-tileY)))
 					if d > 0 && d < 100 {
 						dx := float64(lastTileX - tileX)
@@ -572,7 +583,9 @@ func processEditorInputs() {
 
 								undoCounter = (undoCounter + 1) % maxUndo
 								for i := 0; i < maxUndo; i++ {
-									if undo[i][0] < 0 { undo[i][0] = 0 }
+									if undo[i][0] < 0 {
+										undo[i][0] = 0
+									}
 								}
 								undo[undoCounter][0] = undoFrame
 								undo[undoCounter][1] = tileX + int(s*dx) + gridCentre
@@ -587,7 +600,6 @@ func processEditorInputs() {
 						}
 					}
 				}
-
 			}
 
 			if grid[tileX+gridCentre][tileY+gridCentre][tileZ][0] != newValue1 ||
@@ -595,7 +607,9 @@ func processEditorInputs() {
 
 				undoCounter = (undoCounter + 1) % maxUndo
 				for i := 0; i < maxUndo; i++ {
-					if undo[i][0] < 0 { undo[i][0] = 0 }
+					if undo[i][0] < 0 {
+						undo[i][0] = 0
+					}
 				}
 				undo[undoCounter][0] = undoFrame
 				undo[undoCounter][1] = tileX + gridCentre
@@ -613,7 +627,9 @@ func processEditorInputs() {
 			lastTileY = tileY
 
 		} else {
+
 			lastTileX = outsideGrid
+
 		}
 	}
 
