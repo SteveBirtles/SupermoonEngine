@@ -428,7 +428,7 @@ func processEditorInputs() {
 		for i := startX; i <= endX; i++ {
 			for j := startY; j <= endY; j++ {
 
-				if i < 2*gridCentre && j < 2 * gridCentre && i-startX < clipboardSize && j-startY < clipboardSize {
+				if i < 2*gridCentre && j < 2*gridCentre && i-startX < clipboardSize && j-startY < clipboardSize {
 
 					for k := startZ; k < endZ; k++ {
 

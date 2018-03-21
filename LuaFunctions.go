@@ -17,8 +17,14 @@ var (
 )
 
 func luaPrint(L *lua.LState) int {
+
 	text := L.ToString(1)
 	luaLines = append(luaLines, consoleLine{text, 300})
+
+	if len(luaLines) >= 32 {
+		luaLines = luaLines[len(luaLines)-32:]
+	}
+
 	return 0
 }
 
