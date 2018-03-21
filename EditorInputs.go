@@ -44,7 +44,12 @@ func processEditorInputs() {
 	}
 
 	if win.JustPressed(pixelgl.KeyH) {
-		help = !help
+		if win.Pressed(pixelgl.KeyLeftControl) {
+			cameraX = 0
+			cameraY = 0
+		} else {
+			help = !help
+		}
 	}
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyN) {
@@ -82,6 +87,14 @@ func processEditorInputs() {
 		showShadows = !showShadows
 	}
 
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyF) {
+		flipX = !flipX
+	}
+
+	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyR) {
+		flipY = !flipY
+	}
+
 	if win.JustPressed(pixelgl.KeyLeftShift) {
 		selectionStartX = tileX
 		selectionStartY = tileY
@@ -99,6 +112,11 @@ func processEditorInputs() {
 		help = false
 		viewDirection = 0
 		tileZ = 0
+		flipX = false
+		flipY = false
+		showShadows = false
+		hideTile = false
+		clobber = false
 	}
 
 	previewClipboard = -1
@@ -371,7 +389,7 @@ func processEditorInputs() {
 	cut := win.JustPressed(pixelgl.KeyX)
 	clr := win.JustPressed(pixelgl.KeyDelete)
 	fill := win.JustPressed(pixelgl.KeyInsert)
-	bill := win.JustPressed(pixelgl.KeyF)
+	bill := win.JustPressed(pixelgl.KeyG)
 
 	if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || fill || bill) {
 
@@ -466,16 +484,23 @@ func processEditorInputs() {
 
 		for i := tileX; i <= tileX + clipboardWidth[currentClipboard]; i++ {
 			for j := tileY; j <= tileY + clipboardHeight[currentClipboard]; j++ {
+
+				ii := i
+				jj := j
+
+				if flipX { ii = tileX + (clipboardWidth[currentClipboard] - (i-tileX)) }
+				if flipY { jj = tileY + (clipboardHeight[currentClipboard] - (j-tileY)) }
+
 				if i < gridCentre && j < gridCentre {
 					for k0 := 0; k0 < 16; k0++ {
 
 						k := k0 + clipboardShift
 						if k < 0 || k > 15 { continue }
 
-						if grid[i+gridCentre][j+gridCentre][k][0] != clipboard[currentClipboard][i-tileX][j-tileY][k0][0] ||
-							grid[i+gridCentre][j+gridCentre][k][1] != clipboard[currentClipboard][i-tileX][j-tileY][k0][1] {
+						if grid[i+gridCentre][j+gridCentre][k][0] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][0] ||
+							grid[i+gridCentre][j+gridCentre][k][1] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][1] {
 
-							if !clobber && clipboard[currentClipboard][i-tileX][j-tileY][k0][0] == 0 && clipboard[currentClipboard][i-tileX][j-tileY][k0][1] == 0 {
+							if !clobber && clipboard[currentClipboard][ii-tileX][jj-tileY][k0][0] == 0 && clipboard[currentClipboard][ii-tileX][jj-tileY][k0][1] == 0 {
 								continue
 							}
 
@@ -492,8 +517,8 @@ func processEditorInputs() {
 							undo[undoCounter][4] = int(grid[i+gridCentre][j+gridCentre][k][0])
 							undo[undoCounter][5] = int(grid[i+gridCentre][j+gridCentre][k][1])
 
-							grid[i+gridCentre][j+gridCentre][k][0] = clipboard[currentClipboard][i-tileX][j-tileY][k0][0]
-							grid[i+gridCentre][j+gridCentre][k][1] = clipboard[currentClipboard][i-tileX][j-tileY][k0][1]
+							grid[i+gridCentre][j+gridCentre][k][0] = clipboard[currentClipboard][ii-tileX][jj-tileY][k0][0]
+							grid[i+gridCentre][j+gridCentre][k][1] = clipboard[currentClipboard][ii-tileX][jj-tileY][k0][1]
 						}
 					}
 				}

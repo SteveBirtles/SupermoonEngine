@@ -25,9 +25,7 @@ var (
 	second                                              = time.Tick(time.Second)
 	win               *pixelgl.Window
 	textRenderer      *text.Text
-	luaRenderer      *text.Text
 	textLine          int
-	luaLine			  int
 	tilePic           pixel.Picture
 	tileTexture       [superTiles]*pixel.Sprite
 	tileOverlay       *pixel.Batch
@@ -43,7 +41,7 @@ var (
 	clipboardShift                 = 0
 	currentClipboard         = 1
 	previewClipboard         = -1
-	clobber                                                               		 = true
+	clobber            	   = false
 	undo            [maxUndo][6]int //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
 	undoCounter            = 0
 	scale                  = 0.5
@@ -70,6 +68,8 @@ var (
 	showGrid               = 1
 	xRay                   = false
 	zRay                   = false
+	flipX                  = false
+	flipY                  = false
 	selectionStartX        = 0
 	selectionStartY        = 0
 	selectionEndX          = 0

@@ -142,6 +142,10 @@ func renderEditorOutputs() {
 					if previewClipboard != -1 && !(kC < 0 || kC > 15) {
 						deltaX = int(i) - tileX
 						deltaY = int(j) - tileY
+
+						if flipX { deltaX = clipboardWidth[currentClipboard] - (int(i) - tileX) }
+						if flipY { deltaY = clipboardHeight[currentClipboard] - (int(j) - tileY) }
+
 						if deltaX >= 0 && deltaY >= 0 && deltaX <= clipboardWidth[previewClipboard] && deltaY <= clipboardHeight[previewClipboard] {
 							if clobber || clipboard[previewClipboard][deltaX][deltaY][int(kC)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(kC)][1] != 0 {
 								preview = true
@@ -390,7 +394,7 @@ func renderEditorOutputs() {
 
 		print ("Level: " + levelFile)
 		print ("")
-		print(fmt.Sprintf("Cursor: %d, %d, %d", tileX, tileY, tileZ))
+		print(fmt.Sprintf("Cursor: X %d, Y %d, Z %d", tileX, tileY, tileZ))
 		print(fmt.Sprintf("View direction: %s", compass[viewDirection]))
 		print(fmt.Sprintf("Aspect: %d%%", int(100*(1-aspect))))
 		print(fmt.Sprintf("Camera: %d, %d", int(cX), int(cY)))
@@ -404,13 +408,17 @@ func renderEditorOutputs() {
 		case 2:
 			print("Grid: Front")
 		}
-		if clobber {
-			print(fmt.Sprintf("Clipboard: %d", currentClipboard))
-		} else {
-			print(fmt.Sprintf("Clipboard: %d*", currentClipboard))
-		}
+		print(fmt.Sprintf("Clipboard: %d", currentClipboard))
 		print(fmt.Sprintf("Clipboard shift: %d", clipboardShift))
-
+		if flipX {
+			print("Clipboard flipped in X direction")
+		}
+		if flipY {
+			print("Clipboard flipped in Y direction")
+		}
+		if clobber {
+			print("Blank tile pasting on")
+		}
 		if xRay {
 			print("Vertical slice on")
 		}
@@ -420,6 +428,7 @@ func renderEditorOutputs() {
 		if hideTile {
 			print("Cursor tile hidden")
 		}
+
 		print("")
 		print("H for help...")
 
@@ -430,33 +439,33 @@ func renderEditorOutputs() {
 		print("Middle click : Pick tile")
 		print("PgUp/PgDn : Cursor up/down")
 		print("Home/End : Cursor high/low")
-		print("Tab : Toggle cursor tile visibility")
 		print("Left/Right Alt : Choose base/front tile")
 		print("Alt + Mouse Wheel : Cycle tile row")
 		print("Backspace : Clear front tile")
+		print("Tab : Toggle cursor tile visibility")
 		print("W/S/A/D : Move camera")
 		print("Mouse wheel : Zoom camera")
-		print("Ctrl+Q : Save and quit")
-		print("Ctrl+Alt+Q : Quit without saving")
-		print("Ctrl+Alt+N : Clear map")
-		print("Ctrl+S/Ctrl+L : Save/Load")
+		print("Ctrl+H : Centre camera")
 		print("Ctrl+G : Change grid mode")
 		print("Ctrl+J/K : Vertical/Horizontal slice")
 		print("Shift : Make selection")
-		print("Esc : Reset slice/selection")
 		print("Number : Choose & preview clipboard")
 		print("-/= : Clipboard vertical shift")
 		print("Ctrl+E : Clear clipboard")
 		print("Ctrl+C/X/V : Copy/Cut/Paste")
 		print("Number+Click : Quick paste")
 		print("Ctrl+B : Toggle pasting blanks")
-		print("Ctrl+Del : Clear selection")
-		print("Ctrl+Ins : Fill selection")
-		print("Ctrl+F : Fill selection gaps")
+		print("Ctrl+Del/Ins : Clear/Fill selection")
+		print("Ctrl+G : Fill selection gaps")
+		print("Ctrl+F/R : Toggle mirror paste X/Y")
 		print("Ctrl+Z/Y : Undo/Redo")
 		print("Ctrl+O : Toggle shadows")
-		print("[/] : Change view angle")
-		print("Arrows : Change view direction")
+		print("[/]/Arrows : Change view angle/direction")
+		print("Esc : Reset selection, view & toggles")
+		print("Ctrl+S/Ctrl+L : Save/Load")
+		print("Ctrl+Alt+N : Clear map")
+		print("Ctrl+Q : Save & quit")
+		print("Ctrl+Alt+Q : Quit without saving")
 
 	}
 

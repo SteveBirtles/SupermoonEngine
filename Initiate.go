@@ -112,8 +112,5 @@ func initiateAPI() {
 	linkToLua(L, APIGetPersistent, "GetPersistent")
 
 	linkToLua(L, luaPrint, "print")
-	linkToLua(L, luaClear, "clear")
-
-	executeLua(L,  "print('Lua virtual machine online...')")
 
 }

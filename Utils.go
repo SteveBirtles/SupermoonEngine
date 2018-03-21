@@ -55,6 +55,17 @@ func print(s string) {
 func endFrame() {
 
 	textRenderer.Draw(win, pixel.IM)
+
+	luaRenderer.Clear()
+	luaRenderer.Dot = pixel.V(screenWidth*0.75, screenHeight-22)
+	for t := 0; t < len(luaLines); t++ {
+		luaLines[t].lifetime--
+		if luaLines[t].lifetime <= 0 {
+			continue
+		}
+		luaRenderer.WriteString(fmt.Sprintf("%s\n", luaLines[t].text))
+	}
+
 	luaRenderer.Draw(win, pixel.IM)
 
 	win.Update()
