@@ -5,7 +5,6 @@ import (
 	"math"
 	"math/rand"
 	"time"
-	"fmt"
 )
 
 func processEditorInputs() {
@@ -210,6 +209,27 @@ func processEditorInputs() {
 		if clipboardShift < -15 { clipboardShift = -15 }
 	}
 
+	if win.Pressed(pixelgl.KeyLeftControl) && win.MouseScroll().Y != 0 {
+		lastScale := scale
+		scale /= 1 - win.MouseScroll().Y/10
+
+		if scale < 0.1 {
+			scale = 0.1
+		}
+		if scale > 2.0 {
+			scale = 2.0
+		}
+		hScale = 128 * scale
+		vScale = 128 * aspect * scale
+
+		deltaX := cameraX - (-float64(tileX)*128 - 64)
+		deltaY := cameraY - (+float64(tileY)*128 + 64)
+
+		cameraX -= deltaX * (1 - lastScale/scale)
+		cameraY -= deltaY * (1 - lastScale/scale)
+
+	}
+
 	if !win.Pressed(pixelgl.KeyLeftControl) {
 
 		if win.MouseScroll().Y > 0 {
@@ -255,144 +275,133 @@ func processEditorInputs() {
 		leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt)
 		rightAltPressed = win.Pressed(pixelgl.KeyRightAlt)
 
-	}
+		if win.Pressed(pixelgl.KeyBackspace) {
 
-	if win.Pressed(pixelgl.KeyBackspace) {
+			selectedTile2 = 0
 
-		selectedTile2 = 0
+		} else if leftAltPressed {
 
-	} else if leftAltPressed {
-
-		if win.MouseScroll().Y > 0 {
-			if tileRow1 == 0 {
-				tileRow1 = tileOverlayHeight-1
-			} else {
-				tileRow1 -= 1
+			if win.MouseScroll().Y > 0 {
+				if tileRow1 == 0 {
+					tileRow1 = tileOverlayHeight - 1
+				} else {
+					tileRow1 -= 1
+				}
+			} else if win.MouseScroll().Y < 0 {
+				tileRow1 += 1
+				if tileRow1 >= tileOverlayHeight {
+					tileRow1 = 0
+				}
 			}
-		} else if win.MouseScroll().Y < 0 {
-			tileRow1 += 1
-			if tileRow1 >= tileOverlayHeight { tileRow1 = 0 }
-		}
 
-		selectedTile1 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
-			tileOverlayWidth*tileRow1 + 1
+			selectedTile1 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
+				tileOverlayWidth*tileRow1 + 1
 
-		if selectedTile1 < 1 {
-			selectedTile1 = 1
-		}
-		if selectedTile1 > superTiles {
-			selectedTile1 = superTiles
-		}
-
-	} else if rightAltPressed {
-
-		if win.MouseScroll().Y > 0 {
-			if tileRow2 == 0 {
-				tileRow2 = tileOverlayHeight-1
-			} else {
-				tileRow2 -= 1
+			if selectedTile1 < 1 {
+				selectedTile1 = 1
 			}
-		} else if win.MouseScroll().Y < 0 {
-			tileRow2 += 1
-			if tileRow2 >= tileOverlayHeight { tileRow2 = 0 }
-		}
-
-		selectedTile2 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
-			tileOverlayWidth*tileRow2 + 1
-
-		if selectedTile2 < 1 {
-			selectedTile2 = 1
-		}
-		if selectedTile2 > superTiles {
-			selectedTile2 = superTiles
-		}
-
-	} else {
-
-		mouseX = float64(win.MousePosition().X - screenWidth/2)
-		mouseY = float64(screenHeight/2 - win.MousePosition().Y)
-
-		switch  viewDirection {
-		case 0:
-			tileX = int(floor((mouseX - cameraX*scale) / hScale))
-			tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
-		case 1:
-			tileX = -int(floor((mouseY + cameraX*scale*aspect) / vScale))
-			tileY = int(floor((mouseX + cameraY*scale) / hScale))
-		case 2:
-			tileX = -int(floor((mouseX + cameraX*scale) / hScale))
-			tileY = -int(floor((mouseY - cameraY*scale*aspect) / vScale))
-		case 3:
-			tileX = int(floor((mouseY - cameraX*scale*aspect) / vScale))
-			tileY = -int(floor((mouseX - cameraY*scale) / hScale))
-		}
-
-		if tileX > gridCentre-1 { tileX = gridCentre-1 }
-		if tileY > gridCentre-1 { tileY = gridCentre-1 }
-		if tileX < -gridCentre { tileX = -gridCentre }
-		if tileY < -gridCentre { tileY = -gridCentre }
-
-		if win.Pressed(pixelgl.KeyLeftControl) && win.MouseScroll().Y != 0 {
-			lastScale := scale
-			scale /= 1 - win.MouseScroll().Y/10
-
-			if scale < 0.1 {
-				scale = 0.1
+			if selectedTile1 > superTiles {
+				selectedTile1 = superTiles
 			}
-			if scale > 2.0 {
-				scale = 2.0
+
+		} else if rightAltPressed {
+
+			if win.MouseScroll().Y > 0 {
+				if tileRow2 == 0 {
+					tileRow2 = tileOverlayHeight - 1
+				} else {
+					tileRow2 -= 1
+				}
+			} else if win.MouseScroll().Y < 0 {
+				tileRow2 += 1
+				if tileRow2 >= tileOverlayHeight {
+					tileRow2 = 0
+				}
 			}
-			hScale = 128 * scale
-			vScale = 128 * aspect * scale
 
-			deltaX := cameraX - (-float64(tileX)*128 - 64)
-			deltaY := cameraY - (+float64(tileY)*128 + 64)
+			selectedTile2 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
+				tileOverlayWidth*tileRow2 + 1
 
-			cameraX -= deltaX * (1 - lastScale/scale)
-			cameraY -= deltaY * (1 - lastScale/scale)
-
-		}
-
-		if win.Pressed(pixelgl.KeyRightBracket) {
-			aspect += 0.01
-			if aspect > 1.0 {
-				aspect = 1.0
+			if selectedTile2 < 1 {
+				selectedTile2 = 1
 			}
-			vScale = hScale * aspect
-		}
-		if win.Pressed(pixelgl.KeyLeftBracket) {
-			aspect -= 0.01
-			if aspect < 0.5 {
-				aspect = 0.5
+			if selectedTile2 > superTiles {
+				selectedTile2 = superTiles
 			}
-			vScale = hScale * aspect
-		}
 
-		if viewDirection == 0 && win.Pressed(pixelgl.KeyW) ||
-			viewDirection == 1 && win.Pressed(pixelgl.KeyA) ||
-			viewDirection == 2 && win.Pressed(pixelgl.KeyS) ||
-			viewDirection == 3 && win.Pressed(pixelgl.KeyD) {
+		} else {
+
+			mouseX = float64(win.MousePosition().X - screenWidth/2)
+			mouseY = float64(screenHeight/2 - win.MousePosition().Y)
+
+			switch  viewDirection {
+			case 0:
+				tileX = int(floor((mouseX - cameraX*scale) / hScale))
+				tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
+			case 1:
+				tileX = -int(floor((mouseY + cameraX*scale*aspect) / vScale))
+				tileY = int(floor((mouseX + cameraY*scale) / hScale))
+			case 2:
+				tileX = -int(floor((mouseX + cameraX*scale) / hScale))
+				tileY = -int(floor((mouseY - cameraY*scale*aspect) / vScale))
+			case 3:
+				tileX = int(floor((mouseY - cameraX*scale*aspect) / vScale))
+				tileY = -int(floor((mouseX - cameraY*scale) / hScale))
+			}
+
+			if tileX > gridCentre-1 {
+				tileX = gridCentre - 1
+			}
+			if tileY > gridCentre-1 {
+				tileY = gridCentre - 1
+			}
+			if tileX < -gridCentre {
+				tileX = -gridCentre
+			}
+			if tileY < -gridCentre {
+				tileY = -gridCentre
+			}
+
+			if win.Pressed(pixelgl.KeyRightBracket) {
+				aspect += 0.01
+				if aspect > 1.0 {
+					aspect = 1.0
+				}
+				vScale = hScale * aspect
+			}
+			if win.Pressed(pixelgl.KeyLeftBracket) {
+				aspect -= 0.01
+				if aspect < 0.5 {
+					aspect = 0.5
+				}
+				vScale = hScale * aspect
+			}
+
+			if viewDirection == 0 && win.Pressed(pixelgl.KeyW) ||
+				viewDirection == 1 && win.Pressed(pixelgl.KeyA) ||
+				viewDirection == 2 && win.Pressed(pixelgl.KeyS) ||
+				viewDirection == 3 && win.Pressed(pixelgl.KeyD) {
 				cameraY -= 10 / scale
-		}
-		if viewDirection == 0 && win.Pressed(pixelgl.KeyS) ||
-			viewDirection == 1 && win.Pressed(pixelgl.KeyD) ||
-			viewDirection == 2 && win.Pressed(pixelgl.KeyW) ||
-			viewDirection == 3 && win.Pressed(pixelgl.KeyA) {
+			}
+			if viewDirection == 0 && win.Pressed(pixelgl.KeyS) ||
+				viewDirection == 1 && win.Pressed(pixelgl.KeyD) ||
+				viewDirection == 2 && win.Pressed(pixelgl.KeyW) ||
+				viewDirection == 3 && win.Pressed(pixelgl.KeyA) {
 				cameraY += 10 / scale
-		}
-		if viewDirection == 0 && win.Pressed(pixelgl.KeyD) ||
-			viewDirection == 1 && win.Pressed(pixelgl.KeyW) ||
-			viewDirection == 2 && win.Pressed(pixelgl.KeyA) ||
-			viewDirection == 3 && win.Pressed(pixelgl.KeyS) {
+			}
+			if viewDirection == 0 && win.Pressed(pixelgl.KeyD) ||
+				viewDirection == 1 && win.Pressed(pixelgl.KeyW) ||
+				viewDirection == 2 && win.Pressed(pixelgl.KeyA) ||
+				viewDirection == 3 && win.Pressed(pixelgl.KeyS) {
 				cameraX -= 10 / scale
-		}
-		if viewDirection == 0 && win.Pressed(pixelgl.KeyA) ||
-			viewDirection == 1 && win.Pressed(pixelgl.KeyS) ||
-			viewDirection == 2 && win.Pressed(pixelgl.KeyD) ||
-			viewDirection == 3 && win.Pressed(pixelgl.KeyW) {
+			}
+			if viewDirection == 0 && win.Pressed(pixelgl.KeyA) ||
+				viewDirection == 1 && win.Pressed(pixelgl.KeyS) ||
+				viewDirection == 2 && win.Pressed(pixelgl.KeyD) ||
+				viewDirection == 3 && win.Pressed(pixelgl.KeyW) {
 				cameraX += 10 / scale
+			}
 		}
-
 	}
 
 	cpy := win.JustPressed(pixelgl.KeyC)
@@ -413,17 +422,24 @@ func processEditorInputs() {
 			startX = endX
 			endX = temp
 		}
+
+		if endX - startX > clipboardSize {
+			endX = startX + clipboardSize
+		}
+
 		if startY > endY {
 			temp := startY
 			startY = endY
 			endY = temp
 		}
 
+		if endY - startY > clipboardSize {
+			endY = startY + clipboardSize
+		}
+
 		if cpy || cut {
 			clipboardWidth[currentClipboard] = endX - startX
-			if clipboardWidth[currentClipboard] > clipboardSize { clipboardWidth[currentClipboard] = clipboardSize }
 			clipboardHeight[currentClipboard] = endY - startY
-			if clipboardHeight[currentClipboard] > clipboardSize { clipboardHeight[currentClipboard] = clipboardSize }
 		}
 
 		startZ := 0
@@ -501,8 +517,8 @@ func processEditorInputs() {
 				ii := i
 				jj := j
 
-				if flipX { ii = tileX + (clipboardWidth[currentClipboard] - (i-tileX)) }
-				if flipY { jj = tileY + (clipboardHeight[currentClipboard] - (j-tileY)) }
+				if flipX { ii = tileX + (clipboardWidth[currentClipboard]-1 - (i-tileX)) }
+				if flipY { jj = tileY + (clipboardHeight[currentClipboard]-1 - (j-tileY)) }
 
 				if i < gridCentre && j < gridCentre {
 					for k0 := 0; k0 < 16; k0++ {

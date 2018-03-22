@@ -45,8 +45,8 @@ func renderEditorOutputs() {
 		endX = temp
 	}
 
-	if endX - startX > clipboardSize {
-		endX = startX + clipboardSize
+	if endX - startX > clipboardSize-1 {
+		endX = startX + clipboardSize-1
 	}
 
 	if startY > endY {
@@ -55,8 +55,8 @@ func renderEditorOutputs() {
 		endY = temp
 	}
 
-	if endY - startY > clipboardSize {
-		endY = startY + clipboardSize
+	if endY - startY > clipboardSize-1 {
+		endY = startY + clipboardSize-1
 	}
 
 	imd1.Clear()
@@ -143,8 +143,8 @@ func renderEditorOutputs() {
 						deltaX = int(i) - tileX
 						deltaY = int(j) - tileY
 
-						if flipX { deltaX = clipboardWidth[currentClipboard] - (int(i) - tileX) }
-						if flipY { deltaY = clipboardHeight[currentClipboard] - (int(j) - tileY) }
+						if flipX { deltaX = clipboardWidth[currentClipboard]-1 - (int(i) - tileX) }
+						if flipY { deltaY = clipboardHeight[currentClipboard]-1 - (int(j) - tileY) }
 
 						if deltaX >= 0 && deltaY >= 0 && deltaX < clipboardWidth[previewClipboard] && deltaY < clipboardHeight[previewClipboard] {
 							if clobber || clipboard[previewClipboard][deltaX][deltaY][int(kC)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(kC)][1] != 0 {
@@ -408,7 +408,7 @@ func renderEditorOutputs() {
 		case 2:
 			print("Grid: Front")
 		}
-		print(fmt.Sprintf("Clipboard: %d", currentClipboard))
+		print(fmt.Sprintf("Clipboard: %d (%d, %d)", currentClipboard, clipboardWidth[currentClipboard], clipboardHeight[currentClipboard]))
 		print(fmt.Sprintf("Clipboard shift: %d", clipboardShift))
 		if flipX {
 			print("Clipboard flipped in X direction")
