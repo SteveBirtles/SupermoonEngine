@@ -438,8 +438,8 @@ func processEditorInputs() {
 		}
 
 		if cpy || cut {
-			clipboardWidth[currentClipboard] = endX - startX
-			clipboardHeight[currentClipboard] = endY - startY
+			clipboardWidth[currentClipboard] = endX - startX + 1
+			clipboardHeight[currentClipboard] = endY - startY + 1
 		}
 
 		startZ := 0
