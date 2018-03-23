@@ -23,22 +23,23 @@ func processEditorInputs() {
 			s := rand.NewSource(time.Now().UnixNano())
 			r := rand.New(s)
 			grid = [2 * gridCentre][2 * gridCentre][16][2]uint16{}
-			for i := 0; i < 2 * gridCentre; i++ {
-				for j := 0; j < 2 * gridCentre; j++ {
+			for i := 0; i < 2*gridCentre; i++ {
+				for j := 0; j < 2*gridCentre; j++ {
 					h := r.Intn(15)
 					h -= 8
-					if h < 1 { h = 1 }
+					if h < 1 {
+						h = 1
+					}
 					for k := 0; k < h; k++ {
-						u := r.Intn(superTiles) + 1
+						u := r.Intn(totalTiles) + 1
 						grid[i][j][k][0] = uint16(u)
 						if h > 1 {
-							v := r.Intn(superTiles) + 1
+							v := r.Intn(totalTiles) + 1
 							grid[i][j][k][1] = uint16(v)
 						}
 					}
 				}
 			}
-
 
 		}
 	}
@@ -103,6 +104,10 @@ func processEditorInputs() {
 	if win.Pressed(pixelgl.KeyLeftShift) {
 		selectionEndX = tileX
 		selectionEndY = tileY
+	} else {
+		if selectionLive && selectionStartX == selectionEndX && selectionStartY == selectionEndY {
+			selectionLive = false
+		}
 	}
 
 	if win.JustPressed(pixelgl.KeyEscape) {
@@ -121,27 +126,67 @@ func processEditorInputs() {
 
 	previewClipboard = -1
 
-	if win.JustPressed(pixelgl.Key0) { currentClipboard = 0 }
-	if win.JustPressed(pixelgl.Key1) { currentClipboard = 1 }
-	if win.JustPressed(pixelgl.Key2) { currentClipboard = 2 }
-	if win.JustPressed(pixelgl.Key3) { currentClipboard = 3 }
-	if win.JustPressed(pixelgl.Key4) { currentClipboard = 4 }
-	if win.JustPressed(pixelgl.Key5) { currentClipboard = 5 }
-	if win.JustPressed(pixelgl.Key6) { currentClipboard = 6 }
-	if win.JustPressed(pixelgl.Key7) { currentClipboard = 7 }
-	if win.JustPressed(pixelgl.Key8) { currentClipboard = 8 }
-	if win.JustPressed(pixelgl.Key9) { currentClipboard = 9 }
+	if win.JustPressed(pixelgl.Key0) {
+		currentClipboard = 0
+	}
+	if win.JustPressed(pixelgl.Key1) {
+		currentClipboard = 1
+	}
+	if win.JustPressed(pixelgl.Key2) {
+		currentClipboard = 2
+	}
+	if win.JustPressed(pixelgl.Key3) {
+		currentClipboard = 3
+	}
+	if win.JustPressed(pixelgl.Key4) {
+		currentClipboard = 4
+	}
+	if win.JustPressed(pixelgl.Key5) {
+		currentClipboard = 5
+	}
+	if win.JustPressed(pixelgl.Key6) {
+		currentClipboard = 6
+	}
+	if win.JustPressed(pixelgl.Key7) {
+		currentClipboard = 7
+	}
+	if win.JustPressed(pixelgl.Key8) {
+		currentClipboard = 8
+	}
+	if win.JustPressed(pixelgl.Key9) {
+		currentClipboard = 9
+	}
 
-	if win.Pressed(pixelgl.Key0) { previewClipboard = 0 }
-	if win.Pressed(pixelgl.Key1) { previewClipboard = 1 }
-	if win.Pressed(pixelgl.Key2) { previewClipboard = 2 }
-	if win.Pressed(pixelgl.Key3) { previewClipboard = 3 }
-	if win.Pressed(pixelgl.Key4) { previewClipboard = 4 }
-	if win.Pressed(pixelgl.Key5) { previewClipboard = 5 }
-	if win.Pressed(pixelgl.Key6) { previewClipboard = 6 }
-	if win.Pressed(pixelgl.Key7) { previewClipboard = 7 }
-	if win.Pressed(pixelgl.Key8) { previewClipboard = 8 }
-	if win.Pressed(pixelgl.Key9) { previewClipboard = 9 }
+	if win.Pressed(pixelgl.Key0) {
+		previewClipboard = 0
+	}
+	if win.Pressed(pixelgl.Key1) {
+		previewClipboard = 1
+	}
+	if win.Pressed(pixelgl.Key2) {
+		previewClipboard = 2
+	}
+	if win.Pressed(pixelgl.Key3) {
+		previewClipboard = 3
+	}
+	if win.Pressed(pixelgl.Key4) {
+		previewClipboard = 4
+	}
+	if win.Pressed(pixelgl.Key5) {
+		previewClipboard = 5
+	}
+	if win.Pressed(pixelgl.Key6) {
+		previewClipboard = 6
+	}
+	if win.Pressed(pixelgl.Key7) {
+		previewClipboard = 7
+	}
+	if win.Pressed(pixelgl.Key8) {
+		previewClipboard = 8
+	}
+	if win.Pressed(pixelgl.Key9) {
+		previewClipboard = 9
+	}
 
 	if win.JustPressed(pixelgl.KeyE) {
 		clipboardWidth[currentClipboard] = -1
@@ -196,17 +241,29 @@ func processEditorInputs() {
 
 	}
 
-	if win.JustPressed(pixelgl.KeyUp) { viewDirection = 0 }
-	if win.JustPressed(pixelgl.KeyRight) { viewDirection = 1 }
-	if win.JustPressed(pixelgl.KeyDown) { viewDirection = 2 }
-	if win.JustPressed(pixelgl.KeyLeft) { viewDirection = 3 }
+	if win.JustPressed(pixelgl.KeyUp) {
+		viewDirection = 0
+	}
+	if win.JustPressed(pixelgl.KeyRight) {
+		viewDirection = 1
+	}
+	if win.JustPressed(pixelgl.KeyDown) {
+		viewDirection = 2
+	}
+	if win.JustPressed(pixelgl.KeyLeft) {
+		viewDirection = 3
+	}
 
 	if win.JustPressed(pixelgl.KeyEqual) {
 		clipboardShift += 1
-		if clipboardShift > 15 { clipboardShift = 15 }
+		if clipboardShift > 15 {
+			clipboardShift = 15
+		}
 	} else if win.JustPressed(pixelgl.KeyMinus) {
 		clipboardShift -= 1
-		if clipboardShift < -15 { clipboardShift = -15 }
+		if clipboardShift < -15 {
+			clipboardShift = -15
+		}
 	}
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.MouseScroll().Y != 0 {
@@ -272,135 +329,136 @@ func processEditorInputs() {
 			tileRow2 = uint16(selectedTile2 / tileOverlayWidth)
 		}
 
-		leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt)
-		rightAltPressed = win.Pressed(pixelgl.KeyRightAlt)
+	}
 
-		if win.Pressed(pixelgl.KeyBackspace) {
+	leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt) && !win.Pressed(pixelgl.KeyLeftControl)
+	rightAltPressed = win.Pressed(pixelgl.KeyRightAlt) && !win.Pressed(pixelgl.KeyLeftControl)
 
-			selectedTile2 = 0
+	if win.Pressed(pixelgl.KeyBackspace) {
 
-		} else if leftAltPressed {
+		selectedTile2 = 0
 
-			if win.MouseScroll().Y > 0 {
-				if tileRow1 == 0 {
-					tileRow1 = tileOverlayHeight - 1
-				} else {
-					tileRow1 -= 1
-				}
-			} else if win.MouseScroll().Y < 0 {
-				tileRow1 += 1
-				if tileRow1 >= tileOverlayHeight {
-					tileRow1 = 0
-				}
-			}
+	} else if leftAltPressed {
 
-			selectedTile1 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
-				tileOverlayWidth*tileRow1 + 1
+		if win.MouseScroll().Y > 0 {
+			if tileRow1 == 0 {
+				tileRow1 = tileOverlayHeight - 1
+			} else {
+				tileRow1 -= 1
+			}
+		} else if win.MouseScroll().Y < 0 {
+			tileRow1 += 1
+			if tileRow1 >= tileOverlayHeight {
+				tileRow1 = 0
+			}
+		}
 
-			if selectedTile1 < 1 {
-				selectedTile1 = 1
-			}
-			if selectedTile1 > superTiles {
-				selectedTile1 = superTiles
-			}
+		selectedTile1 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
+			tileOverlayWidth*tileRow1 + 1
 
-		} else if rightAltPressed {
+		if selectedTile1 < 1 {
+			selectedTile1 = 1
+		}
+		if selectedTile1 > totalTiles {
+			selectedTile1 = totalTiles
+		}
 
-			if win.MouseScroll().Y > 0 {
-				if tileRow2 == 0 {
-					tileRow2 = tileOverlayHeight - 1
-				} else {
-					tileRow2 -= 1
-				}
-			} else if win.MouseScroll().Y < 0 {
-				tileRow2 += 1
-				if tileRow2 >= tileOverlayHeight {
-					tileRow2 = 0
-				}
-			}
+	} else if rightAltPressed {
 
-			selectedTile2 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
-				tileOverlayWidth*tileRow2 + 1
+		if win.MouseScroll().Y > 0 {
+			if tileRow2 == 0 {
+				tileRow2 = tileOverlayHeight - 1
+			} else {
+				tileRow2 -= 1
+			}
+		} else if win.MouseScroll().Y < 0 {
+			tileRow2 += 1
+			if tileRow2 >= tileOverlayHeight {
+				tileRow2 = 0
+			}
+		}
 
-			if selectedTile2 < 1 {
-				selectedTile2 = 1
-			}
-			if selectedTile2 > superTiles {
-				selectedTile2 = superTiles
-			}
+		selectedTile2 = uint16(float64(tileOverlayWidth)*float64(win.MousePosition().X/screenWidth)) +
+			tileOverlayWidth*tileRow2 + 1
 
-		} else {
+		if selectedTile2 < 1 {
+			selectedTile2 = 1
+		}
+		if selectedTile2 > totalTiles {
+			selectedTile2 = totalTiles
+		}
 
-			mouseX = float64(win.MousePosition().X - screenWidth/2)
-			mouseY = float64(screenHeight/2 - win.MousePosition().Y)
+	} else {
 
-			switch  viewDirection {
-			case 0:
-				tileX = int(floor((mouseX - cameraX*scale) / hScale))
-				tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
-			case 1:
-				tileX = -int(floor((mouseY + cameraX*scale*aspect) / vScale))
-				tileY = int(floor((mouseX + cameraY*scale) / hScale))
-			case 2:
-				tileX = -int(floor((mouseX + cameraX*scale) / hScale))
-				tileY = -int(floor((mouseY - cameraY*scale*aspect) / vScale))
-			case 3:
-				tileX = int(floor((mouseY - cameraX*scale*aspect) / vScale))
-				tileY = -int(floor((mouseX - cameraY*scale) / hScale))
-			}
+		mouseX = float64(win.MousePosition().X - screenWidth/2)
+		mouseY = float64(screenHeight/2 - win.MousePosition().Y)
 
-			if tileX > gridCentre-1 {
-				tileX = gridCentre - 1
-			}
-			if tileY > gridCentre-1 {
-				tileY = gridCentre - 1
-			}
-			if tileX < -gridCentre {
-				tileX = -gridCentre
-			}
-			if tileY < -gridCentre {
-				tileY = -gridCentre
-			}
+		switch  viewDirection {
+		case 0:
+			tileX = int(floor((mouseX - cameraX*scale) / hScale))
+			tileY = int(floor((mouseY + cameraY*scale*aspect) / vScale))
+		case 1:
+			tileX = -int(floor((mouseY + cameraX*scale*aspect) / vScale))
+			tileY = int(floor((mouseX + cameraY*scale) / hScale))
+		case 2:
+			tileX = -int(floor((mouseX + cameraX*scale) / hScale))
+			tileY = -int(floor((mouseY - cameraY*scale*aspect) / vScale))
+		case 3:
+			tileX = int(floor((mouseY - cameraX*scale*aspect) / vScale))
+			tileY = -int(floor((mouseX - cameraY*scale) / hScale))
+		}
 
-			if win.Pressed(pixelgl.KeyRightBracket) {
-				aspect += 0.01
-				if aspect > 1.0 {
-					aspect = 1.0
-				}
-				vScale = hScale * aspect
-			}
-			if win.Pressed(pixelgl.KeyLeftBracket) {
-				aspect -= 0.01
-				if aspect < 0.5 {
-					aspect = 0.5
-				}
-				vScale = hScale * aspect
-			}
+		if tileX > gridCentre-1 {
+			tileX = gridCentre - 1
+		}
+		if tileY > gridCentre-1 {
+			tileY = gridCentre - 1
+		}
+		if tileX < -gridCentre {
+			tileX = -gridCentre
+		}
+		if tileY < -gridCentre {
+			tileY = -gridCentre
+		}
 
-			if viewDirection == 0 && win.Pressed(pixelgl.KeyW) ||
-				viewDirection == 1 && win.Pressed(pixelgl.KeyA) ||
-				viewDirection == 2 && win.Pressed(pixelgl.KeyS) ||
-				viewDirection == 3 && win.Pressed(pixelgl.KeyD) {
-				cameraY -= 10 / scale
+		if win.Pressed(pixelgl.KeyRightBracket) {
+			aspect += 0.01
+			if aspect > 1.0 {
+				aspect = 1.0
 			}
-			if viewDirection == 0 && win.Pressed(pixelgl.KeyS) ||
-				viewDirection == 1 && win.Pressed(pixelgl.KeyD) ||
-				viewDirection == 2 && win.Pressed(pixelgl.KeyW) ||
-				viewDirection == 3 && win.Pressed(pixelgl.KeyA) {
-				cameraY += 10 / scale
+			vScale = hScale * aspect
+		}
+		if win.Pressed(pixelgl.KeyLeftBracket) {
+			aspect -= 0.01
+			if aspect < 0.5 {
+				aspect = 0.5
 			}
-			if viewDirection == 0 && win.Pressed(pixelgl.KeyD) ||
-				viewDirection == 1 && win.Pressed(pixelgl.KeyW) ||
-				viewDirection == 2 && win.Pressed(pixelgl.KeyA) ||
-				viewDirection == 3 && win.Pressed(pixelgl.KeyS) {
-				cameraX -= 10 / scale
-			}
-			if viewDirection == 0 && win.Pressed(pixelgl.KeyA) ||
-				viewDirection == 1 && win.Pressed(pixelgl.KeyS) ||
-				viewDirection == 2 && win.Pressed(pixelgl.KeyD) ||
-				viewDirection == 3 && win.Pressed(pixelgl.KeyW) {
-				cameraX += 10 / scale
-			}
+			vScale = hScale * aspect
+		}
+
+		if viewDirection == 0 && win.Pressed(pixelgl.KeyW) ||
+			viewDirection == 1 && win.Pressed(pixelgl.KeyA) ||
+			viewDirection == 2 && win.Pressed(pixelgl.KeyS) ||
+			viewDirection == 3 && win.Pressed(pixelgl.KeyD) {
+			cameraY -= 10 / scale
+		}
+		if viewDirection == 0 && win.Pressed(pixelgl.KeyS) ||
+			viewDirection == 1 && win.Pressed(pixelgl.KeyD) ||
+			viewDirection == 2 && win.Pressed(pixelgl.KeyW) ||
+			viewDirection == 3 && win.Pressed(pixelgl.KeyA) {
+			cameraY += 10 / scale
+		}
+		if viewDirection == 0 && win.Pressed(pixelgl.KeyD) ||
+			viewDirection == 1 && win.Pressed(pixelgl.KeyW) ||
+			viewDirection == 2 && win.Pressed(pixelgl.KeyA) ||
+			viewDirection == 3 && win.Pressed(pixelgl.KeyS) {
+			cameraX -= 10 / scale
+		}
+		if viewDirection == 0 && win.Pressed(pixelgl.KeyA) ||
+			viewDirection == 1 && win.Pressed(pixelgl.KeyS) ||
+			viewDirection == 2 && win.Pressed(pixelgl.KeyD) ||
+			viewDirection == 3 && win.Pressed(pixelgl.KeyW) {
+			cameraX += 10 / scale
 		}
 	}
 
@@ -410,37 +468,12 @@ func processEditorInputs() {
 	flood := win.JustPressed(pixelgl.KeyInsert)
 	fill := win.JustPressed(pixelgl.KeyF)
 
-	if selectionLive && win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || flood || fill) {
+	if win.Pressed(pixelgl.KeyLeftControl) && (cpy || cut || clr || flood || fill) {
 
-		startX := selectionStartX + gridCentre
-		startY := selectionStartY + gridCentre
-		endX := selectionEndX + gridCentre
-		endY := selectionEndY + gridCentre
-
-		if startX > endX {
-			temp := startX
-			startX = endX
-			endX = temp
-		}
-
-		if endX - startX > clipboardSize {
-			endX = startX + clipboardSize
-		}
-
-		if startY > endY {
-			temp := startY
-			startY = endY
-			endY = temp
-		}
-
-		if endY - startY > clipboardSize {
-			endY = startY + clipboardSize
-		}
-
-		if cpy || cut {
-			clipboardWidth[currentClipboard] = endX - startX + 1
-			clipboardHeight[currentClipboard] = endY - startY + 1
-		}
+		startX := tileX + gridCentre
+		startY := tileY + gridCentre
+		endX := tileX + gridCentre
+		endY := tileY + gridCentre
 
 		startZ := 0
 		endZ := 15
@@ -451,6 +484,40 @@ func processEditorInputs() {
 		} else if fill {
 			startZ = 0
 			endZ = tileZ
+		}
+
+		if selectionLive {
+
+			startX = selectionStartX + gridCentre
+			startY = selectionStartY + gridCentre
+			endX = selectionEndX + gridCentre
+			endY = selectionEndY + gridCentre
+
+			if startX > endX {
+				temp := startX
+				startX = endX
+				endX = temp
+			}
+
+			if endX-startX > clipboardSize {
+				endX = startX + clipboardSize
+			}
+
+			if startY > endY {
+				temp := startY
+				startY = endY
+				endY = temp
+			}
+
+			if endY-startY > clipboardSize {
+				endY = startY + clipboardSize
+			}
+
+		}
+
+		if cpy || cut {
+			clipboardWidth[currentClipboard] = endX - startX + 1
+			clipboardHeight[currentClipboard] = endY - startY + 1
 		}
 
 		for i := startX; i <= endX; i++ {
@@ -481,7 +548,9 @@ func processEditorInputs() {
 
 							undoCounter = (undoCounter + 1) % maxUndo
 							for i := 0; i < maxUndo; i++ {
-								if undo[i][0] < 0 { undo[i][0] = 0 }
+								if undo[i][0] < 0 {
+									undo[i][0] = 0
+								}
 							}
 							undo[undoCounter][0] = undoFrame
 							undo[undoCounter][1] = i
@@ -493,8 +562,6 @@ func processEditorInputs() {
 							grid[i][j][k][0] = temp1
 							grid[i][j][k][1] = temp2
 						}
-
-
 
 					}
 				}
@@ -511,20 +578,26 @@ func processEditorInputs() {
 
 	if paste && clipboardWidth[currentClipboard] >= 0 {
 
-		for i := tileX; i < tileX + clipboardWidth[currentClipboard]; i++ {
-			for j := tileY; j < tileY + clipboardHeight[currentClipboard]; j++ {
+		for i := tileX; i < tileX+clipboardWidth[currentClipboard]; i++ {
+			for j := tileY; j < tileY+clipboardHeight[currentClipboard]; j++ {
 
 				ii := i
 				jj := j
 
-				if flipX { ii = tileX + (clipboardWidth[currentClipboard]-1 - (i-tileX)) }
-				if flipY { jj = tileY + (clipboardHeight[currentClipboard]-1 - (j-tileY)) }
+				if flipX {
+					ii = tileX + (clipboardWidth[currentClipboard] - 1 - (i - tileX))
+				}
+				if flipY {
+					jj = tileY + (clipboardHeight[currentClipboard] - 1 - (j - tileY))
+				}
 
 				if i < gridCentre && j < gridCentre {
 					for k0 := 0; k0 < 16; k0++ {
 
 						k := k0 + clipboardShift
-						if k < 0 || k > 15 { continue }
+						if k < 0 || k > 15 {
+							continue
+						}
 
 						if grid[i+gridCentre][j+gridCentre][k][0] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][0] ||
 							grid[i+gridCentre][j+gridCentre][k][1] != clipboard[currentClipboard][ii-tileX][jj-tileY][k0][1] {
@@ -648,6 +721,5 @@ func processEditorInputs() {
 
 		}
 	}
-
 
 }

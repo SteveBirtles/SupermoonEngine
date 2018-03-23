@@ -14,39 +14,48 @@ const maxUndo = 10000
 const clipboardSize = 64
 const clipboardFile = "cache/clipboards.dat"
 
-const superWidth = 2048
-const superHeight = 1280
-const superTiles = (superWidth/128)*(superHeight/128)
+const tileSheetWidth = 2048
+const tileSheetHeight = 1280
+const totalTiles = (tileSheetWidth /128)*(tileSheetHeight /128)
+
+const spriteSheetWidth = 1280
+const spriteSheetHeight = 1024
+const totalSprites = (spriteSheetWidth /128)*(spriteSheetHeight /128)
+
 
 var (
-	windowTitlePrefix    = "OrthoEngine"
-	frames                                              = 0
-	undoFrame                                  = 1
-	second                                              = time.Tick(time.Second)
+	windowTitlePrefix = "OrthoEngine"
+	frameCounter      = 0
+	gameFrame         = 0
+	undoFrame         = 1
+	second            = time.Tick(time.Second)
 	win               *pixelgl.Window
 	textRenderer      *text.Text
 	textLine          int
 	tilePic           pixel.Picture
-	tileTexture       [superTiles]*pixel.Sprite
+	tileTexture       [totalTiles]*pixel.Sprite
 	tileOverlay       *pixel.Batch
 	tileOverlayWidth  uint16
 	tileOverlayHeight uint16
-	imd1              *imdraw.IMDraw
-	imd2              *imdraw.IMDraw
-	batch             *pixel.Batch
+	spritePic         pixel.Picture
+	spriteTexture     [totalTiles]*pixel.Sprite
+	imGrid            *imdraw.IMDraw
+	imUI              *imdraw.IMDraw
+	tileBatch         *pixel.Batch
+	spriteBatch       *pixel.Batch
 	grid              [2*gridCentre][2*gridCentre][16][2]uint16
 	clipboard         [10][clipboardSize][clipboardSize][16][2]uint16
 	clipboardWidth    [10]int
 	clipboardHeight   [10]int
-	clipboardShift                 = 0
-	currentClipboard         = 1
-	previewClipboard         = -1
-	clobber            	   = false
-	undo            [maxUndo][6]int //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
-	undoCounter            = 0
-	scale                  = 0.5
-	aspect                 = 0.5
-	viewDirection          = 0
+	clipboardShift                             = 0
+	currentClipboard               = 1
+	previewClipboard               = -1
+	clobber                                             	   = false
+	undo              [maxUndo][6]int //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
+	undoCounter                          = 0
+	scale                               = 0.5
+	aspect                             = 0.5
+	viewDirection               = 0
 	compass                = [4]string{"North", "East", "South", "West"}
 	hScale                 = 64.0
 	vScale                 = hScale * aspect

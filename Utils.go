@@ -70,12 +70,13 @@ func endFrame() {
 
 	win.Update()
 
-	frames++
+	frameCounter++
+	gameFrame++
 	select {
 	case <-second:
 		undoFrame++
-		win.SetTitle(fmt.Sprintf("%s | FPS: %d", windowTitlePrefix, frames))
-		frames = 0
+		win.SetTitle(fmt.Sprintf("%s | FPS: %d", windowTitlePrefix, frameCounter))
+		frameCounter = 0
 	default:
 	}
 

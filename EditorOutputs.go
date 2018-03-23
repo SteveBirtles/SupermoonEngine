@@ -59,12 +59,15 @@ func renderEditorOutputs() {
 		endY = startY + clipboardSize-1
 	}
 
-	imd1.Clear()
-	imd2.Clear()
-	batch.Clear()
+	imUI.Clear()
 
-	for i0 := iStart + iOffset; i0 <= iEnd+ iOffset; i0++ {
-		for j0 := jStart + jOffset; j0 <= jEnd+ jOffset; j0++ {
+	for j0 := jStart + jOffset; j0 <= jEnd+ jOffset; j0++ {
+
+		imGrid.Clear()
+		tileBatch.Clear()
+		spriteBatch.Clear()
+
+		for i0 := iStart + iOffset; i0 <= iEnd+ iOffset; i0++ {
 
 			var i, j float64
 
@@ -159,53 +162,75 @@ func renderEditorOutputs() {
 						alpha = gamma
 					}
 
-					if baseTile > 0 && baseTile <= superTiles || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
+					if baseTile > 0 && baseTile <= totalTiles || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
 						s := 4*(1-aspect)
 						cam := pixel.V(cX, cY)
 						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
 
+						frontMatrix := pixel.IM.
+							ScaledXY(pixel.ZV, pixel.V(1, s)).
+							Moved(cam).
+							ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+							Moved(pos).
+							Moved(pixel.V(0, vScale/2 - 2*(aspect-0.5)*vScale))
+
+						if baseTile != 0 && frontTile == 0 {
+
+							spriteMatrix := frontMatrix.Moved(pixel.V(0, vScale/2-2*(aspect-0.5)*vScale))
+
+							spriteNo := int((gameFrame + int(i+gridCentre) + int(j+gridCentre)*gridCentre*2) / 4) % 10
+
+							switch viewDirection {
+							case 0:
+								spriteNo += 40
+							case 1:
+								spriteNo += 70
+							case 2:
+								spriteNo += 60
+							case 3:
+								spriteNo += 50
+							}
+
+							spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
+
+						}
+
 						if preview {
 							frontTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][1]
 						}
 
-						if frontTile > 0 && frontTile <= superTiles || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
+						if frontTile > 0 && frontTile <= totalTiles || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
-							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
+							baseMatrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
 								Moved(pixel.V(0, vScale*(1-aspect)*4))
 
 							if baseTile > 0 {
-								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
-								tileTexture[baseTile-1].Draw(batch, matrix)
+								tileBatch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
+								tileTexture[baseTile-1].Draw(tileBatch, baseMatrix)
 							}
 
 							if int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
-								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
+								tileBatch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
 								if selectedTile2 == 0 {
-									tileTexture[selectedTile1-1].Draw(batch, matrix.Moved(pixel.V(0, -vScale*(1-aspect)*4)))
+									tileTexture[selectedTile1-1].Draw(tileBatch, baseMatrix.Moved(pixel.V(0, -vScale*(1-aspect)*4)))
 								} else {
-									tileTexture[selectedTile1-1].Draw(batch, matrix)
+									tileTexture[selectedTile1-1].Draw(tileBatch, baseMatrix)
 								}
 
 							}
 
 							if aspect < 1 {
 
-								matrix := pixel.IM.
-									ScaledXY(pixel.ZV, pixel.V(1, s)).
-									Moved(cam).
-									ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-									Moved(pos).
-									Moved(pixel.V(0, vScale/2 - 2*(aspect-0.5)*vScale))
-
 								if frontTile > 0 {
-									batch.SetColorMask(color.RGBA{beta, beta, beta, 255})
-									tileTexture[frontTile-1].Draw(batch, matrix)
+									tileBatch.SetColorMask(color.RGBA{beta, beta, beta, 255})
+									tileTexture[frontTile-1].Draw(tileBatch, frontMatrix)
 								}
 
 								if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
-									batch.SetColorMask(color.RGBA{beta, beta, beta, 128})
-									tileTexture[selectedTile2-1].Draw(batch, matrix)
+									tileBatch.SetColorMask(color.RGBA{beta, beta, beta, 128})
+									tileTexture[selectedTile2-1].Draw(tileBatch, frontMatrix)
+
 								}
 							}
 
@@ -215,13 +240,13 @@ func renderEditorOutputs() {
 							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 
 							if baseTile > 0 {
-								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
-								tileTexture[baseTile-1].Draw(batch, matrix)
+								tileBatch.SetColorMask(color.RGBA{alpha, alpha, alpha, 255})
+								tileTexture[baseTile-1].Draw(tileBatch, matrix)
 							}
 
 							if int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
-								batch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
-								tileTexture[selectedTile1-1].Draw(batch, matrix)
+								tileBatch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
+								tileTexture[selectedTile1-1].Draw(tileBatch, matrix)
 							}
 
 						}
@@ -236,21 +261,21 @@ func renderEditorOutputs() {
 					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j0*vScale)))
 
 					matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
-					imd1.SetMatrix(matrix)
+					imGrid.SetMatrix(matrix)
 
 					gridIntensity := math.Sqrt(scale / 2) * float64(showGrid) * 0.5
 
 					if selectionLive &&
 						int(i) >= startX && int(j) >= startY &&
 						int(i) <= endX && int(j) <= endY {
-						imd2.SetMatrix(matrix)
+						imUI.SetMatrix(matrix)
 
-						imd2.Color = pixel.RGBA{R: 0.0, G: 0.333, B: 0.333}
-						imd2.Push(pixel.V(-64, -64))
-						imd2.Push(pixel.V(-64, 64))
-						imd2.Push(pixel.V(64, 64))
-						imd2.Push(pixel.V(64, -64))
-						imd2.Polygon(0)
+						imUI.Color = pixel.RGBA{R: 0.0, G: 0.333, B: 0.333}
+						imUI.Push(pixel.V(-64, -64))
+						imUI.Push(pixel.V(-64, 64))
+						imUI.Push(pixel.V(64, 64))
+						imUI.Push(pixel.V(64, -64))
+						imUI.Polygon(0)
 					}
 
 
@@ -259,41 +284,41 @@ func renderEditorOutputs() {
 					if int(i) == tileX && int(j) == tileY {
 
 						if tileZ > 0 {
-							imd2.SetMatrix(matrix)
-							imd2.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0}
-							imd2.Push(pixel.V(-64, -64))
-							imd2.Push(pixel.V(-64, 64+(1-aspect)*(float64(tileZ)-0.5)*512.0))
-							imd2.Push(pixel.V(64, 64+(1-aspect)*(float64(tileZ)-0.5)*512.0))
-							imd2.Push(pixel.V(64, -64))
-							imd2.Polygon(0)
+							imUI.SetMatrix(matrix)
+							imUI.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0}
+							imUI.Push(pixel.V(-64, -64))
+							imUI.Push(pixel.V(-64, 64+(1-aspect)*(float64(tileZ)-0.5)*512.0))
+							imUI.Push(pixel.V(64, 64+(1-aspect)*(float64(tileZ)-0.5)*512.0))
+							imUI.Push(pixel.V(64, -64))
+							imUI.Polygon(0)
 						}
 						if selectedTile2 > 0 {
-							imd2.SetMatrix(matrix)
-							imd2.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0.2}
-							imd2.Push(pixel.V(-64, -64+(1-aspect)*float64(tileZ)*512.0))
-							imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ+1)*512.0))
-							imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ+1)*512.0))
-							imd2.Push(pixel.V(64, -64+(1-aspect)*float64(tileZ)*512.0))
-							imd2.Polygon(0)
+							imUI.SetMatrix(matrix)
+							imUI.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0.2}
+							imUI.Push(pixel.V(-64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imUI.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+							imUI.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+							imUI.Push(pixel.V(64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imUI.Polygon(0)
 						} else {
-							imd2.SetMatrix(matrix)
-							imd2.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0.2}
-							imd2.Push(pixel.V(-64, -64+(1-aspect)*float64(tileZ)*512.0))
-							imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ)*512.0))
-							imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ)*512.0))
-							imd2.Push(pixel.V(64, -64+(1-aspect)*float64(tileZ)*512.0))
-							imd2.Polygon(0)
+							imUI.SetMatrix(matrix)
+							imUI.Color = pixel.RGBA{R: 0.2, G: 0.2, B: 0.2}
+							imUI.Push(pixel.V(-64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imUI.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ)*512.0))
+							imUI.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ)*512.0))
+							imUI.Push(pixel.V(64, -64+(1-aspect)*float64(tileZ)*512.0))
+							imUI.Polygon(0)
 
 							if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 								currentFront := grid[int(i)+gridCentre][int(j)+gridCentre][int(tileZ)][1]
 								if currentFront != 0 {
-									imd2.SetMatrix(matrix)
-									imd2.Color = pixel.RGBA{R: 0.2, G: 0.0, B: 0.0}
-									imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ)*512.0))
-									imd2.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ+1)*512.0))
-									imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ+1)*512.0))
-									imd2.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ)*512.0))
-									imd2.Polygon(0)
+									imUI.SetMatrix(matrix)
+									imUI.Color = pixel.RGBA{R: 0.2, G: 0.0, B: 0.0}
+									imUI.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ)*512.0))
+									imUI.Push(pixel.V(-64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+									imUI.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ+1)*512.0))
+									imUI.Push(pixel.V(64, 64+(1-aspect)*float64(tileZ)*512.0))
+									imUI.Polygon(0)
 								}
 							}
 						}
@@ -305,26 +330,26 @@ func renderEditorOutputs() {
 
 						if !(int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre) {
 
-							imd2.SetMatrix(matrix)
+							imUI.SetMatrix(matrix)
 
-							imd2.Color = pixel.RGBA{R: gridIntensity, G: 0.0, B: 0.0}
-							imd2.Push(pixel.V(-64, -64))
-							imd2.Push(pixel.V(-64, 64))
-							imd2.Push(pixel.V(64, 64))
-							imd2.Push(pixel.V(64, -64))
-							imd2.Polygon(0)
+							imUI.Color = pixel.RGBA{R: gridIntensity, G: 0.0, B: 0.0}
+							imUI.Push(pixel.V(-64, -64))
+							imUI.Push(pixel.V(-64, 64))
+							imUI.Push(pixel.V(64, 64))
+							imUI.Push(pixel.V(64, -64))
+							imUI.Polygon(0)
 
 						}
 
-						imd1.Color = pixel.RGB(0, gridIntensity, 0)
-						imd1.Push(pixel.V(-64, -64))
-						imd1.Push(pixel.V(-64, 64))
-						imd1.Line(2.5 / scale)
+						imGrid.Color = pixel.RGB(0, gridIntensity, 0)
+						imGrid.Push(pixel.V(-64, -64))
+						imGrid.Push(pixel.V(-64, 64))
+						imGrid.Line(2.5 / scale)
 
-						imd1.Color = pixel.RGB(0, gridIntensity, 0)
-						imd1.Push(pixel.V(-64, -64))
-						imd1.Push(pixel.V(64, -64))
-						imd1.Line(2.5 / scale)
+						imGrid.Color = pixel.RGB(0, gridIntensity, 0)
+						imGrid.Push(pixel.V(-64, -64))
+						imGrid.Push(pixel.V(64, -64))
+						imGrid.Line(2.5 / scale)
 
 					}
 
@@ -332,23 +357,24 @@ func renderEditorOutputs() {
 
 			}
 		}
-	}
 
+		if showGrid == 1 {
+			win.SetComposeMethod(pixel.ComposeOver)
+			imGrid.Draw(win)
+		}
 
-	if showGrid == 1 {
 		win.SetComposeMethod(pixel.ComposeOver)
-		imd1.Draw(win)
-	}
+		tileBatch.Draw(win)
+		spriteBatch.Draw(win)
 
-	win.SetComposeMethod(pixel.ComposeOver)
-	batch.Draw(win)
+	}
 
 	if showGrid == 2 {
 		win.SetComposeMethod(pixel.ComposeOver)
-		imd1.Draw(win)
+		imGrid.Draw(win)
 	}
 
-	imd2.Draw(win)
+	imUI.Draw(win)
 
 	if leftAltPressed || rightAltPressed {
 
