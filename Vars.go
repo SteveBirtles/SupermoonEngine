@@ -44,6 +44,7 @@ var (
 	tileBatch         *pixel.Batch
 	spriteBatch       *pixel.Batch
 	grid              [2*gridCentre][2*gridCentre][16][2]uint16
+	entityGrid		  [2*gridCentre][2*gridCentre][]Entity
 	clipboard         [10][clipboardSize][clipboardSize][16][2]uint16
 	clipboardWidth    [10]int
 	clipboardHeight   [10]int
@@ -56,37 +57,46 @@ var (
 	scale                               = 0.5
 	aspect                             = 0.5
 	viewDirection               = 0
-	compass                = [4]string{"North", "East", "South", "West"}
-	hScale                 = 64.0
-	vScale                 = hScale * aspect
-	lastTileX              = outsideGrid
-	lastTileY              = 0
-	selectedTile1   uint16 = 4
-	tileRow1        uint16 = 0
-	selectedTile2   uint16 = 0
-	tileRow2        uint16 = 0
-	cameraX                = 0.0 //128.0*gridCentre
-	cameraY                = 0.0 //128.0*gridCentre
-	mouseX                 = 0.0
-	mouseY                 = 0.0
-	tileX                  = 0
-	tileY                  = 0
-	tileZ                  = 0
-	hideTile               = false
-	showShadows            = true
-	showGrid               = 1
-	xRay                   = false
-	zRay                   = false
-	flipX                  = false
-	flipY                  = false
-	selectionStartX        = 0
-	selectionStartY        = 0
-	selectionEndX          = 0
-	selectionEndY          = 0
-	selectionLive          = false
+	compass                         = [4]string{"North", "East", "South", "West"}
+	hScale                           = 64.0
+	vScale                                             = hScale * aspect
+	lastTileX                                      = outsideGrid
+	lastTileY                                      = 0
+	selectedTile1 uint16 = 4
+	tileRow1      uint16 = 0
+	selectedTile2 uint16 = 0
+	tileRow2      uint16 = 0
+	cameraX                                                = 0.0 //128.0*gridCentre
+	cameraY                                                = 0.0 //128.0*gridCentre
+	iStart        float64
+	jStart        float64
+	iEnd          float64
+	jEnd          float64
+	iOffset       float64
+	jOffset       float64
+	cameraAdjX    float64
+	cameraAdjY    float64
+	mouseX                                                     = 0.0
+	mouseY                                                     = 0.0
+	tileX                                                          = 0
+	tileY                                                          = 0
+	tileZ                                                          = 0
+	hideTile                                           = false
+	showShadows                            = true
+	showGrid                                           = 1
+	xRay                                                               = false
+	zRay                                                     = false
+	flipX                                        = false
+	flipY                                        = false
+	selectionStartX          = 0
+	selectionStartY         = 0
+	selectionEndX             = 0
+	selectionEndY             = 0
+	selectionLive             = false
 	leftAltPressed         = false
 	rightAltPressed        = false
 	quit                   = 0
 	help                   = false
+	entities			   []Entity
 )
 

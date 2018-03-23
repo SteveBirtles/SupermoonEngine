@@ -11,6 +11,9 @@ func mainLoop() {
 		startFrame()
 
 		processEditorInputs()
+
+		updateEntities()
+
 		renderEditorOutputs()
 
 		endFrame()

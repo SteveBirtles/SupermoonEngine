@@ -76,6 +76,8 @@ func initiate() {
 
 	initiateAPI()
 
+	entities = append(entities, Entity{id: 0, active: true, sprite: 0, x: 0, y: 0, z: 0})
+
 }
 
 

@@ -9,31 +9,6 @@ import (
 
 func renderEditorOutputs() {
 
-	iStart := -floor(screenWidth/(2*hScale)) - 2
-	jStart := -floor(screenHeight/(2*vScale)) - 2
-	iEnd := floor(screenWidth/(2*hScale)) + 2
-	jEnd := floor(screenHeight/(2*vScale)) + 20
-
-	var cX, cY float64
-
-	switch viewDirection {
-	case 0:
-		cX = cameraX
-		cY = cameraY
-	case 1:
-		cX = -cameraY
-		cY = cameraX
-	case 2:
-		cX = -cameraX
-		cY = -cameraY
-	case 3:
-		cX = cameraY
-		cY = -cameraX
-	}
-
-	iOffset := -floor(scale * cX / hScale)
-	jOffset := floor(scale * aspect * cY / vScale)
-
 	startX := selectionStartX
 	startY := selectionStartY
 	endX := selectionEndX
@@ -165,7 +140,7 @@ func renderEditorOutputs() {
 					if baseTile > 0 && baseTile <= totalTiles || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
 						s := 4*(1-aspect)
-						cam := pixel.V(cX, cY)
+						cam := pixel.V(cameraAdjX, cameraAdjY)
 						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
 
 						frontMatrix := pixel.IM.
@@ -175,7 +150,7 @@ func renderEditorOutputs() {
 							Moved(pos).
 							Moved(pixel.V(0, vScale/2 - 2*(aspect-0.5)*vScale))
 
-						if baseTile != 0 && frontTile == 0 {
+						if len(entityGrid[int(i)+gridCentre][int(j)+gridCentre]) > 0 {
 
 							spriteMatrix := frontMatrix.Moved(pixel.V(0, vScale/2-2*(aspect-0.5)*vScale))
 
@@ -257,7 +232,7 @@ func renderEditorOutputs() {
 
 				if k == 0 && (showGrid > 0 || selectionLive) {
 
-					cam := pixel.V(cX, cY)
+					cam := pixel.V(cameraAdjX, cameraAdjY)
 					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64(j0*vScale)))
 
 					matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
@@ -423,7 +398,7 @@ func renderEditorOutputs() {
 		print(fmt.Sprintf("Cursor: X %d, Y %d, Z %d", tileX, tileY, tileZ))
 		print(fmt.Sprintf("View direction: %s", compass[viewDirection]))
 		print(fmt.Sprintf("Aspect: %d%%", int(100*(1-aspect))))
-		print(fmt.Sprintf("Camera: %d, %d", int(cX), int(cY)))
+		print(fmt.Sprintf("Camera: %d, %d", int(cameraAdjX), int(cameraAdjY)))
 		print(fmt.Sprintf("Scale: %.2f", scale))
 		print(fmt.Sprintf("Tiles: %d/%d", selectedTile1, selectedTile2))
 		switch showGrid {

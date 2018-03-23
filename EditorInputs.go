@@ -722,4 +722,27 @@ func processEditorInputs() {
 		}
 	}
 
+	iStart = -floor(screenWidth/(2*hScale)) - 2
+	jStart = -floor(screenHeight/(2*vScale)) - 2
+	iEnd = floor(screenWidth/(2*hScale)) + 2
+	jEnd = floor(screenHeight/(2*vScale)) + 20
+
+	switch viewDirection {
+	case 0:
+		cameraAdjX = cameraX
+		cameraAdjY = cameraY
+	case 1:
+		cameraAdjX = -cameraY
+		cameraAdjY = cameraX
+	case 2:
+		cameraAdjX = -cameraX
+		cameraAdjY = -cameraY
+	case 3:
+		cameraAdjX = cameraY
+		cameraAdjY = -cameraX
+	}
+
+	iOffset = -floor(scale * cameraAdjX / hScale)
+	jOffset = floor(scale * aspect * cameraAdjY / vScale)
+
 }
