@@ -14,7 +14,7 @@ func mainLoop() {
 
 		updateEntities()
 
-		renderEditorOutputs()
+		renderOutputs()
 
 		endFrame()
 	}

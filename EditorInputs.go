@@ -119,7 +119,7 @@ func processEditorInputs() {
 		tileZ = 0
 		flipX = false
 		flipY = false
-		showShadows = false
+		showShadows = true
 		hideTile = false
 		clobber = false
 	}

@@ -76,7 +76,25 @@ func initiate() {
 
 	initiateAPI()
 
-	entities = append(entities, Entity{id: 0, active: true, sprite: 0, x: 0, y: 0, z: 0})
+	//s := rand.NewSource(time.Now().UnixNano())
+	//r := rand.New(s)
+
+	/*for i := uint32(0); i < 100; i ++ {
+
+		entities = append(entities, Entity{id: i, active: true, sprite: 0, x: r.Float64() * 100-50, y: r.Float64() * 100-50, z: 0, dx: r.Float64() * 2 - 1, dy: r.Float64() * 2 - 1})
+
+	}*/
+
+	entities = append(entities, Entity{id: 0, active: true, sprite: 0, x: 0, y: 0})
+
+	entities = append(entities, Entity{id: 1, active: true, sprite: 0, x: 1, y: 5,   dx: 1, dy:1})
+	entities = append(entities, Entity{id: 2, active: true, sprite: 0, x: 2, y: 0,   dx: 1, dy:0})
+	entities = append(entities, Entity{id: 3, active: true, sprite: 0, x: 3, y: -7,  dx: 1, dy:-1})
+	entities = append(entities, Entity{id: 4, active: true, sprite: 0, x: 0, y: 8,   dx: 0, dy:1})
+	entities = append(entities, Entity{id: 5, active: true, sprite: 0, x: 0, y: -9,  dx: 0, dy:-1})
+	entities = append(entities, Entity{id: 6, active: true, sprite: 0, x: -6, y: 10,  dx: -1, dy:1})
+	entities = append(entities, Entity{id: 7, active: true, sprite: 0, x: -7, y: 0,  dx: -1, dy:0})
+	entities = append(entities, Entity{id: 8, active: true, sprite: 0, x: -8, y: -12, dx: -1, dy:-1})
 
 }
 

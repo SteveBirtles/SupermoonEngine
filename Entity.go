@@ -29,6 +29,13 @@ type Entity struct {
 
 func updateEntities() {
 
+	for i := range entities {
+
+		entities[i].x += entities[i].dx / 60
+		entities[i].y += entities[i].dy / 60
+
+	}
+
 	var i, j int
 	iMin := 9999
 	jMin := 9999
@@ -58,15 +65,31 @@ func updateEntities() {
 			if j < jMin { jMin = j }
 
 			if i >= -gridCentre && j >= -gridCentre && i < gridCentre && j < gridCentre {
-				entityGrid[i+gridCentre][j+gridCentre] =  []Entity{}
+				if len(entityGrid[i+gridCentre][j+gridCentre]) > 0 {
+					entityGrid[i+gridCentre][j+gridCentre] = entityGrid[i+gridCentre][j+gridCentre][:0]
+				}
 			}
 		}
 	}
 
+	var x, y int
+
 	for _, e := range entities {
 
-		x := int(e.x)
-		y := int(e.y)
+		switch viewDirection {
+		case 0:
+			x = int(e.x)
+			y = int(e.y)+1
+		case 1:
+			x = -int(e.y)-1
+			y = int(e.x)
+		case 2:
+			x = -int(e.x)
+			y = -int(e.y)-1
+		case 3:
+			x = int(e.y)+1
+			y = -int(e.x)
+		}
 
 		if x < iMin || x > iMax || j < jMin	|| j > jMax { continue }
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func renderEditorOutputs() {
+func renderOutputs() {
 
 	startX := selectionStartX
 	startY := selectionStartY
@@ -87,7 +87,6 @@ func renderEditorOutputs() {
 					}
 				}
 
-
 				deltaX := 0
 				deltaY := 0
 				preview := false
@@ -105,7 +104,7 @@ func renderEditorOutputs() {
 							if int(j-s) >= -gridCentre && int(j-s) < gridCentre {
 
 								if frontTile == 0 && (grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s-1)][1] > 0 ||
-										grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s)][0] > 0) ||
+									grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s)][0] > 0) ||
 									frontTile > 0 && (grid[int(i)+gridCentre][int(j-s)+gridCentre][int(k+s)][0] > 0 ||
 										grid[int(i)+gridCentre][int(j-s+1)+gridCentre][int(k+s)][0] > 0) {
 									inShadow = true
@@ -121,8 +120,12 @@ func renderEditorOutputs() {
 						deltaX = int(i) - tileX
 						deltaY = int(j) - tileY
 
-						if flipX { deltaX = clipboardWidth[currentClipboard]-1 - (int(i) - tileX) }
-						if flipY { deltaY = clipboardHeight[currentClipboard]-1 - (int(j) - tileY) }
+						if flipX {
+							deltaX = clipboardWidth[currentClipboard] - 1 - (int(i) - tileX)
+						}
+						if flipY {
+							deltaY = clipboardHeight[currentClipboard] - 1 - (int(j) - tileY)
+						}
 
 						if deltaX >= 0 && deltaY >= 0 && deltaX < clipboardWidth[previewClipboard] && deltaY < clipboardHeight[previewClipboard] {
 							if clobber || clipboard[previewClipboard][deltaX][deltaY][int(kC)][0] != 0 || clipboard[previewClipboard][deltaX][deltaY][int(kC)][1] != 0 {
@@ -137,39 +140,18 @@ func renderEditorOutputs() {
 						alpha = gamma
 					}
 
-					if baseTile > 0 && baseTile <= totalTiles || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
+					s := 4 * (1 - aspect)
+					cam := pixel.V(cameraAdjX, cameraAdjY)
+					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
 
-						s := 4*(1-aspect)
-						cam := pixel.V(cameraAdjX, cameraAdjY)
-						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
+					if baseTile > 0 && baseTile <= totalTiles || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
 						frontMatrix := pixel.IM.
 							ScaledXY(pixel.ZV, pixel.V(1, s)).
 							Moved(cam).
 							ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
 							Moved(pos).
-							Moved(pixel.V(0, vScale/2 - 2*(aspect-0.5)*vScale))
-
-						if len(entityGrid[int(i)+gridCentre][int(j)+gridCentre]) > 0 {
-
-							spriteMatrix := frontMatrix.Moved(pixel.V(0, vScale/2-2*(aspect-0.5)*vScale))
-
-							spriteNo := int((gameFrame + int(i+gridCentre) + int(j+gridCentre)*gridCentre*2) / 4) % 10
-
-							switch viewDirection {
-							case 0:
-								spriteNo += 40
-							case 1:
-								spriteNo += 70
-							case 2:
-								spriteNo += 60
-							case 3:
-								spriteNo += 50
-							}
-
-							spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
-
-						}
+							Moved(pixel.V(0, vScale/2-2*(aspect-0.5)*vScale))
 
 						if preview {
 							frontTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][1]
@@ -209,7 +191,6 @@ func renderEditorOutputs() {
 								}
 							}
 
-
 						} else {
 
 							matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
@@ -238,7 +219,7 @@ func renderEditorOutputs() {
 					matrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos)
 					imGrid.SetMatrix(matrix)
 
-					gridIntensity := math.Sqrt(scale / 2) * float64(showGrid) * 0.5
+					gridIntensity := math.Sqrt(scale/2) * float64(showGrid) * 0.5
 
 					if selectionLive &&
 						int(i) >= startX && int(j) >= startY &&
@@ -252,9 +233,6 @@ func renderEditorOutputs() {
 						imUI.Push(pixel.V(64, -64))
 						imUI.Polygon(0)
 					}
-
-
-
 
 					if int(i) == tileX && int(j) == tileY {
 
@@ -300,7 +278,6 @@ func renderEditorOutputs() {
 
 					}
 
-
 					if showGrid > 0 {
 
 						if !(int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre) {
@@ -327,6 +304,60 @@ func renderEditorOutputs() {
 						imGrid.Line(2.5 / scale)
 
 					}
+
+				}
+
+			}
+
+			if len(entityGrid[int(i)+gridCentre][int(j)+gridCentre]) > 0 {
+
+				s := 4 * (1 - aspect)
+				cam := pixel.V(cameraAdjX, cameraAdjY)
+
+				var eX, eY float64
+
+				for _, e := range entityGrid[int(i)+gridCentre][int(j)+gridCentre] {
+
+					switch viewDirection {
+					case 0:
+						eX = e.x-i
+						eY = e.y-j
+					case 1:
+						eX = e.x-j
+						eY = e.y+i
+					case 2:
+						eX = e.x+i
+						eY = e.y+j
+					case 3:
+						eX = e.x+j
+						eY = e.y-i
+					}
+
+					k := e.z
+
+					spriteNo := e.sprite
+
+					switch viewDirection {
+					case 1:
+						spriteNo += 30
+					case 2:
+						spriteNo += 20
+					case 3:
+						spriteNo += 10
+					}
+
+					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
+
+					spriteMatrix := pixel.IM.
+						ScaledXY(pixel.ZV, pixel.V(1, s)).
+						Moved(cam).
+						ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+						Moved(pos).
+						Moved(pixel.V(0, 2*(vScale/2-2*(aspect-0.5)*vScale))).
+						Moved(pixel.V(eX*hScale, -eY*vScale))
+
+					spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
+					spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
 
 				}
 
