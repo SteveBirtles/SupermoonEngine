@@ -41,25 +41,34 @@ func updateEntities() {
 
 	for i := range entities {
 
-		intX := math.Floor(entities[i].x)
+		intX, fracX := math.Modf(entities[i].x)
 		inTransitX := entities[i].x != intX
-		intNextX := math.Floor(entities[i].x + entities[i].dx / 60)
+		intNextX, _ := math.Modf(entities[i].x + entities[i].dx / 60)
 
 		fmt.Printf("x:%f ix:%f dx:%f nx:%f\n", entities[i].x, intX, entities[i].dx, intNextX)
 
-		if intX != intNextX {
-			entities[i].x = intNextX
+		if intX != intNextX && fracX != 0 {
+			if entities[i].dx > 0 {
+				entities[i].x = intX
+			} else {
+				entities[i].x = intNextX
+			}
+
 			inTransitX = false
 		} else {
 			entities[i].x += entities[i].dx / 60
 		}
 
-		intY := math.Floor(entities[i].y)
+		intY, fracY := math.Modf(entities[i].y)
 		inTransitY := entities[i].y != intY
-		intNextY := math.Floor(entities[i].y + entities[i].dy / 60)
+		intNextY, _ := math.Modf(entities[i].y + entities[i].dy / 60)
 
-		if intY != intNextY {
-			entities[i].y = intNextY
+		if intY != intNextY && fracY != 0 {
+			if entities[i].dy > 0 {
+				entities[i].y = intY
+			} else {
+				entities[i].y = intNextY
+			}
 			inTransitY = false
 		} else {
 			entities[i].y += entities[i].dy / 60
