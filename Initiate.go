@@ -6,8 +6,6 @@ import (
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
-	"time"
-	"math/rand"
 )
 
 func initiateEngine() {

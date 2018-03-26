@@ -3,7 +3,6 @@ package main
 import (
 	"time"
 	"math/rand"
-	"fmt"
 )
 
 type Entity struct {
@@ -151,27 +150,25 @@ func updateEntities() {
 
 	var x, y int
 
-	for i, e := range entities {
-
-		inTransit := e.targetY != e.lastY
+	for _, e := range entities {
 
 		switch viewDirection {
 		case 0:
-			x = int(e.x)
-			y = int(e.y)
-			if inTransit { y++ }
+			x = int(e.lastX)
+			y = int(e.lastY)
+			if e.lastY < e.targetY { y++ }
 		case 1:
-			x = -int(e.y)
-			y = int(e.x)
-			if inTransit { x-- }
+			x = -int(e.lastY)
+			y = int(e.lastX)
+			if e.lastX > e.targetX { x-- }
 		case 2:
-			x = -int(e.x)
-			y = -int(e.y)
-			if inTransit { y-- }
+			x = -int(e.lastX)
+			y = -int(e.lastY)
+			if e.lastY > e.targetY { y-- }
 		case 3:
-			x = int(e.y)
-			y = -int(e.x)
-			if inTransit { x++ }
+			x = int(e.lastY)
+			y = -int(e.lastX) 
+			if e.lastX < e.targetX { x++ }
 		}
 
 		if x < iMin || x > iMax || j < jMin	|| j > jMax { continue }
@@ -189,7 +186,7 @@ func createEntities() {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 
-	for i := uint32(0); i < 1000; i ++ {
+	for i := uint32(0); i < 100; i ++ {
 
 		e := Entity{  id: i,
 									active: true,
