@@ -175,7 +175,7 @@ func createEntities() {
 			active: true,
 			sprite: 0,
 			z: 0,
-			velocity: 2}
+			velocity: 5}
 
 		for failCount := 0; failCount < 10; failCount++ {
 

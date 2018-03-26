@@ -337,15 +337,44 @@ func renderOutputs() {
 
 						k := e.z
 
-						spriteNo := e.sprite
+						spriteNo := 40 + int(math.Mod(float64(e.sprite + frameCounter/4), 10))
 
-						switch viewDirection {
+						direction := -1
+
+						if e.targetY < e.lastY {
+							direction = 0
+						}
+						if e.targetX < e.lastX {
+							direction = 1
+						}
+						if e.targetY > e.lastY {
+							direction = 2
+						}
+						if e.targetX > e.lastX {
+							direction = 3
+						}
+
+						switch direction {
+						case 0:
+							if viewDirection == 0 { spriteNo += 20 }
+							if viewDirection == 1 { spriteNo += 10 }
+							if viewDirection == 2 { spriteNo += 0 }
+							if viewDirection == 3 { spriteNo += 30 }
 						case 1:
-							spriteNo += 30
+							if viewDirection == 0 { spriteNo += 10 }
+							if viewDirection == 1 { spriteNo += 0 }
+							if viewDirection == 2 { spriteNo += 30 }
+							if viewDirection == 3 { spriteNo += 20 }
 						case 2:
-							spriteNo += 20
+							if viewDirection == 0 { spriteNo += 0 }
+							if viewDirection == 1 { spriteNo += 30 }
+							if viewDirection == 2 { spriteNo += 20 }
+							if viewDirection == 3 { spriteNo += 10 }
 						case 3:
-							spriteNo += 10
+							if viewDirection == 0 { spriteNo += 30 }
+							if viewDirection == 1 { spriteNo += 20 }
+							if viewDirection == 2 { spriteNo += 10 }
+							if viewDirection == 3 { spriteNo += 0 }
 						}
 
 						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
