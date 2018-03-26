@@ -4,7 +4,6 @@ import (
 	"time"
 	"math/rand"
 	"fmt"
-	"math"
 )
 
 type Entity struct {
@@ -16,10 +15,18 @@ type Entity struct {
   y float64
   z float64
 
-  dx float64  // velocity
-  dy float64
-  dz float64
-  dn int      // number of squares to continue at that velocity
+	lastX float64
+	lastY float64
+	lastZ float64
+
+	targetX float64
+  targetY float64
+  targetZ float64
+
+	progress float64
+
+  velocity float64  // velocity
+  vN int      // number of squares to continue at that velocity
 
   class string  // corresponds to a lua file
   script string // their lua script
@@ -41,64 +48,68 @@ func updateEntities() {
 
 	for i := range entities {
 
-		intX, fracX := math.Modf(entities[i].x)
-		inTransitX := entities[i].x != intX
-		intNextX, _ := math.Modf(entities[i].x + entities[i].dx / 60)
+			noTarget := entities[i].lastX == entities[i].targetX &&
+									entities[i].lastY == entities[i].targetY &&
+									entities[i].lastZ == entities[i].targetZ
 
-		fmt.Printf("x:%f ix:%f dx:%f nx:%f\n", entities[i].x, intX, entities[i].dx, intNextX)
+			if noTarget || entities[i].progress + entities[i].velocity/60 > 1 {
 
-		if intX != intNextX && fracX != 0 {
-			if entities[i].dx > 0 {
-				entities[i].x = intX
+						d := -1
+
+						if entities[i].targetY < entities[i].lastY { d = 0 }
+						if entities[i].targetX < entities[i].lastX { d = 1 }
+						if entities[i].targetY > entities[i].lastY { d = 2 }
+						if entities[i].targetX > entities[i].lastX { d = 3 }
+
+						entities[i].progress = 0
+						entities[i].x = entities[i].targetX
+						entities[i].y = entities[i].targetY
+						entities[i].z = entities[i].targetZ
+						entities[i].lastX = entities[i].x
+						entities[i].lastY = entities[i].y
+						entities[i].lastZ = entities[i].z
+
+						for failCount := 0; failCount < 10; failCount++ {
+
+							dx := 0.0
+							dy := 0.0
+
+							if failCount > 0 || d == -1 { d = r.Intn(4) }
+
+							switch d {
+							case 0:
+								dy = -1
+							case 1:
+								dx = -1
+							case 2:
+								dy = 1
+							case 3:
+								dx = 1
+							}
+
+							gX := int(entities[i].x + dx + gridCentre)
+							gY := int(entities[i].y + dy + gridCentre)
+							gZ := int(entities[i].z)
+
+							if gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre { continue }
+							if grid[gX][gY][gZ][1] != 0 { continue }
+
+							entities[i].targetX = entities[i].x + dx
+							entities[i].targetY = entities[i].y + dy
+							entities[i].targetZ = entities[i].z
+
+							break
+
+						}
+
 			} else {
-				entities[i].x = intNextX
+
+					entities[i].progress += entities[i].velocity/60
+					entities[i].x = entities[i].lastX + (entities[i].targetX - entities[i].lastX) * entities[i].progress
+					entities[i].y = entities[i].lastY + (entities[i].targetY - entities[i].lastY) * entities[i].progress
+					entities[i].z = entities[i].lastZ + (entities[i].targetZ - entities[i].lastZ) * entities[i].progress
+
 			}
-
-			inTransitX = false
-		} else {
-			entities[i].x += entities[i].dx / 60
-		}
-
-		intY, fracY := math.Modf(entities[i].y)
-		inTransitY := entities[i].y != intY
-		intNextY, _ := math.Modf(entities[i].y + entities[i].dy / 60)
-
-		if intY != intNextY && fracY != 0 {
-			if entities[i].dy > 0 {
-				entities[i].y = intY
-			} else {
-				entities[i].y = intNextY
-			}
-			inTransitY = false
-		} else {
-			entities[i].y += entities[i].dy / 60
-		}
-
-		if !(inTransitX || inTransitY) {
-
-			dx := 0.0
-			dy := 0.0
-
-			d := r.Intn(4)
-
-			fmt.Printf("%d\n", d)
-
-			switch d {
-			case 0:
-				dy = -1
-			case 1:
-				dx = -1
-			case 2:
-				dy = 1
-			case 3:
-				dx = 1
-			}
-
-			entities[i].dx = dx
-			entities[i].dy = dy
-
-		}
-
 
 	}
 
@@ -140,9 +151,9 @@ func updateEntities() {
 
 	var x, y int
 
-	for _, e := range entities {
+	for i, e := range entities {
 
-		inTransit := e.y != float64(int(e.y))
+		inTransit := e.targetY != e.lastY
 
 		switch viewDirection {
 		case 0:
@@ -168,6 +179,61 @@ func updateEntities() {
 		if x >= -gridCentre && y >= -gridCentre && x < gridCentre && y < gridCentre {
 			entityGrid[x+gridCentre][y+gridCentre] = append(entityGrid[x+gridCentre][y+gridCentre], e)
 		}
+
+	}
+
+}
+
+func createEntities() {
+
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+
+	for i := uint32(0); i < 1000; i ++ {
+
+		e := Entity{  id: i,
+									active: true,
+									sprite: 0,
+									z: 0,
+									velocity: 2}
+
+		for failCount := 0; failCount < 10; failCount++ {
+
+			e.x = float64(int(r.Float64() * 100-50))
+			e.y = float64(int(r.Float64() * 100-50))
+
+			gX := int(e.x + gridCentre)
+			gY := int(e.y + gridCentre)
+			gZ := int(e.z)
+
+			if gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre { continue }
+			if grid[gX][gY][gZ][1] != 0 { continue }
+
+		}
+
+		dx := 0.0
+		dy := 0.0
+		d := r.Intn(4)
+
+		switch d {
+		case 0:
+			dy = -1
+		case 1:
+			dx = -1
+		case 2:
+			dy = 1
+		case 3:
+			dx = 1
+		}
+
+		e.lastX = e.x
+		e.lastY = e.y
+		e.lastZ = e.z
+		e.targetX = e.x + dx
+		e.targetY = e.y + dy
+		e.targetZ = e.z
+		e.progress = 0
+		entities = append(entities, e)
 
 	}
 

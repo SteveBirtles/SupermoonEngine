@@ -10,7 +10,7 @@ import (
 	"math/rand"
 )
 
-func initiate() {
+func initiateEngine() {
 
 	var initError error
 
@@ -75,31 +75,6 @@ func initiate() {
 	tileBatch = pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
 	spriteBatch = pixel.NewBatch(&pixel.TrianglesData{}, spritePic)
 	imUI = imdraw.New(nil)
-
-	initiateAPI()
-
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
-
-	for i := uint32(0); i < 100; i ++ {
-
-		dx := 0.0
-		dy := 0.0
-
-		switch r.Intn(4) {
-		case 0:
-			dy = -1
-		case 1:
-			dx = -1
-		case 2:
-			dy = 1
-		case 3:
-			dx = 1
-		}
-
-		entities = append(entities, Entity{id: i, active: true, sprite: 0, x: float64(int(r.Float64() * 100-50)), y: float64(int(r.Float64() * 100-50)), z: 0, dx: dx, dy: dy})
-
-	}
 
 }
 
