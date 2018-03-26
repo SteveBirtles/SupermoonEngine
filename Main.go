@@ -5,7 +5,10 @@ import (
 	"github.com/yuin/gopher-lua"
 	"github.com/faiface/pixel/pixelgl"
 	"os"
-	"strings"
+	"flag"
+	"log"
+	"runtime/pprof"
+	"runtime"
 )
 
 var (
@@ -15,17 +18,31 @@ var (
 	screenHeight = 720.0
 )
 
+var mapfile = flag.String("map", "", "loads a give map file")
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
+var vres = flag.String("vres", "", "choose between 720 or 1080 vertical resolution")
+
 func main() {
 
-	args := os.Args[1:]
-
-	if len(args) >= 1 {
-		levelFile = "maps/" + args[0]
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
 	}
 
-	if len(args) >= 2 {
-		switch strings.ToLower(args[1]) {
-		case "hd":
+	if *mapfile != "" {
+		levelFile = "maps/" + *mapfile
+	}
+
+	if *vres != "" {
+		if *vres == "1080" {
 			screenWidth = 1920.0
 			screenHeight = 1080.0
 		}
@@ -35,5 +52,17 @@ func main() {
 	defer L.Close()
 	
 	pixelgl.Run(mainLoop)
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+		f.Close()
+	}
 
 }
