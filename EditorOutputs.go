@@ -309,58 +309,61 @@ func renderOutputs() {
 
 			}
 
-			if len(entityGrid[int(i)+gridCentre][int(j)+gridCentre]) > 0 {
+			if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
-				s := 4 * (1 - aspect)
-				cam := pixel.V(cameraAdjX, cameraAdjY)
+				if len(entityGrid[int(i)+gridCentre][int(j)+gridCentre]) > 0 {
 
-				var eX, eY float64
+					s := 4 * (1 - aspect)
+					cam := pixel.V(cameraAdjX, cameraAdjY)
 
-				for _, e := range entityGrid[int(i)+gridCentre][int(j)+gridCentre] {
+					var eX, eY float64
 
-					switch viewDirection {
-					case 0:
-						eX = e.x-i
-						eY = e.y-j
-					case 1:
-						eX = e.x-j
-						eY = e.y+i
-					case 2:
-						eX = e.x+i
-						eY = e.y+j
-					case 3:
-						eX = e.x+j
-						eY = e.y-i
+					for _, e := range entityGrid[int(i)+gridCentre][int(j)+gridCentre] {
+
+						switch viewDirection {
+						case 0:
+							eX = e.x - i
+							eY = e.y - j
+						case 1:
+							eX = e.y - j
+							eY = -e.x + i
+						case 2:
+							eX = -e.x + i
+							eY = -e.y + j
+						case 3:
+							eX = -e.y + j
+							eY = e.x - i
+						}
+
+						k := e.z
+
+						spriteNo := e.sprite
+
+						switch viewDirection {
+						case 1:
+							spriteNo += 30
+						case 2:
+							spriteNo += 20
+						case 3:
+							spriteNo += 10
+						}
+
+						pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
+
+						spriteMatrix := pixel.IM.
+							ScaledXY(pixel.ZV, pixel.V(1, s)).
+							Moved(cam).
+							ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+							Moved(pos).
+							Moved(pixel.V(0, 2*(vScale/2-2*(aspect-0.5)*vScale))).
+							Moved(pixel.V(eX*hScale, -eY*vScale))
+
+						spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
+						spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
+
 					}
-
-					k := e.z
-
-					spriteNo := e.sprite
-
-					switch viewDirection {
-					case 1:
-						spriteNo += 30
-					case 2:
-						spriteNo += 20
-					case 3:
-						spriteNo += 10
-					}
-
-					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
-
-					spriteMatrix := pixel.IM.
-						ScaledXY(pixel.ZV, pixel.V(1, s)).
-						Moved(cam).
-						ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-						Moved(pos).
-						Moved(pixel.V(0, 2*(vScale/2-2*(aspect-0.5)*vScale))).
-						Moved(pixel.V(eX*hScale, -eY*vScale))
-
-					spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
-					spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
 
 				}
-
 			}
 		}
 
