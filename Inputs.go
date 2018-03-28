@@ -154,7 +154,7 @@ func processTileChoiceInputs() {
 	leftAltPressed = win.Pressed(pixelgl.KeyLeftAlt) && !win.Pressed(pixelgl.KeyLeftControl)
 	rightAltPressed = win.Pressed(pixelgl.KeyRightAlt) && !win.Pressed(pixelgl.KeyLeftControl)
 
-	if win.Pressed(pixelgl.KeyBackspace) {
+	if win.Pressed(pixelgl.KeyRightControl) {
 
 		selectedTile2 = 0
 
@@ -763,6 +763,77 @@ func processEditorDirectives() {
 	if win.JustPressed(pixelgl.KeyEscape) {
 		resetViewState()
 	}
+
+	if win.JustPressed(pixelgl.KeyBackspace) {
+
+		var deleteList []int
+
+		for i := len(entities[0]) - 1; i >= 0; i-- {
+
+			if int(entities[0][i].x) == tileX &&
+				int(entities[0][i].y) == tileY &&
+				int(entities[0][i].z) == tileZ {
+					deleteList = append(deleteList, i)
+			}
+
+		}
+
+		for _, i := range deleteList {
+
+			entities[0] = append(entities[0][0:i], entities[0][i+1:]...)
+
+		}
+
+	}
+
+
+	if win.JustPressed(pixelgl.KeyEnter) {
+
+		entityUID++
+
+		e := Entity{id: entityUID,
+			active: true,
+			sprite: 0,
+			velocity: 5}
+
+		e.x = float64(tileX)
+		e.y = float64(tileY)
+		e.z = float64(tileZ)
+
+		gX := int(e.x + gridCentre)
+		gY := int(e.y + gridCentre)
+		gZ := int(e.z)
+
+		valid := true
+
+		if gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre || grid[gX][gY][gZ][1] != 0 {
+			valid = false
+		}
+
+		for i := len(entities[0]) - 1; i >= 0; i-- {
+
+			if int(entities[0][i].x) == tileX &&
+				int(entities[0][i].y) == tileY &&
+				int(entities[0][i].z) == tileZ {
+					valid = false
+			}
+
+		}
+
+		if valid {
+			e.lastX = e.x
+			e.lastY = e.y
+			e.lastZ = e.z
+			e.targetX = e.x
+			e.targetY = e.y
+			e.targetZ = e.z
+			e.progress = 0
+			entities[0] = append(entities[0], e)
+
+		}
+
+	}
+
 
 }
 

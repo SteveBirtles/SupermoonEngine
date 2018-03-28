@@ -499,7 +499,7 @@ func renderHelp() {
 		print("Home/End : Cursor high/low")
 		print("Left/Right Alt : Choose base/front tile")
 		print("Alt+Mouse Wheel : Cycle tile row")
-		print("Backspace : Clear front tile")
+		print("Right Ctrl : Clear front tile")
 		print("Ctrl+O/P : Toggle shadow/cursor visibility")
 		print("W/S/A/D : Move camera")
 		print("Ctrl+Mouse wheel : Zoom camera")

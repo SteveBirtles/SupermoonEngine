@@ -45,6 +45,7 @@ var (
 	spriteBatch       *pixel.Batch
 	grid              [2*gridCentre][2*gridCentre][16][2]uint16
 	entityGrid		  [2*gridCentre][2*gridCentre][]Entity
+	entities	      [2][]Entity
 	clipboard         [10][clipboardSize][clipboardSize][16][2]uint16
 	clipboardWidth    [10]int
 	clipboardHeight   [10]int
@@ -98,6 +99,5 @@ var (
 	quit                   = 0
 	help                   = false
 	editing				   = true
-	entities			   []Entity
 )
 
