@@ -6,14 +6,16 @@ func mainLoop() {
 	initiateAPI()
 	load()
 	backup()
-	createEntities()
 
 	for !win.Closed() && quit==0 {
 
 		startFrame()
-		processEditorInputs()
-		updateEntities()
-		renderOutputs()
+		processInputs()
+		if !editing {
+			updateEntities()
+		}
+		preRenderEntities()
+		render()
 		endFrame()
 		
 	}

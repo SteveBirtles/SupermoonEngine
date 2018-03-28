@@ -38,6 +38,49 @@ type Entity struct {
 	animationSpeed float64
 }
 
+func preRenderEntities() {
+
+	for j := -gridCentre; j < gridCentre; j++ {
+		for i := -gridCentre; i < gridCentre; i++ {
+			if len(entityGrid[i+gridCentre][j+gridCentre]) > 0 {
+				entityGrid[i+gridCentre][j+gridCentre] = entityGrid[i+gridCentre][j+gridCentre][:0]
+			}
+		}
+	}
+
+	for _, e := range entities {
+
+		gx := int(e.lastX)
+		gy := int(e.lastY)
+
+		switch viewDirection {
+		case 0:
+			if e.lastY < e.targetY {
+				gy++
+			}
+		case 1:
+			if e.lastX > e.targetX {
+				gx--
+			}
+		case 2:
+			if e.lastY > e.targetY {
+				gy--
+			}
+		case 3:
+			if e.lastX < e.targetX {
+				gx++
+			}
+		}
+
+		if gx >= -gridCentre && gy >= -gridCentre && gx < gridCentre && gy < gridCentre {
+			entityGrid[gx+gridCentre][gy+gridCentre] = append(entityGrid[gx+gridCentre][gy+gridCentre], e)
+		}
+
+	}
+
+
+}
+
 func updateEntities() {
 
 	s := rand.NewSource(time.Now().UnixNano())
@@ -124,47 +167,11 @@ func updateEntities() {
 
 	}
 
-	for j := -gridCentre; j < gridCentre; j++ {
-		for i := -gridCentre; i < gridCentre; i++ {
-			if len(entityGrid[i+gridCentre][j+gridCentre]) > 0 {
-				entityGrid[i+gridCentre][j+gridCentre] = entityGrid[i+gridCentre][j+gridCentre][:0]
-			}
-		}
-	}
-
-	for _, e := range entities {
-
-		gx := int(e.lastX)
-		gy := int(e.lastY)
-
-		switch viewDirection {
-		case 0:
-			if e.lastY < e.targetY {
-				gy++
-			}
-		case 1:
-			if e.lastX > e.targetX {
-				gx--
-			}
-		case 2:
-			if e.lastY > e.targetY {
-				gy--
-			}
-		case 3:
-			if e.lastX < e.targetX {
-				gx++
-			}
-		}
-
-		if gx >= -gridCentre && gy >= -gridCentre && gx < gridCentre && gy < gridCentre {
-			entityGrid[gx+gridCentre][gy+gridCentre] = append(entityGrid[gx+gridCentre][gy+gridCentre], e)
-		}
-
-	}
-
 }
 
-func createEntities() {
+func resetEntities() {
+
+	entities = entities[:0]
 
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
@@ -193,28 +200,15 @@ func createEntities() {
 				continue
 			}
 
-		}
+			break
 
-		dx := 0.0
-		dy := 0.0
-		d := r.Intn(4)
-
-		switch d {
-		case 0:
-			dy = -1
-		case 1:
-			dx = -1
-		case 2:
-			dy = 1
-		case 3:
-			dx = 1
 		}
 
 		e.lastX = e.x
 		e.lastY = e.y
 		e.lastZ = e.z
-		e.targetX = e.x + dx
-		e.targetY = e.y + dy
+		e.targetX = e.x
+		e.targetY = e.y
 		e.targetZ = e.z
 		e.progress = 0
 		entities = append(entities, e)

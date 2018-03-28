@@ -76,7 +76,6 @@ func initiateEngine() {
 
 }
 
-
 func initiateAPI() {
 
 	linkToLua(L, APILoadMap, "LoadMap")

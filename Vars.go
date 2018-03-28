@@ -97,6 +97,7 @@ var (
 	rightAltPressed        = false
 	quit                   = 0
 	help                   = false
+	editing				   = true
 	entities			   []Entity
 )
 

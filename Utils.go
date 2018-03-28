@@ -104,3 +104,48 @@ func loadTTF(path string, size float64) (font.Face, error) {
 		GlyphCacheEntries: 1,
 	}), nil
 }
+
+
+func calculateRenderBounds() {
+
+	startX = selectionStartX
+	startY = selectionStartY
+	endX = selectionEndX
+	endY = selectionEndY
+
+	if startX > endX {
+		temp := startX
+		startX = endX
+		endX = temp
+	}
+
+	if endX - startX > clipboardSize-1 {
+		endX = startX + clipboardSize-1
+	}
+
+	if startY > endY {
+		temp := startY
+		startY = endY
+		endY = temp
+	}
+
+	if endY - startY > clipboardSize-1 {
+		endY = startY + clipboardSize-1
+	}
+}
+
+func calculateViewVectors(i0 float64, j0 float64) (float64, float64) {
+
+	switch viewDirection {
+	case 0:
+		return i0, j0
+	case 1:
+		return -j0, i0
+	case 2:
+		return -i0, -j0
+	case 3:
+		return j0, -i0
+	}
+	return 0, 0
+
+}

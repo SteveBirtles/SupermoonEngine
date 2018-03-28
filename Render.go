@@ -43,76 +43,79 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 				}
 
 				k := e.z
+				spriteNo := e.sprite
 
-				spriteNo := 40 + int(math.Mod(float64(e.sprite+frameCounter/4), 10))
+				if !editing {
+					spriteNo = 40 + int(math.Mod(float64(e.sprite+frameCounter/4), 10))
 
-				direction := -1
+					direction := -1
 
-				if e.targetY < e.lastY {
-					direction = 0
-				}
-				if e.targetX < e.lastX {
-					direction = 1
-				}
-				if e.targetY > e.lastY {
-					direction = 2
-				}
-				if e.targetX > e.lastX {
-					direction = 3
-				}
+					if e.targetY < e.lastY {
+						direction = 0
+					}
+					if e.targetX < e.lastX {
+						direction = 1
+					}
+					if e.targetY > e.lastY {
+						direction = 2
+					}
+					if e.targetX > e.lastX {
+						direction = 3
+					}
 
-				switch direction {
-				case 0:
-					if viewDirection == 0 {
-						spriteNo += 20
-					}
-					if viewDirection == 1 {
-						spriteNo += 10
-					}
-					if viewDirection == 2 {
-						spriteNo += 0
-					}
-					if viewDirection == 3 {
-						spriteNo += 30
-					}
-				case 1:
-					if viewDirection == 0 {
-						spriteNo += 10
-					}
-					if viewDirection == 1 {
-						spriteNo += 0
-					}
-					if viewDirection == 2 {
-						spriteNo += 30
-					}
-					if viewDirection == 3 {
-						spriteNo += 20
-					}
-				case 2:
-					if viewDirection == 0 {
-						spriteNo += 0
-					}
-					if viewDirection == 1 {
-						spriteNo += 30
-					}
-					if viewDirection == 2 {
-						spriteNo += 20
-					}
-					if viewDirection == 3 {
-						spriteNo += 10
-					}
-				case 3:
-					if viewDirection == 0 {
-						spriteNo += 30
-					}
-					if viewDirection == 1 {
-						spriteNo += 20
-					}
-					if viewDirection == 2 {
-						spriteNo += 10
-					}
-					if viewDirection == 3 {
-						spriteNo += 0
+					switch direction {
+					case 0:
+						if viewDirection == 0 {
+							spriteNo += 20
+						}
+						if viewDirection == 1 {
+							spriteNo += 10
+						}
+						if viewDirection == 2 {
+							spriteNo += 0
+						}
+						if viewDirection == 3 {
+							spriteNo += 30
+						}
+					case 1:
+						if viewDirection == 0 {
+							spriteNo += 10
+						}
+						if viewDirection == 1 {
+							spriteNo += 0
+						}
+						if viewDirection == 2 {
+							spriteNo += 30
+						}
+						if viewDirection == 3 {
+							spriteNo += 20
+						}
+					case 2:
+						if viewDirection == 0 {
+							spriteNo += 0
+						}
+						if viewDirection == 1 {
+							spriteNo += 30
+						}
+						if viewDirection == 2 {
+							spriteNo += 20
+						}
+						if viewDirection == 3 {
+							spriteNo += 10
+						}
+					case 3:
+						if viewDirection == 0 {
+							spriteNo += 30
+						}
+						if viewDirection == 1 {
+							spriteNo += 20
+						}
+						if viewDirection == 2 {
+							spriteNo += 10
+						}
+						if viewDirection == 3 {
+							spriteNo += 0
+						}
 					}
 				}
 
@@ -126,7 +129,12 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 					Moved(pixel.V(0, 2*(vScale/2-2*(aspect-0.5)*vScale))).
 					Moved(pixel.V(eX*hScale, -eY*vScale))
 
-				spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
+				if editing {
+					spriteBatch.SetColorMask(color.RGBA{128, 128, 128, 128})
+				} else {
+					spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
+				}
+
 				spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
 
 			}
@@ -225,7 +233,7 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 		cam := pixel.V(cameraAdjX, cameraAdjY)
 		pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
 
-		if baseTile > 0 && baseTile <= totalTiles || (selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
+		if baseTile > 0 && baseTile <= totalTiles || (editing && selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
 			frontMatrix := pixel.IM.
 				ScaledXY(pixel.ZV, pixel.V(1, s)).
@@ -238,7 +246,7 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 				frontTile = clipboard[previewClipboard][deltaX][deltaY][int(kC)][1]
 			}
 
-			if frontTile > 0 && frontTile <= totalTiles || (selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
+			if frontTile > 0 && frontTile <= totalTiles || (editing && selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
 				baseMatrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
 					Moved(pixel.V(0, vScale*(1-aspect)*4))
@@ -248,7 +256,7 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 					tileTexture[baseTile-1].Draw(tileBatch, baseMatrix)
 				}
 
-				if int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
+				if editing && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
 					tileBatch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
 					if selectedTile2 == 0 {
 						tileTexture[selectedTile1-1].Draw(tileBatch, baseMatrix.Moved(pixel.V(0, -vScale*(1-aspect)*4)))
@@ -265,7 +273,7 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 						tileTexture[frontTile-1].Draw(tileBatch, frontMatrix)
 					}
 
-					if selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
+					if editing && selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
 						tileBatch.SetColorMask(color.RGBA{beta, beta, beta, 128})
 						tileTexture[selectedTile2-1].Draw(tileBatch, frontMatrix)
 
@@ -281,7 +289,7 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 					tileTexture[baseTile-1].Draw(tileBatch, matrix)
 				}
 
-				if int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
+				if editing && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile {
 					tileBatch.SetColorMask(color.RGBA{alpha, alpha, alpha, 128})
 					tileTexture[selectedTile1-1].Draw(tileBatch, matrix)
 				}
@@ -520,32 +528,9 @@ func renderHelp() {
 
 }
 
-func renderOutputs() {
+func render() {
 
-	startX = selectionStartX
-	startY = selectionStartY
-	endX = selectionEndX
-	endY = selectionEndY
-
-	if startX > endX {
-		temp := startX
-		startX = endX
-		endX = temp
-	}
-
-	if endX - startX > clipboardSize-1 {
-		endX = startX + clipboardSize-1
-	}
-
-	if startY > endY {
-		temp := startY
-		startY = endY
-		endY = temp
-	}
-
-	if endY - startY > clipboardSize-1 {
-		endY = startY + clipboardSize-1
-	}
+	calculateRenderBounds()
 
 	imUI.Clear()
 
@@ -557,36 +542,19 @@ func renderOutputs() {
 
 		for i0 := iStart + iOffset; i0 <= iEnd+ iOffset; i0++ {
 
-			var i, j float64
-
-			switch viewDirection {
-			case 0:
-				i = i0
-				j = j0
-			case 1:
-				i = -j0
-				j = i0
-			case 2:
-				i = -i0
-				j = -j0
-			case 3:
-				i = j0
-				j = -i0
-			}
+			i, j := calculateViewVectors(i0, j0)
 
 			for k := 0.0; k < 16; k++ {
-
 				renderWorld(i, j, k, i0, j0)
-
-				renderGrid(i, j, k, i0, j0)
-
+				if editing {
+					renderGrid(i, j, k, i0, j0)
+				}
 			}
-
 			renderSprites(i, j, i0, j0)
 
 		}
 
-		if showGrid == 1 {
+		if editing && showGrid == 1 {
 			win.SetComposeMethod(pixel.ComposeOver)
 			imGrid.Draw(win)
 		}
@@ -603,10 +571,9 @@ func renderOutputs() {
 	}
 
 	imUI.Draw(win)
-
-	renderTileOverlay()
-
-	renderHelp()
-
+	if editing {
+		renderTileOverlay()
+		renderHelp()
+	}
 
 }
