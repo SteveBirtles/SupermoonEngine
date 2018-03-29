@@ -46,25 +46,19 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 				spriteNo := e.sprite
 
 				if !editing {
-					spriteNo = 40 + int(math.Mod(float64(e.sprite+frameCounter/4), 10))
 
-					direction := -1
+					if e.targetX != e.lastX || e.targetY != e.lastY || e.targetZ != e.lastZ {
 
-					if e.targetY < e.lastY {
-						direction = 0
-					}
-					if e.targetX < e.lastX {
-						direction = 1
-					}
-					if e.targetY > e.lastY {
-						direction = 2
-					}
-					if e.targetX > e.lastX {
-						direction = 3
+						spriteNo = 40 + int(math.Mod(float64(e.sprite+frameCounter/4), 10))
+
+					} else {
+
+						spriteNo = 0
+
 					}
 
-					switch direction {
-					case 0:
+					switch e.direction {
+					case 'N':
 						if viewDirection == 0 {
 							spriteNo += 20
 						}
@@ -77,7 +71,7 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 						if viewDirection == 3 {
 							spriteNo += 30
 						}
-					case 1:
+					case 'W':
 						if viewDirection == 0 {
 							spriteNo += 10
 						}
@@ -90,7 +84,7 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 						if viewDirection == 3 {
 							spriteNo += 20
 						}
-					case 2:
+					case 'S':
 						if viewDirection == 0 {
 							spriteNo += 0
 						}
@@ -103,7 +97,7 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 						if viewDirection == 3 {
 							spriteNo += 10
 						}
-					case 3:
+					case 'E':
 						if viewDirection == 0 {
 							spriteNo += 30
 						}
@@ -116,6 +110,7 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 						if viewDirection == 3 {
 							spriteNo += 0
 						}
+
 					}
 				}
 

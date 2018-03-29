@@ -789,20 +789,13 @@ func processEditorDirectives() {
 
 	if win.JustPressed(pixelgl.KeyEnter) {
 
-		entityUID++
+		eX := float64(tileX)
+		eY := float64(tileY)
+		eZ := float64(tileZ)
 
-		e := Entity{id: entityUID,
-			active: true,
-			sprite: 0,
-			velocity: 5}
-
-		e.x = float64(tileX)
-		e.y = float64(tileY)
-		e.z = float64(tileZ)
-
-		gX := int(e.x + gridCentre)
-		gY := int(e.y + gridCentre)
-		gZ := int(e.z)
+		gX := int(eX + gridCentre)
+		gY := int(eY + gridCentre)
+		gZ := int(eZ)
 
 		valid := true
 
@@ -821,13 +814,27 @@ func processEditorDirectives() {
 		}
 
 		if valid {
-			e.lastX = e.x
-			e.lastY = e.y
-			e.lastZ = e.z
-			e.targetX = e.x
-			e.targetY = e.y
-			e.targetZ = e.z
-			e.progress = 0
+
+			entityUID++
+
+			e := Entity{id: entityUID,
+				active: true,
+				sprite: 0,
+				velocity: 0,
+				direction: 0,
+				distance: 0,
+				class: "test",
+				x: eX,
+				y: eY,
+				z: eZ,
+				lastX: eX,
+				lastY: eY,
+				lastZ: eZ,
+				targetX: eX,
+				targetY: eY,
+				targetZ: eZ,
+				progress: 0}
+
 			entities[0] = append(entities[0], e)
 
 		}

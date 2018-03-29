@@ -29,6 +29,7 @@ var (
 	gameFrame         = 0
 	undoFrame         = 1
 	second            = time.Tick(time.Second)
+	luaTick			  = time.Tick(time.Second/10)
 	win               *pixelgl.Window
 	textRenderer      *text.Text
 	textLine          int
@@ -99,5 +100,6 @@ var (
 	quit                   = 0
 	help                   = false
 	editing				   = true
+	currentEntity	       uint32
 )
 

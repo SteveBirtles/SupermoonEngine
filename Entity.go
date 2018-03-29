@@ -1,8 +1,7 @@
 package main
 
 import (
-	"time"
-	"math/rand"
+	"io/ioutil"
 )
 
 var entityUID uint32 = 0
@@ -26,7 +25,8 @@ type Entity struct {
 	progress float64
 
 	velocity float64 // velocity
-	vN       int     // number of squares to continue at that velocity
+	direction byte
+	distance int     // number of squares to continue at that velocity
 
 	class      string            // corresponds to a lua file
 	script     string            // their lua script
@@ -88,85 +88,64 @@ func preRenderEntities() {
 
 func updateEntities() {
 
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
+	select {
+	case <-luaTick:
+
+		for _, e := range entities[1] {
+			currentEntity = e.id
+			executeLua(L, e.script)
+		}
+
+	default:
+	}
 
 	for i := range entities[1] {
 
-		noTarget := entities[1][i].lastX == entities[1][i].targetX &&
-			entities[1][i].lastY == entities[1][i].targetY &&
-			entities[1][i].lastZ == entities[1][i].targetZ
-
-		if noTarget || entities[1][i].progress+entities[1][i].velocity/60 > 1 {
-
-			d := -1
-
-			if entities[1][i].targetY < entities[1][i].lastY {
-				d = 0
-			}
-			if entities[1][i].targetX < entities[1][i].lastX {
-				d = 1
-			}
-			if entities[1][i].targetY > entities[1][i].lastY {
-				d = 2
-			}
-			if entities[1][i].targetX > entities[1][i].lastX {
-				d = 3
-			}
+		if entities[1][i].progress+entities[1][i].velocity/60 > 1 {
 
 			entities[1][i].progress = 0
 			entities[1][i].x = entities[1][i].targetX
 			entities[1][i].y = entities[1][i].targetY
 			entities[1][i].z = entities[1][i].targetZ
-			entities[1][i].lastX = entities[1][i].x
-			entities[1][i].lastY = entities[1][i].y
-			entities[1][i].lastZ = entities[1][i].z
+			entities[1][i].lastX = entities[1][i].targetX
+			entities[1][i].lastY = entities[1][i].targetY
+			entities[1][i].lastZ = entities[1][i].targetZ
 
-			for failCount := 0; failCount < 10; failCount++ {
-
-				dx := 0.0
-				dy := 0.0
-
-				if failCount > 0 || d == -1 {
-					d = r.Intn(4)
-				}
-
-				switch d {
-				case 0:
-					dy = -1
-				case 1:
-					dx = -1
-				case 2:
-					dy = 1
-				case 3:
-					dx = 1
-				}
-
-				gX := int(entities[1][i].x + dx + gridCentre)
-				gY := int(entities[1][i].y + dy + gridCentre)
-				gZ := int(entities[1][i].z)
-
-				if gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre {
-					continue
-				}
-				if grid[gX][gY][gZ][1] != 0 {
-					continue
-				}
-
-				entities[1][i].targetX = entities[1][i].x + dx
-				entities[1][i].targetY = entities[1][i].y + dy
-				entities[1][i].targetZ = entities[1][i].z
-
-				break
-
-			}
-
-		} else {
+		} else if entities[1][i].targetX != entities[1][i].lastX || entities[1][i].targetY != entities[1][i].lastY || entities[1][i].targetZ != entities[1][i].lastZ {
 
 			entities[1][i].progress += entities[1][i].velocity / 60
 			entities[1][i].x = entities[1][i].lastX + (entities[1][i].targetX-entities[1][i].lastX)*entities[1][i].progress
 			entities[1][i].y = entities[1][i].lastY + (entities[1][i].targetY-entities[1][i].lastY)*entities[1][i].progress
 			entities[1][i].z = entities[1][i].lastZ + (entities[1][i].targetZ-entities[1][i].lastZ)*entities[1][i].progress
+
+		}
+
+		if entities[1][i].progress == 0 && entities[1][i].direction != 0 && entities[1][i].distance > 0 {
+
+			dx := 0
+			dy := 0
+			entities[1][i].distance--
+
+			switch entities[1][i].direction {
+			case 'N':
+				dy = -1
+			case 'W':
+				dx = -1
+			case 'S':
+				dy = 1
+			case 'E':
+				dx = 1
+			}
+
+			gX := int(entities[1][i].x) + dx + gridCentre
+			gY := int(entities[1][i].y) + dy + gridCentre
+			gZ := int(entities[1][i].z)
+
+			if !(gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre) && grid[gX][gY][gZ][1] == 0 {
+				entities[1][i].targetX = entities[1][i].x + float64(dx)
+				entities[1][i].targetY = entities[1][i].y + float64(dy)
+				entities[1][i].targetZ = entities[1][i].z
+			}
 
 		}
 
@@ -179,5 +158,13 @@ func resetEntities() {
 	entities[1] = entities[1][:0]
 	entities[1] = make([]Entity, len(entities[0]))
 	copy(entities[1], entities[0])
+
+	for i, _ := range entities[1] {
+
+		script, err := ioutil.ReadFile("scripts/" + entities[1][i].class + ".lua")
+		check(err)
+		entities[1][i].script = string(script)
+
+	}
 
 }
