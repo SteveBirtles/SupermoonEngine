@@ -1,5 +1,5 @@
 .idea
 orthoengine.exe
-cache/clipboards.dat
-maps/main.dat
-maps/main.dat.bak
+cache/user_clipboards.dat
+maps/user.dat
+maps/user.dat.bak

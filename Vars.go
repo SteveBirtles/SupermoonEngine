@@ -12,7 +12,7 @@ const gridCentre = 128
 const outsideGrid = gridCentre + 1
 const maxUndo = 10000
 const clipboardSize = 64
-const clipboardFile = "cache/clipboards.dat"
+const clipboardFile = "cache/user_clipboards.dat"
 const defaultClipboardFile = "cache/default_clipboards.dat"
 
 const tileSheetWidth = 2048
