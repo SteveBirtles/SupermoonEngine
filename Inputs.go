@@ -10,6 +10,11 @@ import (
 func processSystemInputs() {
 
 	if win.Pressed(pixelgl.KeyLeftControl) && win.JustPressed(pixelgl.KeyQ) {
+
+		if !editing {
+			copyGrid(&gridBackup, &grid)
+		}
+
 		if win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt) {
 			quit = -1
 		} else {
@@ -19,8 +24,15 @@ func processSystemInputs() {
 
 	if win.JustPressed(pixelgl.KeyTab) {
 
+		if editing {
+			copyGrid(&grid, &gridBackup)
+		} else {
+			copyGrid(&gridBackup, &grid)
+		}
+
 		editing = !editing
 		resetViewState()
+
 		if !editing {
 			resetEntities()
 		}
@@ -888,6 +900,22 @@ func postProcessInputs() {
 
 }
 
+func processGameKeys() {
+
+	for k := range gameKeys {
+		if win.Pressed(k) {
+			if gameKeyDownLast[k] == true {
+				gameKeyDown[k] = false // pressed last frame
+			} else {
+				gameKeyDown[k] = true // new this frame
+			}
+		} else {
+			delete(gameKeyDown, k)
+		}
+	}
+
+}
+
 func processInputs() {
 
 	processSystemInputs()
@@ -897,14 +925,12 @@ func processInputs() {
 		processEditorToggles()
 		processUndoInputs()
 		processEditorDirectives()
-	}
-
-	processPositionInputs()
-
-	if editing {
+		processPositionInputs()
 		processTileChoiceInputs()
 		processClipboardActions()
 		processMouseClicks()
+	} else {
+		processGameKeys()
 	}
 
 	postProcessInputs()

@@ -16,14 +16,19 @@ var (
 	luaLines     = []consoleLine{{"Lua virtual machine online...", 300}}
 )
 
-func luaPrint(L *lua.LState) int {
+func luaConsolePrint(text string) {
 
-	text := L.ToString(1)
 	luaLines = append(luaLines, consoleLine{text, 300})
 
 	if len(luaLines) >= 32 {
 		luaLines = luaLines[len(luaLines)-32:]
 	}
+}
+
+func luaPrint(L *lua.LState) int {
+
+	text := L.ToString(1)
+	luaConsolePrint(text)
 
 	return 0
 }
@@ -67,4 +72,8 @@ func executeLuaFunction(luaState *lua.LState, functionName string, functionArgs 
 	}
 
 	return lua.LNil
+}
+
+func luaDisableGlobals(luaState *lua.LState) {
+	executeLua(luaState, ``) //REMOVED
 }

@@ -149,3 +149,16 @@ func calculateViewVectors(i0 float64, j0 float64) (float64, float64) {
 	return 0, 0
 
 }
+
+func copyGrid(source *[2*gridCentre][2*gridCentre][16][2]uint16, destination *[2*gridCentre][2*gridCentre][16][2]uint16) {
+
+	for x := 0; x < 2*gridCentre; x++ {
+		for y := 0; y < 2*gridCentre; y++ {
+			for z := 0; z < 16; z++ {
+				(*destination)[x][y][z][0] = (*source)[x][y][z][0]
+				(*destination)[x][y][z][1] = (*source)[x][y][z][1]
+			}
+		}
+	}
+
+}

@@ -49,6 +49,7 @@ func main() {
 	}
 
 	L = lua.NewState()
+	luaDisableGlobals(L)
 	defer L.Close()
 	
 	pixelgl.Run(mainLoop)

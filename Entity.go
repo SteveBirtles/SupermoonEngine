@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 var entityUID uint32 = 0
@@ -28,10 +29,10 @@ type Entity struct {
 	direction byte
 	distance int     // number of squares to continue at that velocity
 
-	class      string            // corresponds to a lua file
-	script     string            // their lua script
-	properties map[string]string // entity properties map
-	timers     map[string]uint16
+	class  string            // corresponds to a lua file
+	script string            // their lua script
+	flags  map[string]float64 // entity flags map
+	timers map[string]uint16
 
 	sprite         int
 	animated       bool
@@ -94,6 +95,16 @@ func updateEntities() {
 		for _, e := range entities[1] {
 			currentEntity = e.id
 			executeLua(L, e.script)
+		}
+
+		for k := range gameKeys {
+			if v, ok := gameKeyDown[k]; ok {
+				if v {
+					gameKeyDownLast[k] = true
+				} else {
+					gameKeyDownLast[k] = false
+				}
+			}
 		}
 
 	default:
@@ -159,12 +170,20 @@ func resetEntities() {
 	entities[1] = make([]Entity, len(entities[0]))
 	copy(entities[1], entities[0])
 
-	for i, _ := range entities[1] {
+	for i := range entities[1] {
 
 		script, err := ioutil.ReadFile("scripts/" + entities[1][i].class + ".lua")
 		check(err)
-		entities[1][i].script = string(script)
+		entities[1][i].script = "do\n" +string(script) + "\nend\n"
+		entities[1][i].flags = make(map[string]float64)
 
+	}
+
+	gameKeyDown = make(map[pixelgl.Button]bool)
+	gameKeyDownLast = make(map[pixelgl.Button]bool)
+
+	for k := range gameKeys {
+		gameKeyDownLast[k] = false
 	}
 
 }

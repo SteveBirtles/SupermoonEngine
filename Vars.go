@@ -45,6 +45,7 @@ var (
 	tileBatch         *pixel.Batch
 	spriteBatch       *pixel.Batch
 	grid              [2*gridCentre][2*gridCentre][16][2]uint16
+	gridBackup        [2*gridCentre][2*gridCentre][16][2]uint16
 	entityGrid		  [2*gridCentre][2*gridCentre][]Entity
 	entities	      [2][]Entity
 	clipboard         [10][clipboardSize][clipboardSize][16][2]uint16
@@ -101,5 +102,66 @@ var (
 	help                   = false
 	editing				   = true
 	currentEntity	       uint32
-)
 
+	gameKeyDown map[pixelgl.Button]bool
+	gameKeyDownLast map[pixelgl.Button]bool
+
+	gameKeys = map[pixelgl.Button]string{
+		pixelgl.Key0:              "0",
+		pixelgl.Key1:              "1",
+		pixelgl.Key2:              "2",
+		pixelgl.Key3:              "3",
+		pixelgl.Key4:              "4",
+		pixelgl.Key5:              "5",
+		pixelgl.Key6:              "6",
+		pixelgl.Key7:              "7",
+		pixelgl.Key8:              "8",
+		pixelgl.Key9:              "9",
+		pixelgl.KeyA:              "A",
+		pixelgl.KeyB:              "B",
+		pixelgl.KeyC:              "C",
+		pixelgl.KeyD:              "D",
+		pixelgl.KeyE:              "E",
+		pixelgl.KeyF:              "F",
+		pixelgl.KeyG:              "G",
+		pixelgl.KeyH:              "H",
+		pixelgl.KeyI:              "I",
+		pixelgl.KeyJ:              "J",
+		pixelgl.KeyK:              "K",
+		pixelgl.KeyL:              "L",
+		pixelgl.KeyM:              "M",
+		pixelgl.KeyN:              "N",
+		pixelgl.KeyO:              "O",
+		pixelgl.KeyP:              "P",
+		pixelgl.KeyQ:              "Q",
+		pixelgl.KeyR:              "R",
+		pixelgl.KeyS:              "S",
+		pixelgl.KeyT:              "T",
+		pixelgl.KeyU:              "U",
+		pixelgl.KeyV:              "V",
+		pixelgl.KeyW:              "W",
+		pixelgl.KeyX:              "X",
+		pixelgl.KeyY:              "Y",
+		pixelgl.KeyZ:              "Z",
+		pixelgl.KeyRight:          "Right",
+		pixelgl.KeyLeft:           "Left",
+		pixelgl.KeyDown:           "Down",
+		pixelgl.KeyUp:             "Up",
+		pixelgl.KeySpace:          "Space",
+		pixelgl.KeyEnter:          "Enter",
+		pixelgl.KeyEscape:         "Escape",
+		pixelgl.KeyBackspace:      "Backspace",
+		pixelgl.KeyDelete:         "Delete",
+		pixelgl.KeyInsert:         "Insert",
+		pixelgl.KeyPageUp:         "PageUp",
+		pixelgl.KeyPageDown:       "PageDown",
+		pixelgl.KeyHome:           "Home",
+		pixelgl.KeyEnd:            "End",
+		pixelgl.KeyLeftControl:    "LeftControl",
+		pixelgl.KeyLeftShift:      "LeftShift",
+		pixelgl.KeyLeftAlt:    	   "LeftAlt",
+		pixelgl.KeyRightControl:   "RightControl",
+		pixelgl.KeyRightShift:     "RightShift",
+		pixelgl.KeyRightAlt:       "RightAlt",
+	}
+)
