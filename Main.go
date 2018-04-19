@@ -13,7 +13,8 @@ import (
 
 var (
 	L *lua.LState
-	levelFile = "maps/default.dat"
+	levelFile = "maps/user.dat"
+	defaultLevelFile = "maps/default.dat"
 	screenWidth = 1280.0
 	screenHeight = 720.0
 )
