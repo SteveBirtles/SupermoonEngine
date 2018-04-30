@@ -904,13 +904,10 @@ func processGameKeys() {
 
 	for k := range gameKeys {
 		if win.Pressed(k) {
-			if gameKeyDownLast[k] == true {
-				gameKeyDown[k] = false // pressed last frame
-			} else {
-				gameKeyDown[k] = true // new this frame
+			if win.JustPressed(k) {
+				gameKeyFramesDown[k] = 0
 			}
-		} else {
-			delete(gameKeyDown, k)
+			gameKeyDownInLastFrame[k] = true
 		}
 	}
 

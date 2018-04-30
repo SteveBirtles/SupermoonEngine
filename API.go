@@ -150,8 +150,8 @@ func APIKeyPressed(L *lua.LState) int {
 	}
 
 	if key != -1 {
-		isPressed, ok := gameKeyDown[key]
-		if ok && isPressed == keyJust {
+		framesPressed := gameKeyFramesDown[key]
+		if keyJust && framesPressed == 1 || !keyJust && framesPressed > 1 {
 			L.Push(lua.LTrue)
 		} else {
 			L.Push(lua.LFalse)

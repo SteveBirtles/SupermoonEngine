@@ -98,13 +98,14 @@ func updateEntities() {
 		}
 
 		for k := range gameKeys {
-			if v, ok := gameKeyDown[k]; ok {
-				if v {
-					gameKeyDownLast[k] = true
-				} else {
-					gameKeyDownLast[k] = false
-				}
+
+			if gameKeyDownInLastFrame[k] {
+				gameKeyFramesDown[k]++
+			} else {
+				gameKeyFramesDown[k] = 0
 			}
+
+			gameKeyDownInLastFrame[k] = false
 		}
 
 	default:
@@ -171,19 +172,18 @@ func resetEntities() {
 	copy(entities[1], entities[0])
 
 	for i := range entities[1] {
-
 		script, err := ioutil.ReadFile("scripts/" + entities[1][i].class + ".lua")
 		check(err)
 		entities[1][i].script = "do\n" +string(script) + "\nend\n"
 		entities[1][i].flags = make(map[string]float64)
-
 	}
 
-	gameKeyDown = make(map[pixelgl.Button]bool)
-	gameKeyDownLast = make(map[pixelgl.Button]bool)
+	gameKeyDownInLastFrame = make(map[pixelgl.Button]bool)
+	gameKeyFramesDown = make(map[pixelgl.Button]int)
 
 	for k := range gameKeys {
-		gameKeyDownLast[k] = false
+		gameKeyDownInLastFrame[k] = false
+		gameKeyFramesDown[k] = 0
 	}
 
 }

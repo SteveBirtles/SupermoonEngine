@@ -104,8 +104,8 @@ var (
 	editing				   = true
 	currentEntity	       uint32
 
-	gameKeyDown map[pixelgl.Button]bool
-	gameKeyDownLast map[pixelgl.Button]bool
+	gameKeyDownInLastFrame     map[pixelgl.Button]bool
+	gameKeyFramesDown          map[pixelgl.Button]int
 
 	gameKeys = map[pixelgl.Button]string{
 		pixelgl.Key0:              "0",
