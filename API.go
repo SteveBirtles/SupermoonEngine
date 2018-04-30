@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/faiface/pixel/pixelgl"
+	"strings"
 )
 
 func initiateAPI() {
@@ -19,6 +20,7 @@ func initiateAPI() {
 	linkToLua(L, APIKeyPressed, "KeyPressed")
 	linkToLua(L, APISetFlag, "SetFlag")
 	linkToLua(L, APIGetFlag, "GetFlag")
+	linkToLua(L, APISetVelocity, "SetVelocity")
 
 	linkToLua(L, luaPrint, "print")
 
@@ -88,11 +90,31 @@ func APIGetId(L *lua.LState) int {
 
 func APISetFocus(L *lua.LState) int {
 
-	x := float64(L.ToNumber(1))
-	y := float64(L.ToNumber(2))
+	id := uint32(L.ToNumber(1))
+	follow := bool(L.ToBool(2))
 
-	cameraX = -x*128 - 64
-	cameraY = y*128 + 64
+	x := 0.0
+	y := 0.0
+
+	found := false
+
+	for _, e := range entities[1] {
+		if e.id == id {
+			x = e.x
+			y = e.y
+			found = true
+		}
+	}
+
+	if found {
+		cameraX = -x*128 - 64
+		cameraY = y*128 + 64
+
+		if follow {
+			focusEntity = id
+		}
+
+	}
 
 	return 0
 }
@@ -138,7 +160,7 @@ func APIEntityPosition(L *lua.LState) int {
 
 func APIKeyPressed(L *lua.LState) int {
 
-	keyString := L.ToString(1)
+	keyString := strings.ToUpper(L.ToString(1))
 	keyJust := L.ToBool(2)
 
 	var key pixelgl.Button = -1
@@ -150,11 +172,18 @@ func APIKeyPressed(L *lua.LState) int {
 	}
 
 	if key != -1 {
-		framesPressed := gameKeyFramesDown[key]
-		if keyJust && framesPressed == 1 || !keyJust && framesPressed > 1 {
-			L.Push(lua.LTrue)
+		if keyJust {
+			if gameKeyWasPressed[key] {
+				L.Push(lua.LTrue)
+			} else {
+				L.Push(lua.LFalse)
+			}
 		} else {
-			L.Push(lua.LFalse)
+			if gameKeyWasPressed[key] || (gameKeyDownStart[key] && gameKeyDownEnd[key]) {
+				L.Push(lua.LTrue)
+			} else {
+				L.Push(lua.LFalse)
+			}
 		}
 	} else {
 		L.Push(lua.LFalse)
@@ -198,7 +227,26 @@ func APIGetFlag(L *lua.LState) int {
 	return 1
 }
 
+func APISetVelocity(L *lua.LState) int {
+	id := uint32(L.ToInt(1))
+	dir := []byte(strings.ToUpper(L.ToString(2))[0:1])
+	vel := float64(L.ToNumber(3))
+	dist := int(L.ToInt(4))
 
+	fmt.Printf("%s %f %d\n", dir, vel, dist)
+
+	if dir[0] == 'N' || dir[0] == 'E' || dir[0] == 'S' || dir[0] == 'W' {
+		for i, e := range entities[1] {
+			if e.id == id {
+				entities[1][i].nextDirection = dir[0]
+				entities[1][i].nextVelocity = vel
+				entities[1][i].distance = dist
+			}
+		}
+	}
+
+	return 0
+}
 /* TEMPLATE
 func APIxxx(L *lua.LState) int {
 	x := L.ToString(1)

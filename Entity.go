@@ -25,8 +25,12 @@ type Entity struct {
 
 	progress float64
 
-	velocity float64 // velocity
+	nextDirection byte
+	nextVelocity float64 // velocity
+	nextDistance int     // number of squares to continue at that velocity
+
 	direction byte
+	velocity float64 // velocity
 	distance int     // number of squares to continue at that velocity
 
 	class  string            // corresponds to a lua file
@@ -84,6 +88,28 @@ func preRenderEntities() {
 
 	}
 
+	if focusEntity > 0 {
+
+		x := 0.0
+		y := 0.0
+
+		found := false
+
+		for _, e := range entities[1] {
+			if e.id == focusEntity {
+				x = e.x
+				y = e.y
+				found = true
+			}
+		}
+
+		if found {
+			cameraX = -x*128 - 64
+			cameraY = y*128 + 64
+		}
+
+	}
+
 
 }
 
@@ -92,20 +118,16 @@ func updateEntities() {
 	select {
 	case <-luaTick:
 
+		for k := range gameKeys {
+			gameKeyDownStart[k] = gameKeyDownEnd[k]
+			gameKeyDownEnd[k] = win.Pressed(k)
+			gameKeyWasPressed[k] = gameKeyJustPressed[k]
+			gameKeyJustPressed[k] = false
+		}
+
 		for _, e := range entities[1] {
 			currentEntity = e.id
 			executeLua(L, e.script)
-		}
-
-		for k := range gameKeys {
-
-			if gameKeyDownInLastFrame[k] {
-				gameKeyFramesDown[k]++
-			} else {
-				gameKeyFramesDown[k] = 0
-			}
-
-			gameKeyDownInLastFrame[k] = false
 		}
 
 	default:
@@ -132,11 +154,14 @@ func updateEntities() {
 
 		}
 
-		if entities[1][i].progress == 0 && entities[1][i].direction != 0 && entities[1][i].distance > 0 {
+		if entities[1][i].progress == 0 && entities[1][i].nextDirection != 0 && entities[1][i].distance > 0 {
 
 			dx := 0
 			dy := 0
 			entities[1][i].distance--
+
+			entities[1][i].direction = entities[1][i].nextDirection
+			entities[1][i].velocity = entities[1][i].nextVelocity
 
 			switch entities[1][i].direction {
 			case 'N':
@@ -178,12 +203,18 @@ func resetEntities() {
 		entities[1][i].flags = make(map[string]float64)
 	}
 
-	gameKeyDownInLastFrame = make(map[pixelgl.Button]bool)
-	gameKeyFramesDown = make(map[pixelgl.Button]int)
+	gameKeyDownStart = make(map[pixelgl.Button]bool)
+	gameKeyDownEnd = make(map[pixelgl.Button]bool)
+	gameKeyWasPressed = make(map[pixelgl.Button]bool)
+	gameKeyJustPressed = make(map[pixelgl.Button]bool)
+	gameKeyTimeSinceLastPressed = make(map[pixelgl.Button]int)
 
 	for k := range gameKeys {
-		gameKeyDownInLastFrame[k] = false
-		gameKeyFramesDown[k] = 0
+		gameKeyDownStart[k] = false
+		gameKeyDownEnd[k] = false
+		gameKeyWasPressed[k] = false
+		gameKeyJustPressed[k] = false
+		gameKeyTimeSinceLastPressed[k] = 0
 	}
 
 }

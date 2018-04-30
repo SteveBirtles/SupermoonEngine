@@ -903,11 +903,14 @@ func postProcessInputs() {
 func processGameKeys() {
 
 	for k := range gameKeys {
-		if win.Pressed(k) {
-			if win.JustPressed(k) {
-				gameKeyFramesDown[k] = 0
+		pressed := win.Pressed(k)
+		if pressed {
+			if gameKeyTimeSinceLastPressed[k] > 2 {
+				gameKeyJustPressed[k] = true
+				gameKeyTimeSinceLastPressed[k] = 0
 			}
-			gameKeyDownInLastFrame[k] = true
+		} else {
+			gameKeyTimeSinceLastPressed[k]++
 		}
 	}
 
