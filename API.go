@@ -16,7 +16,7 @@ func initiateAPI() {
 	linkToLua(L, APIGetId, "GetId")
 	linkToLua(L, APISetFocus, "SetFocus")
 	linkToLua(L, APISetZoom, "SetZoom")
-	linkToLua(L, APIEntityPosition, "GetEntityPosition")
+	linkToLua(L, APIPosition, "GetPosition")
 	linkToLua(L, APIKeyPressed, "KeyPressed")
 	linkToLua(L, APISetFlag, "SetFlag")
 	linkToLua(L, APIGetFlag, "GetFlag")
@@ -136,7 +136,7 @@ func APISetZoom(L *lua.LState) int {
 	return 0
 }
 
-func APIEntityPosition(L *lua.LState) int {
+func APIPosition(L *lua.LState) int {
 
 	id := L.ToInt(1)
 

@@ -597,9 +597,7 @@ func processMouseClicks() {
 
 func processPositionInputs() {
 
-	if win.Pressed(pixelgl.KeyLeftControl) &&
-			!(win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt)) &&
-			win.MouseScroll().Y != 0 {
+	if win.Pressed(pixelgl.KeyLeftControl) && win.MouseScroll().Y != 0 {
 		lastScale := scale
 		scale /= 1 - win.MouseScroll().Y/10
 
@@ -701,36 +699,38 @@ func processEditorDirectives() {
 			vScale = hScale * aspect
 		}
 
-		if win.MouseScroll().Y > 0 {
-			tileZ += 1
-			if tileZ > 15 {
-				tileZ = 15
-			}
-		} else if win.MouseScroll().Y < 0 {
-			tileZ -= 1
-			if tileZ < 0 {
+		if !(win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt)) {
+			if win.MouseScroll().Y > 0 {
+				tileZ += 1
+				if tileZ > 15 {
+					tileZ = 15
+				}
+			} else if win.MouseScroll().Y < 0 {
+				tileZ -= 1
+				if tileZ < 0 {
+					tileZ = 0
+				}
+			} else if win.JustPressed(pixelgl.KeyEnd) {
+
 				tileZ = 0
-			}
-		} else if win.JustPressed(pixelgl.KeyEnd) {
-
-			tileZ = 0
-			for k := 0; k <= 15; k++ {
-				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
-					tileZ = k
-					break
+				for k := 0; k <= 15; k++ {
+					if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+						tileZ = k
+						break
+					}
 				}
-			}
 
-		} else if win.JustPressed(pixelgl.KeyHome) {
+			} else if win.JustPressed(pixelgl.KeyHome) {
 
-			tileZ = 0
-			for k := 15; k >= 0; k-- {
-				if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
-					tileZ = k
-					break
+				tileZ = 0
+				for k := 15; k >= 0; k-- {
+					if int(grid[tileX+gridCentre][tileY+gridCentre][k][0]) > 0 {
+						tileZ = k
+						break
+					}
 				}
-			}
 
+			}
 		}
 
 	}
