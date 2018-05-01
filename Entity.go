@@ -88,6 +88,12 @@ func preRenderEntities() {
 
 	}
 
+	updateFocus()
+
+}
+
+func updateFocus() {
+
 	if !editing && focusEntity > 0 {
 
 		x := 0.0
@@ -109,7 +115,6 @@ func preRenderEntities() {
 		}
 
 	}
-
 
 }
 

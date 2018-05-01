@@ -530,6 +530,8 @@ func renderHelp() {
 
 func render() {
 
+	preRenderEntities()
+
 	calculateRenderBounds()
 
 	imUI.Clear()

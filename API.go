@@ -6,6 +6,7 @@ import (
 	"os"
 	"github.com/faiface/pixel/pixelgl"
 	"strings"
+	"math"
 )
 
 func initiateAPI() {
@@ -14,9 +15,11 @@ func initiateAPI() {
 	linkToLua(L, APIGetTile, "GetTile")
 	linkToLua(L, APISetTile, "SetTile")
 	linkToLua(L, APIGetId, "GetId")
+	linkToLua(L, APINearby, "Nearby")
 	linkToLua(L, APISetFocus, "SetFocus")
 	linkToLua(L, APISetZoom, "SetZoom")
-	linkToLua(L, APIPosition, "GetPosition")
+	linkToLua(L, APIGetPosition, "GetPosition")
+	linkToLua(L, APISetPosition, "SetPosition")
 	linkToLua(L, APIKeyPressed, "KeyPressed")
 	linkToLua(L, APISetFlag, "SetFlag")
 	linkToLua(L, APIGetFlag, "GetFlag")
@@ -88,6 +91,32 @@ func APIGetId(L *lua.LState) int {
 	return 1
 }
 
+func APINearby(L *lua.LState) int {
+
+	ids := L.NewTable()
+
+	id := L.ToInt(1)
+	radius := L.ToInt(2)
+
+	for _, e1 := range entities[1] {
+		if e1.id == uint32(id) {
+			for _, e2 := range entities[1] {
+				if e2.id != uint32(id) {
+
+					if math.Pow(float64(e2.x-e1.x), 2) + math.Pow(float64(e2.y-e1.y), 2) < math.Pow(float64(radius), 2) {
+						ids.Append(lua.LNumber(int(e2.id)))
+					}
+				}
+			}
+			break
+		}
+	}
+
+	L.Push(ids)
+	return 1
+}
+
+
 func APISetFocus(L *lua.LState) int {
 
 	id := uint32(L.ToNumber(1))
@@ -136,7 +165,7 @@ func APISetZoom(L *lua.LState) int {
 	return 0
 }
 
-func APIPosition(L *lua.LState) int {
+func APIGetPosition(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
@@ -157,6 +186,43 @@ func APIPosition(L *lua.LState) int {
 	return 3
 
 }
+
+func APISetPosition(L *lua.LState) int {
+
+	id := L.ToInt(1)
+	x := L.ToInt(2)
+	y := L.ToInt(3)
+	z := L.ToInt(4)
+
+	for i, e := range entities[1] {
+
+		if e.id == uint32(id) {
+
+			entities[1][i].x = float64(x)
+			entities[1][i].y = float64(y)
+			entities[1][i].z = float64(z)
+
+			entities[1][i].targetX = entities[1][i].x
+			entities[1][i].targetY = entities[1][i].y
+			entities[1][i].targetZ = entities[1][i].z
+			entities[1][i].lastX = entities[1][i].targetX
+			entities[1][i].lastY = entities[1][i].targetY
+			entities[1][i].lastZ = entities[1][i].targetZ
+			entities[1][i].distance = 0
+			entities[1][i].progress = 0
+
+			updateFocus()
+
+			return 0
+
+		}
+
+	}
+
+	return 0
+
+}
+
 
 func APIKeyPressed(L *lua.LState) int {
 

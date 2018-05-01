@@ -16,11 +16,14 @@ if KeyPressed("right", false) then
     SetVelocity(GetId(), 'E', 5, 1)
 end
 
---if KeyPressed("Space", true) then
---    local x = GetFlag(GetId(), "x")
---    x = x + 1
---    SetFlag(GetId(), "x", x)
---    print ("Space JUST PRESSED (" .. x .. ")")
---elseif KeyPressed("Space", false) then
---    print ("Space")
---end
+if KeyPressed("space", true) then
+    SetPosition(GetId(), 0,0,0)
+end
+
+if KeyPressed("enter", true) then
+    ids = Nearby(GetId(), 10)
+    print ('Entities:')
+    for i = 1, #ids do
+        print (ids[i])
+    end
+end

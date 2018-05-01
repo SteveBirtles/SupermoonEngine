@@ -34,13 +34,14 @@ func mainLoop() {
 		if !editing {
 			updateEntities()
 		}
-		preRenderEntities()
 		render()
 		endFrame()
 
 	}
 
-	if quit >= 0 { save() }
+	if quit >= 0 {
+		save()
+	}
 
 }
 
