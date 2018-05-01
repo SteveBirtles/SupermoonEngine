@@ -88,7 +88,7 @@ func preRenderEntities() {
 
 	}
 
-	if focusEntity > 0 {
+	if !editing && focusEntity > 0 {
 
 		x := 0.0
 		y := 0.0

@@ -16,7 +16,7 @@ const clipboardFile = "cache/user_clipboards.dat"
 const defaultClipboardFile = "cache/default_clipboards.dat"
 
 const tileSheetWidth = 2048
-const tileSheetHeight = 2048
+const tileSheetHeight = 1024
 const totalTiles = (tileSheetWidth /128)*(tileSheetHeight /128)
 
 const spriteSheetWidth = 1280

@@ -226,7 +226,9 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 
 		s := 4 * (1 - aspect)
 		cam := pixel.V(cameraAdjX, cameraAdjY)
-		pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
+
+		pos := pixel.V( screenWidth/2+float64(i0*hScale)+hScale/2,
+						screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
 
 		if baseTile > 0 && baseTile <= totalTiles || (editing && selectedTile1 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
@@ -243,7 +245,10 @@ func renderWorld(i float64, j float64, k float64, i0 float64, j0 float64) {
 
 			if frontTile > 0 && frontTile <= totalTiles || (editing && selectedTile2 > 0 && int(i) == tileX && int(j) == tileY && int(k) == tileZ && !hideTile) {
 
-				baseMatrix := pixel.IM.Moved(cam).ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).Moved(pos).
+				baseMatrix := pixel.IM.
+					Moved(cam).
+					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+					Moved(pos).
 					Moved(pixel.V(0, vScale*(1-aspect)*4))
 
 				if baseTile > 0 {
@@ -555,6 +560,7 @@ func render() {
 		}
 
 		win.SetComposeMethod(pixel.ComposeOver)
+
 		tileBatch.Draw(win)
 		spriteBatch.Draw(win)
 

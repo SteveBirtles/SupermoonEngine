@@ -233,8 +233,6 @@ func APISetVelocity(L *lua.LState) int {
 	vel := float64(L.ToNumber(3))
 	dist := int(L.ToInt(4))
 
-	fmt.Printf("%s %f %d\n", dir, vel, dist)
-
 	if dir[0] == 'N' || dir[0] == 'E' || dir[0] == 'S' || dir[0] == 'W' {
 		for i, e := range entities[1] {
 			if e.id == id {

@@ -597,7 +597,9 @@ func processMouseClicks() {
 
 func processPositionInputs() {
 
-	if win.Pressed(pixelgl.KeyLeftControl) && win.MouseScroll().Y != 0 {
+	if win.Pressed(pixelgl.KeyLeftControl) &&
+			!(win.Pressed(pixelgl.KeyLeftAlt) || win.Pressed(pixelgl.KeyRightAlt)) &&
+			win.MouseScroll().Y != 0 {
 		lastScale := scale
 		scale /= 1 - win.MouseScroll().Y/10
 

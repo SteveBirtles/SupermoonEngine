@@ -19,12 +19,37 @@ var (
 	screenHeight = 720.0
 )
 
-var mapfile = flag.String("map", "", "loads a give map file")
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
-var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
-var vres = flag.String("vres", "", "choose between 720 or 1080 vertical resolution")
+func mainLoop() {
+
+	initiateEngine()
+	initiateAPI()
+
+	load()
+	backup()
+
+	for !win.Closed() && quit==0 {
+
+		startFrame()
+		processInputs()
+		if !editing {
+			updateEntities()
+		}
+		preRenderEntities()
+		render()
+		endFrame()
+
+	}
+
+	if quit >= 0 { save() }
+
+}
 
 func main() {
+
+	var mapFile = flag.String("map", "", "loads a give map file")
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+	var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
+	var vres = flag.String("vres", "", "choose between 720 or 1080 vertical resolution")
 
 	flag.Parse()
 	if *cpuprofile != "" {
@@ -38,8 +63,8 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	if *mapfile != "" {
-		levelFile = "maps/" + *mapfile
+	if *mapFile != "" {
+		levelFile = "maps/" + *mapFile
 	}
 
 	if *vres != "" {
@@ -52,7 +77,7 @@ func main() {
 	L = lua.NewState()
 	luaDisableGlobals(L)
 	defer L.Close()
-	
+
 	pixelgl.Run(mainLoop)
 
 	if *memprofile != "" {
