@@ -20,9 +20,22 @@ if KeyPressed("space", true) then
     SetPosition(GetId(), 0,0,0)
 end
 
+if KeyPressed("s", true) then
+    StartTimer(GetId(), "alpha")
+end
+
+if KeyPressed("t", true) then
+    print (GetTimer(GetId(),"alpha"))
+end
+
+if KeyPressed("q", true) then
+    EndGame()
+end
+
+
 if KeyPressed("enter", true) then
     ids = Nearby(GetId(), 10)
-    print ('Entities:')
+    print("Entities:")
     for i = 1, #ids do
         print (ids[i])
     end

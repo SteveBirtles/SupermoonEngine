@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"strings"
 	"math"
+	"time"
 )
 
 func initiateAPI() {
@@ -16,14 +17,21 @@ func initiateAPI() {
 	linkToLua(L, APISetTile, "SetTile")
 	linkToLua(L, APIGetId, "GetId")
 	linkToLua(L, APINearby, "Nearby")
+	linkToLua(L, APIProximity, "Proximity")
 	linkToLua(L, APISetFocus, "SetFocus")
 	linkToLua(L, APISetZoom, "SetZoom")
 	linkToLua(L, APIGetPosition, "GetPosition")
+	linkToLua(L, APIGetDistance, "GetDistance")
 	linkToLua(L, APISetPosition, "SetPosition")
+	linkToLua(L, APISetVelocity, "SetVelocity")
 	linkToLua(L, APIKeyPressed, "KeyPressed")
 	linkToLua(L, APISetFlag, "SetFlag")
 	linkToLua(L, APIGetFlag, "GetFlag")
-	linkToLua(L, APISetVelocity, "SetVelocity")
+	linkToLua(L, APIListFlags, "ListFlags")
+	linkToLua(L, APIStartTimer, "StartTimer")
+	linkToLua(L, APIGetTimer, "GetTimer")
+	linkToLua(L, APICancelTimer, "CancelTimer")
+	linkToLua(L, APIEndGame, "EndGame")
 
 	linkToLua(L, luaPrint, "print")
 
@@ -98,12 +106,15 @@ func APINearby(L *lua.LState) int {
 	id := L.ToInt(1)
 	radius := L.ToInt(2)
 
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if radius == 0 { fmt.Println("Lua error: radius 0 or not specified") }
+
 	for _, e1 := range entities[1] {
 		if e1.id == uint32(id) {
 			for _, e2 := range entities[1] {
 				if e2.id != uint32(id) {
 
-					if math.Pow(float64(e2.x-e1.x), 2) + math.Pow(float64(e2.y-e1.y), 2) < math.Pow(float64(radius), 2) {
+					if math.Pow(float64(e2.x-e1.x), 2) + math.Pow(float64(e2.y-e1.y), 2) <= math.Pow(float64(radius), 2) {
 						ids.Append(lua.LNumber(int(e2.id)))
 					}
 				}
@@ -116,11 +127,41 @@ func APINearby(L *lua.LState) int {
 	return 1
 }
 
+func APIProximity(L *lua.LState) int {
+
+	id1 := L.ToInt(1)
+	id2 := L.ToInt(1)
+
+	if id1 == 0 { fmt.Println("Lua error: id1 not specified") }
+	if id2 == 0 { fmt.Println("Lua error: id2 not specified") }
+
+	if id1 != id2 {
+		for _, e1 := range entities[1] {
+			if e1.id == uint32(id1) {
+				for _, e2 := range entities[1] {
+					if e2.id == uint32(id2) {
+
+						d := math.Sqrt(math.Pow(float64(e2.x-e1.x), 2) + math.Pow(float64(e2.y-e1.y), 2))
+
+						L.Push(lua.LNumber(d))
+						return 1
+					}
+				}
+			}
+		}
+	}
+
+	L.Push(lua.LNumber(0))
+	return 1
+
+}
 
 func APISetFocus(L *lua.LState) int {
 
 	id := uint32(L.ToNumber(1))
 	follow := bool(L.ToBool(2))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
 
 	x := 0.0
 	y := 0.0
@@ -169,6 +210,8 @@ func APIGetPosition(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+
 	for _, e := range entities[1] {
 
 		if e.id == uint32(id) {
@@ -187,12 +230,35 @@ func APIGetPosition(L *lua.LState) int {
 
 }
 
+func APIGetDistance(L *lua.LState) int {
+
+	id := L.ToInt(1)
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+
+	for _, e := range entities[1] {
+
+		if e.id == uint32(id) {
+			L.Push(lua.LNumber(e.distance))
+			return 1
+		}
+
+	}
+
+	L.Push(lua.LNumber(0))
+	return 1
+
+}
+
+
 func APISetPosition(L *lua.LState) int {
 
 	id := L.ToInt(1)
 	x := L.ToInt(2)
 	y := L.ToInt(3)
 	z := L.ToInt(4)
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
 
 	for i, e := range entities[1] {
 
@@ -229,6 +295,8 @@ func APIKeyPressed(L *lua.LState) int {
 	keyString := strings.ToUpper(L.ToString(1))
 	keyJust := L.ToBool(2)
 
+	if keyString == "" { fmt.Println("Lua error: key not specified") }
+
 	var key pixelgl.Button = -1
 
 	for k, v := range gameKeys {
@@ -264,6 +332,9 @@ func APISetFlag(L *lua.LState) int {
 	flag := string(L.ToString(2))
 	value := float64(L.ToNumber(3))
 
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if flag == "" { fmt.Println("Lua error: flag not specified") }
+
 	for _, e := range entities[1] {
 		if e.id == id {
 			e.flags[flag] = value
@@ -277,6 +348,9 @@ func APISetFlag(L *lua.LState) int {
 func APIGetFlag(L *lua.LState) int {
 	id := uint32(L.ToInt(1))
 	flag := string(L.ToString(2))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if flag == "" { fmt.Println("Lua error: flag not specified") }
 
 	for _, e := range entities[1] {
 		if e.id == id {
@@ -293,11 +367,96 @@ func APIGetFlag(L *lua.LState) int {
 	return 1
 }
 
+func APIListFlags(L *lua.LState) int {
+
+	flags := L.NewTable()
+
+	id := L.ToInt(1)
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+
+	for _, e := range entities[1] {
+		if e.id == uint32(id) {
+			for f := range e.flags {
+				flags.Append(lua.LString(f))
+			}
+			break
+		}
+	}
+
+	L.Push(flags)
+	return 1
+}
+
+
+func APIStartTimer(L *lua.LState) int {
+	id := uint32(L.ToInt(1))
+	timer := string(L.ToString(2))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if timer == "" { fmt.Println("Lua error: timer not specified") }
+
+	for _, e := range entities[1] {
+		if e.id == id {
+			e.timers[timer] = time.Now()
+			break
+		}
+	}
+
+	return 0
+}
+
+func APIGetTimer(L *lua.LState) int {
+	id := uint32(L.ToInt(1))
+	timer := string(L.ToString(2))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if timer == "" { fmt.Println("Lua error: timer not specified") }
+
+	for _, e := range entities[1] {
+		if e.id == id {
+			value, ok := e.timers[timer]
+			if ok {
+				elapsed := time.Now().Sub(value)
+				L.Push(lua.LNumber(elapsed.Seconds()))
+			} else {
+				L.Push(lua.LNumber(0))
+			}
+			break
+		}
+	}
+
+	return 1
+}
+
+func APICancelTimer(L *lua.LState) int {
+	id := uint32(L.ToInt(1))
+	timer := string(L.ToString(2))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if timer == "" { fmt.Println("Lua error: timer not specified") }
+
+	for _, e := range entities[1] {
+		if e.id == id {
+			delete(e.timers, timer)
+			break
+		}
+	}
+
+	return 0
+}
+
 func APISetVelocity(L *lua.LState) int {
 	id := uint32(L.ToInt(1))
-	dir := []byte(strings.ToUpper(L.ToString(2))[0:1])
+	dirString := strings.ToUpper(L.ToString(2)) + "-"
+	dir := []byte(dirString[0:1])
 	vel := float64(L.ToNumber(3))
 	dist := int(L.ToInt(4))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if dir[0] == '-' { fmt.Println("Lua error: direction not specified") }
+	if vel == 0 { fmt.Println("Lua error: velocity not specified") }
+	if dist == 0 { fmt.Println("Lua error: distance not specified") }
 
 	if dir[0] == 'N' || dir[0] == 'E' || dir[0] == 'S' || dir[0] == 'W' {
 		for i, e := range entities[1] {
@@ -311,6 +470,18 @@ func APISetVelocity(L *lua.LState) int {
 
 	return 0
 }
+
+
+func APIEndGame(_ *lua.LState) int {
+
+	copyGrid(&gridBackup, &grid)
+	editing = true
+	resetViewState()
+
+	return 0
+}
+
+
 /* TEMPLATE
 func APIxxx(L *lua.LState) int {
 	x := L.ToString(1)

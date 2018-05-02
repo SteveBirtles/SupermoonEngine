@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"github.com/faiface/pixel/pixelgl"
+	"time"
 )
 
 var entityUID uint32 = 0
@@ -36,7 +37,7 @@ type Entity struct {
 	class  string            // corresponds to a lua file
 	script string            // their lua script
 	flags  map[string]float64 // entity flags map
-	timers map[string]uint16
+	timers map[string]time.Time
 
 	sprite         int
 	animated       bool
@@ -206,6 +207,7 @@ func resetEntities() {
 		check(err)
 		entities[1][i].script = "do\n" +string(script) + "\nend\n"
 		entities[1][i].flags = make(map[string]float64)
+		entities[1][i].timers = make(map[string]time.Time)
 	}
 
 	gameKeyDownStart = make(map[pixelgl.Button]bool)
