@@ -8,6 +8,7 @@ import (
 	"strings"
 	"math"
 	"time"
+	"io/ioutil"
 )
 
 func initiateAPI() {
@@ -30,11 +31,80 @@ func initiateAPI() {
 	linkToLua(L, APIListFlags, "ListFlags")
 	linkToLua(L, APIStartTimer, "StartTimer")
 	linkToLua(L, APIGetTimer, "GetTimer")
-	linkToLua(L, APICancelTimer, "CancelTimer")
 	linkToLua(L, APIEndGame, "EndGame")
+
+	linkToLua(L, APICreate, "Create")
+	linkToLua(L, APIDelete, "Delete")
+	//linkToLua(L, APIGetClass, "GetClass")
+	//linkToLua(L, APISetClass, "SetClass")
+	//linkToLua(L, APIGetScript, "GetScript")
+	//linkToLua(L, APIOverrideScript, "OverrideScript")
+	//linkToLua(L, APIReset, "Reset")
 
 	linkToLua(L, luaPrint, "print")
 
+}
+
+func APICreate(L *lua.LState) int {
+
+	x := float64(L.ToInt(1))
+	y := float64(L.ToInt(2))
+	z := float64(L.ToInt(3))
+	class := L.ToString(4)
+
+	script, err := ioutil.ReadFile("scripts/" + class + ".lua")
+	check(err)
+
+	entityDynamicID++
+
+	e := Entity{id: entityDynamicID,
+		active: true,
+		sprite: 0,
+		velocity: 0,
+		direction: 0,
+		distance: 0,
+		class: class,
+		x: x,
+		y: y,
+		z: z,
+		lastX: x,
+		lastY: y,
+		lastZ: z,
+		targetX: x,
+		targetY: y,
+		targetZ: z,
+		progress: 0,
+		script: "do\n" +string(script) + "\nend\n",
+		flags: make(map[string]float64),
+		timers: make(map[string]time.Time),
+	}
+
+	entities[1] = append(entities[1], e)
+
+	return 0
+
+}
+
+
+func APIDelete(L *lua.LState) int {
+
+	id := uint32(L.ToNumber(1))
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+
+	index := -1
+
+	for i, e := range entities[1] {
+		if e.id == id {
+			index = i
+			break
+		}
+	}
+
+	if index > -1 {
+		entities[1] = append(entities[1][:index], entities[1][index+1:]...)
+	}
+
+	return 0
 }
 
 func APILoadMap(L *lua.LState) int {
@@ -427,23 +497,6 @@ func APIGetTimer(L *lua.LState) int {
 	}
 
 	return 1
-}
-
-func APICancelTimer(L *lua.LState) int {
-	id := uint32(L.ToInt(1))
-	timer := string(L.ToString(2))
-
-	if id == 0 { fmt.Println("Lua error: id not specified") }
-	if timer == "" { fmt.Println("Lua error: timer not specified") }
-
-	for _, e := range entities[1] {
-		if e.id == id {
-			delete(e.timers, timer)
-			break
-		}
-	}
-
-	return 0
 }
 
 func APISetVelocity(L *lua.LState) int {

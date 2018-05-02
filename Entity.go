@@ -6,7 +6,11 @@ import (
 	"time"
 )
 
-var entityUID uint32 = 0
+var (
+	entityUID uint32 = 0
+	entityDynamicID uint32
+)
+
 
 type Entity struct {
 	id     uint32
@@ -223,5 +227,7 @@ func resetEntities() {
 		gameKeyJustPressed[k] = false
 		gameKeyTimeSinceLastPressed[k] = 0
 	}
+
+	entityDynamicID = entityUID
 
 }

@@ -1,4 +1,4 @@
-SetFocus(GetId(), true)
+SetFocus(1, true)
 
 if KeyPressed("up", false) then
     SetVelocity(GetId(), 'N', 5, 1)
@@ -17,19 +17,16 @@ if KeyPressed("right", false) then
 end
 
 if KeyPressed("space", true) then
-    SetPosition(GetId(), 0,0,0)
+    SetPosition(GetId(), 0, 0, 0)
 end
 
 if KeyPressed("s", true) then
-    StartTimer(GetId(), "alpha")
+    local a, b, c = GetPosition(GetId())
+    Create(a + 2, b, c, "test")
 end
 
-if KeyPressed("t", true) then
-    print (GetTimer(GetId(),"alpha"))
-end
-
-if KeyPressed("q", true) then
-    EndGame()
+if KeyPressed("k", true) then
+    Delete(1)
 end
 
 
