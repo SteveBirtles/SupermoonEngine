@@ -164,7 +164,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">GetFlag(id, flag)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -174,7 +174,76 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">SetFlag(id, flag, value)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">ListFlags(id) ⇨ flagNames</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        
+        <div class="row mb-4">
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">GetPosition(id) ⇨ x, y, z</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">SetPosition(id, x, y, z)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">SetVelocity(id, direction, velocity, distance)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        
+        
+        <div class="row mb-4">
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">GetDistance(id) ⇨ n</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">PathFind(id, targetid, searchdepth, vel)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -198,7 +267,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">GetClass(id) ⇨ class</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -208,7 +277,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">SetClass(id, class)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -218,7 +287,41 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">SetClassActive(class, radius)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+         </div>
+        
+        <div class="row mb-4">
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">GetScript(id) ⇨ script</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Override(id, script)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Reset(id)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -226,6 +329,41 @@
           </div>
 
         </div>
+        
+         <div class="row mb-4">
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">StartTimer(id, name)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">GetTimer(id, name) ⇨ seconds</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">KeyPressed(key, just) ⇨ boolean</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        
         
       </div>
       
