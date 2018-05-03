@@ -10,9 +10,9 @@
   
   <body class="bg-secondary">
     
-    <div class="container bg-white">
+    <div class="container bg-white pt-4">
     
-      <div class="jumbotron text-center p-4 mt-4">
+      <div class="jumbotron text-center p-4">
         <h1 class="display-3">The Supermoon Engine</h1>
         <p class="lead">An orthographic tile based game engine written in Go with Lua scripting.</p>
         <hr class="my-4">
@@ -38,7 +38,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">SetFocus(id, follow)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -48,7 +48,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">GetFocus() ⇨ id</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -58,11 +58,21 @@
         </div>
        
         <div class="row mb-4">
-
+          
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">SetModal(id)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">SetView(direction, zoom)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -72,51 +82,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text"></p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"></h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text"></p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        
-        <div class="row mb-4">
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"></h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text"></p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"></h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text"></p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">LoadMap(map, entities)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -130,7 +96,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">GetTile(x, y, z) ⇨ base, front</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -140,7 +106,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">SetTile(x, y, z, base, front)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
@@ -150,7 +116,41 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title"></h5>
+                <h5 class="card-title">Nearby(id, radius) ⇨ ids</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        
+        <div class="row mb-4">
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Proximity(id1, id2)</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Create(x, y, z, class) ⇨ id</h5>
+                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Delete(id)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text"></p>
               </div>
