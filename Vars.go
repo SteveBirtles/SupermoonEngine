@@ -12,8 +12,7 @@ const gridCentre = 128
 const outsideGrid = gridCentre + 1
 const maxUndo = 10000
 const clipboardSize = 64
-const clipboardFile = "cache/user_clipboards.dat"
-const defaultClipboardFile = "cache/default_clipboards.dat"
+const clipboardFile = "cache/clipboard.dat"
 
 const tileSheetWidth = 2048
 const tileSheetHeight = 1024
@@ -72,7 +71,8 @@ var (
 	tileRow2      uint16 = 0
 	cameraX                                                = 0.0 //128.0*gridCentre
 	cameraY                                                = 0.0 //128.0*gridCentre
-	focusEntity   uint32
+	focusEntity   uint32 = 0
+	modalEntity   uint32 = 0
 	iStart        float64
 	jStart        float64
 	iEnd          float64

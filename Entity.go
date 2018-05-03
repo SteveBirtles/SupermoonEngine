@@ -4,11 +4,13 @@ import (
 	"io/ioutil"
 	"github.com/faiface/pixel/pixelgl"
 	"time"
+	"math"
 )
 
 var (
 	entityUID uint32 = 0
 	entityDynamicID uint32
+	entityClassActiveRadius     map[string]int
 )
 
 
@@ -125,6 +127,26 @@ func updateFocus() {
 
 func updateEntities() {
 
+	for i := range entities[1] {
+		entities[1][i].active = true
+
+		if radius, featured := entityClassActiveRadius[entities[1][i].class]; featured {
+
+			if radius == 0 {
+				entities[1][i].active = false
+				break
+			}
+
+			x := -entities[1][i].x*128 - 64
+			y := entities[1][i].y*128 + 64
+
+			if math.Pow(x - cameraX, 2) + math.Pow(y - cameraY, 2) >= math.Pow(float64(radius), 2) {
+				entities[1][i].active = false
+			}
+
+		}
+	}
+
 	select {
 	case <-luaTick:
 
@@ -136,8 +158,10 @@ func updateEntities() {
 		}
 
 		for _, e := range entities[1] {
-			currentEntity = e.id
-			executeLua(L, e.script)
+			if modalEntity == 0 && e.active || modalEntity > 0 && e.id == modalEntity {
+				currentEntity = e.id
+				executeLua(L, e.script)
+			}
 		}
 
 	default:
@@ -145,53 +169,57 @@ func updateEntities() {
 
 	for i := range entities[1] {
 
-		if entities[1][i].progress+entities[1][i].velocity/60 > 1 {
+		if modalEntity == 0 && entities[1][i].active || modalEntity > 0 && entities[1][i].id == modalEntity {
 
-			entities[1][i].progress = 0
-			entities[1][i].x = entities[1][i].targetX
-			entities[1][i].y = entities[1][i].targetY
-			entities[1][i].z = entities[1][i].targetZ
-			entities[1][i].lastX = entities[1][i].targetX
-			entities[1][i].lastY = entities[1][i].targetY
-			entities[1][i].lastZ = entities[1][i].targetZ
+			if entities[1][i].progress+entities[1][i].velocity/60 > 1 {
 
-		} else if entities[1][i].targetX != entities[1][i].lastX || entities[1][i].targetY != entities[1][i].lastY || entities[1][i].targetZ != entities[1][i].lastZ {
+				entities[1][i].progress = 0
+				entities[1][i].x = entities[1][i].targetX
+				entities[1][i].y = entities[1][i].targetY
+				entities[1][i].z = entities[1][i].targetZ
+				entities[1][i].lastX = entities[1][i].targetX
+				entities[1][i].lastY = entities[1][i].targetY
+				entities[1][i].lastZ = entities[1][i].targetZ
 
-			entities[1][i].progress += entities[1][i].velocity / 60
-			entities[1][i].x = entities[1][i].lastX + (entities[1][i].targetX-entities[1][i].lastX)*entities[1][i].progress
-			entities[1][i].y = entities[1][i].lastY + (entities[1][i].targetY-entities[1][i].lastY)*entities[1][i].progress
-			entities[1][i].z = entities[1][i].lastZ + (entities[1][i].targetZ-entities[1][i].lastZ)*entities[1][i].progress
+			} else if entities[1][i].targetX != entities[1][i].lastX || entities[1][i].targetY != entities[1][i].lastY || entities[1][i].targetZ != entities[1][i].lastZ {
 
-		}
+				entities[1][i].progress += entities[1][i].velocity / 60
+				entities[1][i].x = entities[1][i].lastX + (entities[1][i].targetX-entities[1][i].lastX)*entities[1][i].progress
+				entities[1][i].y = entities[1][i].lastY + (entities[1][i].targetY-entities[1][i].lastY)*entities[1][i].progress
+				entities[1][i].z = entities[1][i].lastZ + (entities[1][i].targetZ-entities[1][i].lastZ)*entities[1][i].progress
 
-		if entities[1][i].progress == 0 && entities[1][i].nextDirection != 0 && entities[1][i].distance > 0 {
-
-			dx := 0
-			dy := 0
-			entities[1][i].distance--
-
-			entities[1][i].direction = entities[1][i].nextDirection
-			entities[1][i].velocity = entities[1][i].nextVelocity
-
-			switch entities[1][i].direction {
-			case 'N':
-				dy = -1
-			case 'W':
-				dx = -1
-			case 'S':
-				dy = 1
-			case 'E':
-				dx = 1
 			}
 
-			gX := int(entities[1][i].x) + dx + gridCentre
-			gY := int(entities[1][i].y) + dy + gridCentre
-			gZ := int(entities[1][i].z)
+			if entities[1][i].progress == 0 && entities[1][i].nextDirection != 0 && entities[1][i].distance > 0 {
 
-			if !(gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre) && grid[gX][gY][gZ][1] == 0 {
-				entities[1][i].targetX = entities[1][i].x + float64(dx)
-				entities[1][i].targetY = entities[1][i].y + float64(dy)
-				entities[1][i].targetZ = entities[1][i].z
+				dx := 0
+				dy := 0
+				entities[1][i].distance--
+
+				entities[1][i].direction = entities[1][i].nextDirection
+				entities[1][i].velocity = entities[1][i].nextVelocity
+
+				switch entities[1][i].direction {
+				case 'N':
+					dy = -1
+				case 'W':
+					dx = -1
+				case 'S':
+					dy = 1
+				case 'E':
+					dx = 1
+				}
+
+				gX := int(entities[1][i].x) + dx + gridCentre
+				gY := int(entities[1][i].y) + dy + gridCentre
+				gZ := int(entities[1][i].z)
+
+				if !(gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre) && grid[gX][gY][gZ][1] == 0 {
+					entities[1][i].targetX = entities[1][i].x + float64(dx)
+					entities[1][i].targetY = entities[1][i].y + float64(dy)
+					entities[1][i].targetZ = entities[1][i].z
+				}
+
 			}
 
 		}
@@ -212,6 +240,7 @@ func resetEntities() {
 		entities[1][i].script = "do\n" +string(script) + "\nend\n"
 		entities[1][i].flags = make(map[string]float64)
 		entities[1][i].timers = make(map[string]time.Time)
+		entities[1][i].active = true
 	}
 
 	gameKeyDownStart = make(map[pixelgl.Button]bool)
@@ -219,6 +248,7 @@ func resetEntities() {
 	gameKeyWasPressed = make(map[pixelgl.Button]bool)
 	gameKeyJustPressed = make(map[pixelgl.Button]bool)
 	gameKeyTimeSinceLastPressed = make(map[pixelgl.Button]int)
+	entityClassActiveRadius = make(map[string]int)
 
 	for k := range gameKeys {
 		gameKeyDownStart[k] = false

@@ -21,18 +21,12 @@ func save() {
 
 func load() {
 	f1, err := os.Open(levelFile)
-	if err != nil {
-		f1, err = os.Open(defaultLevelFile)
-	}
 	if err == nil {
 		decoder1 := gob.NewDecoder(f1)
 		check(decoder1.Decode(&grid))
 	}
 
 	f2, err := os.Open(clipboardFile)
-	if err != nil {
-		f2, err = os.Open(defaultClipboardFile)
-	}
 	if err == nil {
 		decoder2 := gob.NewDecoder(f2)
 		check(decoder2.Decode(&clipboard))

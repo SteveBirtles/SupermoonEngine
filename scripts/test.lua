@@ -20,14 +20,30 @@ if KeyPressed("space", true) then
     SetPosition(GetId(), 0, 0, 0)
 end
 
-if KeyPressed("s", true) then
+if KeyPressed("c", true) then
     local a, b, c = GetPosition(GetId())
     Create(a + 2, b, c, "test")
 end
 
+if KeyPressed("s", true) then
+    local s = GetScript(GetId())
+    print(s)
+end
+
+
 if KeyPressed("k", true) then
     Delete(1)
 end
+
+if KeyPressed("m", true) then
+    SetModal(1)
+end
+
+if KeyPressed("n", true) then
+    SetModal(0)
+end
+
+
 
 
 if KeyPressed("enter", true) then
