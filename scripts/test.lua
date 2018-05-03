@@ -1,5 +1,3 @@
-SetFocus(1, true)
-
 if KeyPressed("up", false) then
     SetVelocity(GetId(), 'N', 5, 1)
 end
@@ -36,15 +34,8 @@ if KeyPressed("k", true) then
 end
 
 if KeyPressed("m", true) then
-    SetModal(1)
+    SetClassActive("test", 5)
 end
-
-if KeyPressed("n", true) then
-    SetModal(0)
-end
-
-
-
 
 if KeyPressed("enter", true) then
     ids = Nearby(GetId(), 10)

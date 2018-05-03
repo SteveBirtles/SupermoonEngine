@@ -140,7 +140,7 @@ func updateEntities() {
 			x := -entities[1][i].x*128 - 64
 			y := entities[1][i].y*128 + 64
 
-			if math.Pow(x - cameraX, 2) + math.Pow(y - cameraY, 2) >= math.Pow(float64(radius), 2) {
+			if math.Pow(x - cameraX, 2) + math.Pow(y - cameraY, 2) >= math.Pow(float64(radius)*128, 2) {
 				entities[1][i].active = false
 			}
 
