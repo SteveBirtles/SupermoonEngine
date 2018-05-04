@@ -8,11 +8,19 @@ import (
 )
 
 var (
-	entityUID uint32 = 0
-	entityDynamicID uint32
-	entityClassActiveRadius     map[string]int
+	entityUID               uint32 = 0
+	entityDynamicID         uint32
+	entityClassActiveRadius map[string]int
+	entityClass             []string
+	lastEntityClass         = 0
+	entityClassBlock        = 0
+	entityClassBlockCount   = 0
+	entityGrid              [2*gridCentre][2*gridCentre][]Entity
+	entities                [2][]Entity
+	focusEntity             uint32 = 0
+	modalEntity             uint32 = 0
+	currentEntity           uint32
 )
-
 
 type Entity struct {
 	id     uint32

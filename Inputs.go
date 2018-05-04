@@ -800,8 +800,35 @@ func processEditorDirectives() {
 
 	}
 
+	if win.JustPressed(pixelgl.KeyPageUp) {
+		entityClassBlock--
+		if entityClassBlock < 1 { entityClassBlock = entityClassBlockCount }
+	}
+	if win.JustPressed(pixelgl.KeyPageDown) {
+		entityClassBlock++
+		if entityClassBlock > entityClassBlockCount { entityClassBlock = 1 }
+	}
 
-	if win.JustPressed(pixelgl.KeyEnter) {
+	fKeyPressed := 0
+
+	if win.JustPressed(pixelgl.KeyF1)  { fKeyPressed = 1  }
+	if win.JustPressed(pixelgl.KeyF2)  { fKeyPressed = 2  }
+	if win.JustPressed(pixelgl.KeyF3)  { fKeyPressed = 3  }
+	if win.JustPressed(pixelgl.KeyF4)  { fKeyPressed = 4  }
+
+	if win.JustPressed(pixelgl.KeyF5)  { fKeyPressed = 5  }
+	if win.JustPressed(pixelgl.KeyF6)  { fKeyPressed = 6  }
+	if win.JustPressed(pixelgl.KeyF7)  { fKeyPressed = 7  }
+	if win.JustPressed(pixelgl.KeyF8)  { fKeyPressed = 8  }
+
+	if win.JustPressed(pixelgl.KeyF9)  { fKeyPressed = 9  }
+	if win.JustPressed(pixelgl.KeyF10) { fKeyPressed = 10 }
+	if win.JustPressed(pixelgl.KeyF11) { fKeyPressed = 11 }
+	if win.JustPressed(pixelgl.KeyF12) { fKeyPressed = 12 }
+
+	s := fKeyPressed + 12 * (entityClassBlockCount - 1)
+
+	if fKeyPressed > 0 && s <= lastEntityClass {
 
 		eX := float64(tileX)
 		eY := float64(tileY)
@@ -837,7 +864,7 @@ func processEditorDirectives() {
 				velocity: 0,
 				direction: 'S',
 				distance: 0,
-				class: "link",
+				class: entityClass[s-1],
 				x: eX,
 				y: eY,
 				z: eZ,

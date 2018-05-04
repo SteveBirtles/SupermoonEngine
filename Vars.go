@@ -46,8 +46,6 @@ var (
 	spriteBatch       *pixel.Batch
 	grid              [2*gridCentre][2*gridCentre][16][2]uint16
 	gridBackup        [2*gridCentre][2*gridCentre][16][2]uint16
-	entityGrid		  [2*gridCentre][2*gridCentre][]Entity
-	entities	      [2][]Entity
 	clipboard         [10][clipboardSize][clipboardSize][16][2]uint16
 	clipboardWidth    [10]int
 	clipboardHeight   [10]int
@@ -71,8 +69,6 @@ var (
 	tileRow2      uint16 = 0
 	cameraX                                                = 0.0 //128.0*gridCentre
 	cameraY                                                = 0.0 //128.0*gridCentre
-	focusEntity   uint32 = 0
-	modalEntity   uint32 = 0
 	iStart        float64
 	jStart        float64
 	iEnd          float64
@@ -103,8 +99,6 @@ var (
 	quit                   = 0
 	help                   = false
 	editing				   = true
-	currentEntity	       uint32
-
 
 	gameKeyDownStart            map[pixelgl.Button]bool
 	gameKeyDownEnd              map[pixelgl.Button]bool

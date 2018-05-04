@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
+	"io/ioutil"
 )
 
 func initiateEngine() {
@@ -73,5 +74,23 @@ func initiateEngine() {
 	tileBatch = pixel.NewBatch(&pixel.TrianglesData{}, tilePic)
 	spriteBatch = pixel.NewBatch(&pixel.TrianglesData{}, spritePic)
 	imUI = imdraw.New(nil)
+
+	scripts, err := ioutil.ReadDir("scripts/")
+	check(err)
+
+	b := 0
+	for _, f := range scripts {
+		s := f.Name()
+		if s[len(s)-4:] != ".lua" { continue }
+		lastEntityClass++
+		entityClass = append(entityClass, s[:len(s)-4])
+		b++
+		if b > 12 {
+			entityClassBlockCount++
+			b = 1
+		}
+
+	}
+
 
 }

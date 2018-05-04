@@ -435,6 +435,17 @@ func renderHelp() {
 		print("")
 		print("H for help...")
 
+		print("")
+		print("Entities:")
+
+		for i := 1; i <= 12; i++ {
+			j := i + 12 * (entityClassBlock - 1) - 1
+			if j < len(entityClass) {
+				print(fmt.Sprintf("[F%d] %d : %s", i, j, entityClass[j]))
+			}
+		}
+
+
 	} else {
 
 		print("Left click : Draw tile")
