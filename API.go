@@ -64,16 +64,16 @@ func APICreate(L *lua.LState) int {
 
 	entityDynamicID++
 
-	e := Entity{id: entityDynamicID,
+	e := Entity{Id: entityDynamicID,
 		active: true,
 		firstSprite: -1,
 		velocity: 0,
 		direction: 'S',
 		distance: 0,
-		class: class,
-		x: x,
-		y: y,
-		z: z,
+		Class: class,
+		X: x,
+		Y: y,
+		Z: z,
 		lastX: x,
 		lastY: y,
 		lastZ: z,
@@ -96,12 +96,12 @@ func APICreate(L *lua.LState) int {
 func APIDelete(L *lua.LState) int {
 
 	id := uint32(L.ToNumber(1))
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	index := -1
 
 	for i, e := range entities[1] {
-		if e.id == id {
+		if e.Id == id {
 			index = i
 			break
 		}
@@ -189,16 +189,16 @@ func APINearby(L *lua.LState) int {
 	id := L.ToInt(1)
 	radius := L.ToInt(2)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if radius == 0 { fmt.Println("Lua error: radius 0 or not specified") }
 
 	for _, e1 := range entities[1] {
-		if e1.id == uint32(id) {
+		if e1.Id == uint32(id) {
 			for _, e2 := range entities[1] {
-				if e2.id != uint32(id) {
+				if e2.Id != uint32(id) {
 
-					if math.Pow(float64(e2.x-e1.x), 2) + math.Pow(float64(e2.y-e1.y), 2) <= math.Pow(float64(radius), 2) {
-						ids.Append(lua.LNumber(int(e2.id)))
+					if math.Pow(float64(e2.X-e1.X), 2) + math.Pow(float64(e2.Y-e1.Y), 2) <= math.Pow(float64(radius), 2) {
+						ids.Append(lua.LNumber(int(e2.Id)))
 					}
 				}
 			}
@@ -220,11 +220,11 @@ func APIProximity(L *lua.LState) int {
 
 	if id1 != id2 {
 		for _, e1 := range entities[1] {
-			if e1.id == uint32(id1) {
+			if e1.Id == uint32(id1) {
 				for _, e2 := range entities[1] {
-					if e2.id == uint32(id2) {
+					if e2.Id == uint32(id2) {
 
-						d := math.Sqrt(math.Pow(float64(e2.x-e1.x), 2) + math.Pow(float64(e2.y-e1.y), 2))
+						d := math.Sqrt(math.Pow(float64(e2.X-e1.X), 2) + math.Pow(float64(e2.Y-e1.Y), 2))
 
 						L.Push(lua.LNumber(d))
 						return 1
@@ -256,9 +256,9 @@ func APISetFocus(L *lua.LState) int {
 	found := false
 
 	for _, e := range entities[1] {
-		if e.id == id {
-			x = e.x
-			y = e.y
+		if e.Id == id {
+			x = e.X
+			y = e.Y
 			found = true
 		}
 	}
@@ -281,7 +281,7 @@ func APISetModal(L *lua.LState) int {
 	id := uint32(L.ToNumber(1))
 
 	for _, e := range entities[1] {
-		if e.id == id {
+		if e.Id == id {
 			modalEntity = id
 			return 0
 		}
@@ -298,7 +298,7 @@ func APISetClassActive(L *lua.LState) int {
 	radius := L.ToInt(2)
 
 	if class == "" {
-		fmt.Println("Lua error: class not specified")
+		fmt.Println("Lua error: Class not specified")
 	} else {
 		if radius >= gridCentre*2 {
 			delete(entityClassActiveRadius, class)
@@ -319,12 +319,12 @@ func APIGetClass(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
 
-		if e.id == uint32(id) {
-			L.Push(lua.LString(e.class))
+		if e.Id == uint32(id) {
+			L.Push(lua.LString(e.Class))
 			return 1
 		}
 
@@ -340,11 +340,11 @@ func APISetClass(L *lua.LState) int {
 	id := L.ToInt(1)
 	class := L.ToString(2)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
-		if e.id == uint32(id) {
-			entities[1][i].class = class
+		if e.Id == uint32(id) {
+			entities[1][i].Class = class
 			return 0
 		}
 	}
@@ -357,12 +357,12 @@ func APIReset(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
 
-		if e.id == uint32(id) {
-			script, err := ioutil.ReadFile("scripts/" + entities[1][i].class + ".lua")
+		if e.Id == uint32(id) {
+			script, err := ioutil.ReadFile("scripts/" + entities[1][i].Class + ".lua")
 			check(err)
 			entities[1][i].script = "do\n" +string(script) + "\nend\n"
 			entities[1][i].flags = make(map[string]float64)
@@ -380,11 +380,11 @@ func APISetSprite(L *lua.LState) int {
 	id := L.ToInt(1)
 	sprite := L.ToInt(2)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
 
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 
 			entities[1][i].firstSprite = sprite
 			entities[1][i].animated = false
@@ -405,11 +405,11 @@ func APIAnimate(L *lua.LState) int {
 	lastSprite := L.ToInt(3)
 	speed := float64(L.ToNumber(4))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
 
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 
 			entities[1][i].firstSprite = firstSprite
 			entities[1][i].lastSprite = lastSprite
@@ -429,11 +429,11 @@ func APIGetScript(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
 
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 			L.Push(lua.LString(e.script))
 			return 1
 		}
@@ -450,10 +450,10 @@ func APIOverride(L *lua.LState) int {
 	id := L.ToInt(1)
 	script := L.ToString(2)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 			entities[1][i].script = script
 			return 0
 		}
@@ -502,14 +502,14 @@ func APIGetPosition(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
 
-		if e.id == uint32(id) {
-			L.Push(lua.LNumber(e.x))
-			L.Push(lua.LNumber(e.y))
-			L.Push(lua.LNumber(e.z))
+		if e.Id == uint32(id) {
+			L.Push(lua.LNumber(e.X))
+			L.Push(lua.LNumber(e.Y))
+			L.Push(lua.LNumber(e.Z))
 			return 3
 		}
 
@@ -526,11 +526,11 @@ func APIGetVelocity(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
 
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 			L.Push(lua.LString(e.direction))
 			L.Push(lua.LNumber(e.velocity))
 			L.Push(lua.LNumber(e.distance))
@@ -554,19 +554,19 @@ func APISetPosition(L *lua.LState) int {
 	y := L.ToInt(3)
 	z := L.ToInt(4)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
 
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 
-			entities[1][i].x = float64(x)
-			entities[1][i].y = float64(y)
-			entities[1][i].z = float64(z)
+			entities[1][i].X = float64(x)
+			entities[1][i].Y = float64(y)
+			entities[1][i].Z = float64(z)
 
-			entities[1][i].targetX = entities[1][i].x
-			entities[1][i].targetY = entities[1][i].y
-			entities[1][i].targetZ = entities[1][i].z
+			entities[1][i].targetX = entities[1][i].X
+			entities[1][i].targetY = entities[1][i].Y
+			entities[1][i].targetZ = entities[1][i].Z
 			entities[1][i].lastX = entities[1][i].targetX
 			entities[1][i].lastY = entities[1][i].targetY
 			entities[1][i].lastZ = entities[1][i].targetZ
@@ -628,11 +628,11 @@ func APISetFlag(L *lua.LState) int {
 	flag := string(L.ToString(2))
 	value := float64(L.ToNumber(3))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if flag == "" { fmt.Println("Lua error: flag not specified") }
 
 	for _, e := range entities[1] {
-		if e.id == id {
+		if e.Id == id {
 			e.flags[flag] = value
 			break
 		}
@@ -645,11 +645,11 @@ func APIGetFlag(L *lua.LState) int {
 	id := uint32(L.ToInt(1))
 	flag := string(L.ToString(2))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if flag == "" { fmt.Println("Lua error: flag not specified") }
 
 	for _, e := range entities[1] {
-		if e.id == id {
+		if e.Id == id {
 			value, ok := e.flags[flag]
 			if ok {
 				L.Push(lua.LNumber(value))
@@ -669,10 +669,10 @@ func APIListFlags(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
-		if e.id == uint32(id) {
+		if e.Id == uint32(id) {
 			for f := range e.flags {
 				flags.Append(lua.LString(f))
 			}
@@ -689,11 +689,11 @@ func APIStartTimer(L *lua.LState) int {
 	id := uint32(L.ToInt(1))
 	timer := string(L.ToString(2))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if timer == "" { fmt.Println("Lua error: timer not specified") }
 
 	for _, e := range entities[1] {
-		if e.id == id {
+		if e.Id == id {
 			e.timers[timer] = time.Now()
 			break
 		}
@@ -706,11 +706,11 @@ func APIGetTimer(L *lua.LState) int {
 	id := uint32(L.ToInt(1))
 	timer := string(L.ToString(2))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if timer == "" { fmt.Println("Lua error: timer not specified") }
 
 	for _, e := range entities[1] {
-		if e.id == id {
+		if e.Id == id {
 			value, ok := e.timers[timer]
 			if ok {
 				elapsed := time.Now().Sub(value)
@@ -732,14 +732,14 @@ func APISetVelocity(L *lua.LState) int {
 	vel := float64(L.ToNumber(3))
 	dist := int(L.ToInt(4))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if dir[0] == '-' { fmt.Println("Lua error: direction not specified") }
 	if vel == 0 { fmt.Println("Lua error: velocity not specified") }
 	if dist == 0 { fmt.Println("Lua error: distance not specified") }
 
 	if dir[0] == 'N' || dir[0] == 'E' || dir[0] == 'S' || dir[0] == 'W' {
 		for i, e := range entities[1] {
-			if e.id == id {
+			if e.Id == id {
 				entities[1][i].nextDirection = dir[0]
 				entities[1][i].nextVelocity = vel
 				entities[1][i].distance = dist
@@ -763,8 +763,8 @@ func APIEndGame(_ *lua.LState) int {
 
 /* TEMPLATE
 func APIxxx(L *lua.LState) int {
-	x := L.ToString(1)
-	fmt.Println(x)
+	X := L.ToString(1)
+	fmt.Println(X)
 	return 0
 }
 */

@@ -24,6 +24,10 @@ func processSystemInputs() {
 
 	if win.JustPressed(pixelgl.KeyTab) {
 
+		scale = 0.5
+		hScale = 128 * scale
+		vScale = 128 * aspect * scale
+
 		if editing {
 			copyGrid(&grid, &gridBackup)
 		} else {
@@ -784,9 +788,9 @@ func processEditorDirectives() {
 
 		for i := len(entities[0]) - 1; i >= 0; i-- {
 
-			if int(entities[0][i].x) == tileX &&
-				int(entities[0][i].y) == tileY &&
-				int(entities[0][i].z) == tileZ {
+			if int(entities[0][i].X) == tileX &&
+				int(entities[0][i].Y) == tileY &&
+				int(entities[0][i].Z) == tileZ {
 					deleteList = append(deleteList, i)
 			}
 
@@ -802,11 +806,11 @@ func processEditorDirectives() {
 
 	if win.JustPressed(pixelgl.KeyPageUp) {
 		entityClassBlock--
-		if entityClassBlock < 1 { entityClassBlock = entityClassBlockCount }
+		if entityClassBlock < 0 { entityClassBlock = entityClassBlockCount - 1 }
 	}
 	if win.JustPressed(pixelgl.KeyPageDown) {
 		entityClassBlock++
-		if entityClassBlock > entityClassBlockCount { entityClassBlock = 1 }
+		if entityClassBlock >= entityClassBlockCount { entityClassBlock = 0 }
 	}
 
 	fKeyPressed := 0
@@ -826,9 +830,9 @@ func processEditorDirectives() {
 	if win.JustPressed(pixelgl.KeyF11) { fKeyPressed = 11 }
 	if win.JustPressed(pixelgl.KeyF12) { fKeyPressed = 12 }
 
-	s := fKeyPressed + 12 * (entityClassBlockCount - 1)
+	s := fKeyPressed + 12 * entityClassBlock - 1
 
-	if fKeyPressed > 0 && s <= lastEntityClass {
+	if fKeyPressed > 0 && s < lastEntityClass {
 
 		eX := float64(tileX)
 		eY := float64(tileY)
@@ -846,9 +850,9 @@ func processEditorDirectives() {
 
 		for i := len(entities[0]) - 1; i >= 0; i-- {
 
-			if int(entities[0][i].x) == tileX &&
-				int(entities[0][i].y) == tileY &&
-				int(entities[0][i].z) == tileZ {
+			if int(entities[0][i].X) == tileX &&
+				int(entities[0][i].Y) == tileY &&
+				int(entities[0][i].Z) == tileZ {
 					valid = false
 			}
 
@@ -858,16 +862,16 @@ func processEditorDirectives() {
 
 			entityUID++
 
-			e := Entity{id: entityUID,
+			e := Entity{Id: entityUID,
 				active: true,
 				firstSprite: -1,
 				velocity: 0,
 				direction: 'S',
 				distance: 0,
-				class: entityClass[s-1],
-				x: eX,
-				y: eY,
-				z: eZ,
+				Class: entityClass[s],
+				X: eX,
+				Y: eY,
+				Z: eZ,
 				lastX: eX,
 				lastY: eY,
 				lastZ: eZ,

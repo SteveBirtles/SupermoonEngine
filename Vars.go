@@ -53,7 +53,7 @@ var (
 	currentClipboard               = 1
 	previewClipboard               = -1
 	clobber                                             	   = false
-	undo              [maxUndo][6]int //0 frame,  1 x,  2 y,  3 z,  4 base,  5 front
+	undo              [maxUndo][6]int //0 frame,  1 X,  2 Y,  3 Z,  4 base,  5 front
 	undoCounter                          = 0
 	scale                               = 0.5
 	aspect                             = 0.5

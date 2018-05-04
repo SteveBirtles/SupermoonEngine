@@ -79,6 +79,7 @@ func initiateEngine() {
 	check(err)
 
 	b := 0
+	entityClassBlockCount = 1
 	for _, f := range scripts {
 		s := f.Name()
 		if s[len(s)-4:] != ".lua" { continue }
@@ -89,7 +90,6 @@ func initiateEngine() {
 			entityClassBlockCount++
 			b = 1
 		}
-
 	}
 
 

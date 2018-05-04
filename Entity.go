@@ -8,27 +8,33 @@ import (
 )
 
 var (
-	entityUID               uint32 = 0
+	entityUID               uint32
 	entityDynamicID         uint32
 	entityClassActiveRadius map[string]int
 	entityClass             []string
-	lastEntityClass         = 0
-	entityClassBlock        = 0
-	entityClassBlockCount   = 0
+	lastEntityClass         int
+	entityClassBlock        int
+	entityClassBlockCount   int
 	entityGrid              [2*gridCentre][2*gridCentre][]Entity
 	entities                [2][]Entity
-	focusEntity             uint32 = 0
-	modalEntity             uint32 = 0
+	focusEntity             uint32
+	modalEntity             uint32
 	currentEntity           uint32
 )
 
 type Entity struct {
-	id     uint32
-	active bool
 
-	x float64 // position
-	y float64
-	z float64
+	//exported:
+
+	Id    uint32
+	X     float64 // position
+	Y     float64
+	Z     float64
+	Class string // corresponds to a lua file
+
+	//not exported:
+
+	active bool
 
 	lastX float64
 	lastY float64
@@ -48,7 +54,6 @@ type Entity struct {
 	velocity float64 // velocity
 	distance int     // number of squares to continue at that velocity
 
-	class  string            // corresponds to a lua file
 	script string            // their lua script
 	flags  map[string]float64 // entity flags map
 	timers map[string]time.Time
@@ -116,9 +121,9 @@ func updateFocus() {
 		found := false
 
 		for _, e := range entities[1] {
-			if e.id == focusEntity {
-				x = e.x
-				y = e.y
+			if e.Id == focusEntity {
+				x = e.X
+				y = e.Y
 				found = true
 			}
 		}
@@ -137,15 +142,15 @@ func updateEntities() {
 	for i := range entities[1] {
 		entities[1][i].active = true
 
-		if radius, featured := entityClassActiveRadius[entities[1][i].class]; featured {
+		if radius, featured := entityClassActiveRadius[entities[1][i].Class]; featured {
 
 			if radius == 0 {
 				entities[1][i].active = false
 				break
 			}
 
-			x := -entities[1][i].x*128 - 64
-			y := entities[1][i].y*128 + 64
+			x := -entities[1][i].X*128 - 64
+			y := entities[1][i].Y*128 + 64
 
 			if math.Pow(x - cameraX, 2) + math.Pow(y - cameraY, 2) >= math.Pow(float64(radius)*128, 2) {
 				entities[1][i].active = false
@@ -165,8 +170,8 @@ func updateEntities() {
 		}
 
 		for _, e := range entities[1] {
-			if modalEntity == 0 && e.active || modalEntity > 0 && e.id == modalEntity {
-				currentEntity = e.id
+			if modalEntity == 0 && e.active || modalEntity > 0 && e.Id == modalEntity {
+				currentEntity = e.Id
 				executeLua(L, e.script)
 			}
 		}
@@ -176,14 +181,14 @@ func updateEntities() {
 
 	for i := range entities[1] {
 
-		if modalEntity == 0 && entities[1][i].active || modalEntity > 0 && entities[1][i].id == modalEntity {
+		if modalEntity == 0 && entities[1][i].active || modalEntity > 0 && entities[1][i].Id == modalEntity {
 
 			if entities[1][i].progress+entities[1][i].velocity/60 > 1 {
 
 				entities[1][i].progress = 0
-				entities[1][i].x = entities[1][i].targetX
-				entities[1][i].y = entities[1][i].targetY
-				entities[1][i].z = entities[1][i].targetZ
+				entities[1][i].X = entities[1][i].targetX
+				entities[1][i].Y = entities[1][i].targetY
+				entities[1][i].Z = entities[1][i].targetZ
 				entities[1][i].lastX = entities[1][i].targetX
 				entities[1][i].lastY = entities[1][i].targetY
 				entities[1][i].lastZ = entities[1][i].targetZ
@@ -191,9 +196,9 @@ func updateEntities() {
 			} else if entities[1][i].targetX != entities[1][i].lastX || entities[1][i].targetY != entities[1][i].lastY || entities[1][i].targetZ != entities[1][i].lastZ {
 
 				entities[1][i].progress += entities[1][i].velocity / 60
-				entities[1][i].x = entities[1][i].lastX + (entities[1][i].targetX-entities[1][i].lastX)*entities[1][i].progress
-				entities[1][i].y = entities[1][i].lastY + (entities[1][i].targetY-entities[1][i].lastY)*entities[1][i].progress
-				entities[1][i].z = entities[1][i].lastZ + (entities[1][i].targetZ-entities[1][i].lastZ)*entities[1][i].progress
+				entities[1][i].X = entities[1][i].lastX + (entities[1][i].targetX-entities[1][i].lastX)*entities[1][i].progress
+				entities[1][i].Y = entities[1][i].lastY + (entities[1][i].targetY-entities[1][i].lastY)*entities[1][i].progress
+				entities[1][i].Z = entities[1][i].lastZ + (entities[1][i].targetZ-entities[1][i].lastZ)*entities[1][i].progress
 
 			}
 
@@ -217,14 +222,14 @@ func updateEntities() {
 					dx = 1
 				}
 
-				gX := int(entities[1][i].x) + dx + gridCentre
-				gY := int(entities[1][i].y) + dy + gridCentre
-				gZ := int(entities[1][i].z)
+				gX := int(entities[1][i].X) + dx + gridCentre
+				gY := int(entities[1][i].Y) + dy + gridCentre
+				gZ := int(entities[1][i].Z)
 
 				if !(gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre) && grid[gX][gY][gZ][1] == 0 {
-					entities[1][i].targetX = entities[1][i].x + float64(dx)
-					entities[1][i].targetY = entities[1][i].y + float64(dy)
-					entities[1][i].targetZ = entities[1][i].z
+					entities[1][i].targetX = entities[1][i].X + float64(dx)
+					entities[1][i].targetY = entities[1][i].Y + float64(dy)
+					entities[1][i].targetZ = entities[1][i].Z
 				}
 
 			}
@@ -242,7 +247,7 @@ func resetEntities() {
 	copy(entities[1], entities[0])
 
 	for i := range entities[1] {
-		script, err := ioutil.ReadFile("scripts/" + entities[1][i].class + ".lua")
+		script, err := ioutil.ReadFile("scripts/" + entities[1][i].Class + ".lua")
 		check(err)
 		entities[1][i].script = "do\n" +string(script) + "\nend\n"
 		entities[1][i].flags = make(map[string]float64)

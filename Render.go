@@ -14,7 +14,7 @@ var (
 	endY int
 )
 
-func renderSprites(i float64, j float64, i0 float64, j0 float64) {
+func renderEntities(i float64, j float64, i0 float64, j0 float64) {
 
 	if int(i) >= -gridCentre && int(j) >= -gridCentre && int(i) < gridCentre && int(j) < gridCentre {
 
@@ -29,20 +29,20 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 
 				switch viewDirection {
 				case 0:
-					eX = e.x - i
-					eY = e.y - j
+					eX = e.X - i
+					eY = e.Y - j
 				case 1:
-					eX = e.y - j
-					eY = -e.x + i
+					eX = e.Y - j
+					eY = -e.X + i
 				case 2:
-					eX = -e.x + i
-					eY = -e.y + j
+					eX = -e.X + i
+					eY = -e.Y + j
 				case 3:
-					eX = -e.y + j
-					eY = e.x - i
+					eX = -e.Y + j
+					eY = e.X - i
 				}
 
-				k := e.z
+				k := e.Z
 				spriteNo := -1
 
 				if !editing {
@@ -433,17 +433,43 @@ func renderHelp() {
 		}
 
 		print("")
-		print("H for help...")
 
-		print("")
-		print("Entities:")
+		var entitiesAtCursor []int
 
-		for i := 1; i <= 12; i++ {
-			j := i + 12 * (entityClassBlock - 1) - 1
-			if j < len(entityClass) {
-				print(fmt.Sprintf("[F%d] %d : %s", i, j, entityClass[j]))
+		for i := len(entities[0]) - 1; i >= 0; i-- {
+
+			if int(entities[0][i].X) == tileX &&
+				int(entities[0][i].Y) == tileY &&
+				int(entities[0][i].Z) == tileZ {
+				entitiesAtCursor = append(entitiesAtCursor, i)
+			}
+
+		}
+
+		if len(entitiesAtCursor) == 0 {
+			print("No entity at cursor")
+		} else {
+			print("Entity at cursor:")
+			for _, i := range entitiesAtCursor {
+				print(fmt.Sprintf("-> %s", entities[0][i].Class))
 			}
 		}
+
+
+		print("")
+		print(fmt.Sprintf("Scripts available (page %d of %d)", entityClassBlock + 1, entityClassBlockCount))
+
+		for i := 1; i <= 12; i++ {
+			j := i + 12 * entityClassBlock - 1
+			if j < len(entityClass) {
+				print(fmt.Sprintf("F%d : %s", i, entityClass[j]))
+			}
+		}
+
+		print("")
+		print("PgUp/Dn : Prev/Next page")
+		print("Backspace : Delete entity")
+		print("H : Additional help")
 
 
 	} else {
@@ -508,7 +534,7 @@ func render() {
 					renderGrid(i, j, k, i0, j0)
 				}
 			}
-			renderSprites(i, j, i0, j0)
+			renderEntities(i, j, i0, j0)
 
 		}
 
