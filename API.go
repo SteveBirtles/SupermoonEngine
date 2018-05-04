@@ -244,7 +244,11 @@ func APISetFocus(L *lua.LState) int {
 	id := uint32(L.ToNumber(1))
 	follow := bool(L.ToBool(2))
 
-	if id == 0 { fmt.Println("Lua error: id not specified") }
+	if id == 0 {
+		focusEntity = 0
+		follow = false
+		return 0
+	}
 
 	x := 0.0
 	y := 0.0
@@ -262,11 +266,11 @@ func APISetFocus(L *lua.LState) int {
 	if found {
 		cameraX = -x*128 - 64
 		cameraY = y*128 + 64
-
 		if follow {
 			focusEntity = id
+		} else {
+			focusEntity = 0
 		}
-
 	}
 
 	return 0

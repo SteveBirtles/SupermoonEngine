@@ -37,7 +37,7 @@ if KeyPressed("m", true) then
 end
 
 if KeyPressed("enter", true) then
-    ids = Nearby(GetId(), 10)
+    local ids = Nearby(GetId(), 10)
     print("Entities:")
     for i = 1, #ids do
         print (ids[i])
