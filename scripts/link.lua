@@ -20,7 +20,7 @@ end
 
 if KeyPressed("c", true) then
     local a, b, c = GetPosition(GetId())
-    Create(a + 2, b, c, "test")
+    Create(a + 2, b, c, "link")
 end
 
 if KeyPressed("s", true) then
@@ -29,11 +29,7 @@ if KeyPressed("s", true) then
 end
 
 if KeyPressed("k", true) then
-    Delete(1)
-end
-
-if KeyPressed("m", true) then
-    SetClassActive("test", 5)
+    Delete(GetId())
 end
 
 if KeyPressed("enter", true) then
@@ -44,7 +40,7 @@ if KeyPressed("enter", true) then
     end
 end
 
-local direction, velocity, distance = GetVelocity(GetId())
+local direction, _, distance = GetVelocity(GetId())
 
 if direction == 'N' then
     if distance == 0 then
@@ -71,3 +67,5 @@ elseif direction == 'W' then
         Animate(GetId(), 30, 39, 15)
     end
 end
+
+SetFocus(GetId(), true)

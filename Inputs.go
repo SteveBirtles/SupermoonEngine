@@ -837,7 +837,7 @@ func processEditorDirectives() {
 				velocity: 0,
 				direction: 'S',
 				distance: 0,
-				class: "test",
+				class: "link",
 				x: eX,
 				y: eY,
 				z: eZ,
