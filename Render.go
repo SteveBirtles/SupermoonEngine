@@ -43,94 +43,39 @@ func renderSprites(i float64, j float64, i0 float64, j0 float64) {
 				}
 
 				k := e.z
-				spriteNo := e.sprite
+				spriteNo := -1
 
 				if !editing {
-
-					if e.targetX != e.lastX || e.targetY != e.lastY || e.targetZ != e.lastZ {
-
-						spriteNo = 40 + int(math.Mod(float64(e.sprite+frameCounter/4), 10))
-
+					if e.animated && e.animationSpeed > 0 {
+						spriteNo = e.firstSprite + int(math.Mod(float64(gameFrame) * e.animationSpeed / 60.0, float64(e.lastSprite - e.firstSprite)))
 					} else {
-
-						spriteNo = 0
-
+						spriteNo = e.firstSprite
 					}
-
-					switch e.direction {
-					case 'N':
-						if viewDirection == 0 {
-							spriteNo += 20
-						}
-						if viewDirection == 1 {
-							spriteNo += 10
-						}
-						if viewDirection == 2 {
-							spriteNo += 0
-						}
-						if viewDirection == 3 {
-							spriteNo += 30
-						}
-					case 'W':
-						if viewDirection == 0 {
-							spriteNo += 10
-						}
-						if viewDirection == 1 {
-							spriteNo += 0
-						}
-						if viewDirection == 2 {
-							spriteNo += 30
-						}
-						if viewDirection == 3 {
-							spriteNo += 20
-						}
-					case 'S':
-						if viewDirection == 0 {
-							spriteNo += 0
-						}
-						if viewDirection == 1 {
-							spriteNo += 30
-						}
-						if viewDirection == 2 {
-							spriteNo += 20
-						}
-						if viewDirection == 3 {
-							spriteNo += 10
-						}
-					case 'E':
-						if viewDirection == 0 {
-							spriteNo += 30
-						}
-						if viewDirection == 1 {
-							spriteNo += 20
-						}
-						if viewDirection == 2 {
-							spriteNo += 10
-						}
-						if viewDirection == 3 {
-							spriteNo += 0
-						}
-
-					}
-				}
-
-				pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
-
-				spriteMatrix := pixel.IM.
-					ScaledXY(pixel.ZV, pixel.V(1, s)).
-					Moved(cam).
-					ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
-					Moved(pos).
-					Moved(pixel.V(0, 2*(vScale/2-2*(aspect-0.5)*vScale))).
-					Moved(pixel.V(eX*hScale, -eY*vScale))
-
-				if editing {
-					spriteBatch.SetColorMask(color.RGBA{128, 128, 128, 128})
 				} else {
-					spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
+					spriteNo = 0
 				}
 
-				spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
+				if spriteNo > -1 {
+
+					pos := pixel.V(screenWidth/2+float64(i0*hScale)+hScale/2, screenHeight/2+(-vScale/2-float64((j0-k*s)*vScale)))
+
+					spriteMatrix := pixel.IM.
+						ScaledXY(pixel.ZV, pixel.V(1, s)).
+						Moved(cam).
+						ScaledXY(pixel.ZV, pixel.V(scale, scale*aspect)).
+						Moved(pos).
+						Moved(pixel.V(0, 2*(vScale/2-2*(aspect-0.5)*vScale))).
+						Moved(pixel.V(eX*hScale, -eY*vScale))
+
+					if editing {
+						spriteBatch.SetColorMask(color.RGBA{128, 128, 128, 128})
+					} else {
+						spriteBatch.SetColorMask(color.RGBA{255, 255, 255, 255})
+					}
+
+					spriteTexture[spriteNo].Draw(spriteBatch, spriteMatrix)
+
+				}
 
 			}
 

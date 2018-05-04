@@ -25,7 +25,7 @@ func initiateAPI() {
 	linkToLua(L, APISetClassActive, "SetClassActive")
 	linkToLua(L, APISetView, "SetView")
 	linkToLua(L, APIGetPosition, "GetPosition")
-	linkToLua(L, APIGetDistance, "GetDistance")
+	linkToLua(L, APIGetVelocity, "GetVelocity")
 	linkToLua(L, APISetPosition, "SetPosition")
 	linkToLua(L, APISetVelocity, "SetVelocity")
 	linkToLua(L, APIKeyPressed, "KeyPressed")
@@ -34,6 +34,11 @@ func initiateAPI() {
 	linkToLua(L, APIListFlags, "ListFlags")
 	linkToLua(L, APIStartTimer, "StartTimer")
 	linkToLua(L, APIGetTimer, "GetTimer")
+
+	linkToLua(L, APISetSprite, "SetSprite")
+	linkToLua(L, APIAnimate, "Animate")
+
+
 	linkToLua(L, APICreate, "Create")
 	linkToLua(L, APIDelete, "Delete")
 	linkToLua(L, APIGetClass, "GetClass")
@@ -61,9 +66,9 @@ func APICreate(L *lua.LState) int {
 
 	e := Entity{id: entityDynamicID,
 		active: true,
-		sprite: 0,
+		firstSprite: -1,
 		velocity: 0,
-		direction: 0,
+		direction: 'S',
 		distance: 0,
 		class: class,
 		x: x,
@@ -366,6 +371,56 @@ func APIReset(L *lua.LState) int {
 	return 0
 }
 
+func APISetSprite(L *lua.LState) int {
+
+	id := L.ToInt(1)
+	sprite := L.ToInt(2)
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+
+	for i, e := range entities[1] {
+
+		if e.id == uint32(id) {
+
+			entities[1][i].firstSprite = sprite
+			entities[1][i].animated = false
+
+			return 0
+		}
+
+	}
+
+	return 0
+}
+
+
+func APIAnimate(L *lua.LState) int {
+
+	id := L.ToInt(1)
+	firstSprite := L.ToInt(2)
+	lastSprite := L.ToInt(3)
+	speed := float64(L.ToNumber(4))
+
+	if id == 0 { fmt.Println("Lua error: id not specified") }
+
+	for i, e := range entities[1] {
+
+		if e.id == uint32(id) {
+
+			entities[1][i].firstSprite = firstSprite
+			entities[1][i].lastSprite = lastSprite
+			entities[1][i].animationSpeed = speed
+			entities[1][i].animated = true
+
+			return 0
+		}
+
+	}
+
+	return 0
+}
+
+
 func APIGetScript(L *lua.LState) int {
 
 	id := L.ToInt(1)
@@ -463,7 +518,7 @@ func APIGetPosition(L *lua.LState) int {
 
 }
 
-func APIGetDistance(L *lua.LState) int {
+func APIGetVelocity(L *lua.LState) int {
 
 	id := L.ToInt(1)
 
@@ -472,14 +527,18 @@ func APIGetDistance(L *lua.LState) int {
 	for _, e := range entities[1] {
 
 		if e.id == uint32(id) {
+			L.Push(lua.LString(e.direction))
+			L.Push(lua.LNumber(e.velocity))
 			L.Push(lua.LNumber(e.distance))
-			return 1
+			return 3
 		}
 
 	}
 
+	L.Push(lua.LString(""))
 	L.Push(lua.LNumber(0))
-	return 1
+	L.Push(lua.LNumber(0))
+	return 3
 
 }
 

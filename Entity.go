@@ -45,10 +45,9 @@ type Entity struct {
 	flags  map[string]float64 // entity flags map
 	timers map[string]time.Time
 
-	sprite         int
+	firstSprite    int
 	animated       bool
-	startSprite    int
-	endSprite      int
+	lastSprite     int
 	animationSpeed float64
 }
 
@@ -241,6 +240,9 @@ func resetEntities() {
 		entities[1][i].flags = make(map[string]float64)
 		entities[1][i].timers = make(map[string]time.Time)
 		entities[1][i].active = true
+		entities[1][i].direction = 'S'
+		entities[1][i].distance = 0
+		entities[1][i].velocity = 0
 	}
 
 	gameKeyDownStart = make(map[pixelgl.Button]bool)
