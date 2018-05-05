@@ -5,6 +5,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"time"
 	"math"
+	"strings"
+	"strconv"
 )
 
 var (
@@ -35,6 +37,7 @@ type Entity struct {
 	//not exported:
 
 	active bool
+	new bool
 
 	lastX float64
 	lastY float64
@@ -45,6 +48,10 @@ type Entity struct {
 	targetZ float64
 
 	progress float64
+	onTile bool
+	onTileX float64
+	onTileY float64
+	onTileZ float64
 
 	nextDirection byte
 	nextVelocity float64 // velocity
@@ -55,7 +62,7 @@ type Entity struct {
 	distance int     // number of squares to continue at that velocity
 
 	script string            // their lua script
-	flags  map[string]float64 // entity flags map
+	flags  map[string]string // entity flags map
 	timers map[string]time.Time
 
 	firstSprite    int
@@ -169,10 +176,101 @@ func updateEntities() {
 			gameKeyJustPressed[k] = false
 		}
 
-		for _, e := range entities[1] {
+		for i, e := range entities[1] {
 			if modalEntity == 0 && e.active || modalEntity > 0 && e.Id == modalEntity {
 				currentEntity = e.Id
-				executeLua(L, e.script)
+
+				script := ""
+
+				inBlock := 0
+				blockKey := ""
+				blockValue := ""
+
+				for _, line := range strings.Split(e.script, "\n") {
+
+					line = strings.TrimSpace(line)
+
+					if line == "" || strings.HasPrefix(line, "--") { continue }
+
+					if line == "#if_new" {
+						inBlock = 1
+						continue
+					} else if strings.HasPrefix(line, "#if_on_tile") {
+						inBlock = 2
+						continue
+					} else if strings.HasPrefix(line, "#if_focus") {
+						inBlock = 3
+						continue
+					} else if strings.HasPrefix(line, "#if_flag") {
+						inBlock = 4
+						pair := strings.Split(line, " ")
+						if len(pair) != 3 {
+							blockKey = ""
+							blockValue = ""
+						} else {
+							blockKey = pair[1]
+							blockValue = pair[2]
+						}
+						continue
+					} else if strings.HasPrefix(line,  "#if_timer") {
+						inBlock = 5
+						pair := strings.Split(line, " ")
+						if len(pair) != 3 {
+							blockKey = ""
+							blockValue = ""
+						} else {
+							blockKey = pair[1]
+							blockValue = pair[2]
+						}
+						continue
+					} else if strings.HasPrefix(line, "#always") {
+						inBlock = 0
+						continue
+					}
+
+					includeLine := true
+
+					switch inBlock {
+					case 1:
+						if !e.new { includeLine = false }
+					case 2:
+						if !e.onTile { includeLine = false }
+					case 3:
+						if e.Id != focusEntity { includeLine = false }
+					case 4:
+						if value, err1 := e.flags[blockKey]; err1 {
+							if value != blockValue {
+								includeLine = false
+							}
+						} else {
+							includeLine = false
+						}
+					case 5:
+						if value, err1 := e.timers[blockKey]; err1 {
+							t0 := time.Now().Sub(value).Seconds()
+							t1, err2 := strconv.ParseFloat(blockValue, 64)
+							if err2 == nil && t0 < t1 {
+								includeLine = false
+							}
+						} else {
+							includeLine = false
+						}
+					}
+
+
+					if includeLine {
+						script += line + "\n"
+					}
+
+				}
+
+				if script != "" {
+					executeLua(L, "do\n"+script+"\nend\n")
+				}
+
+				entities[1][i].new = false
+				entities[1][i].onTile = false
+
 			}
 		}
 
@@ -202,36 +300,43 @@ func updateEntities() {
 
 			}
 
-			if entities[1][i].progress == 0 && entities[1][i].nextDirection != 0 && entities[1][i].distance > 0 {
+			if entities[1][i].progress == 0 {
 
-				dx := 0
-				dy := 0
-				entities[1][i].distance--
+				entities[1][i].onTile = true
+				entities[1][i].onTileX = entities[1][i].X
+				entities[1][i].onTileY = entities[1][i].Y
+				entities[1][i].onTileZ = entities[1][i].Z
 
-				entities[1][i].direction = entities[1][i].nextDirection
-				entities[1][i].velocity = entities[1][i].nextVelocity
+				if entities[1][i].nextDirection != 0 && entities[1][i].distance > 0 {
 
-				switch entities[1][i].direction {
-				case 'N':
-					dy = -1
-				case 'W':
-					dx = -1
-				case 'S':
-					dy = 1
-				case 'E':
-					dx = 1
+					dx := 0
+					dy := 0
+					entities[1][i].distance--
+
+					entities[1][i].direction = entities[1][i].nextDirection
+					entities[1][i].velocity = entities[1][i].nextVelocity
+
+					switch entities[1][i].direction {
+					case 'N':
+						dy = -1
+					case 'W':
+						dx = -1
+					case 'S':
+						dy = 1
+					case 'E':
+						dx = 1
+					}
+
+					gX := int(entities[1][i].X) + dx + gridCentre
+					gY := int(entities[1][i].Y) + dy + gridCentre
+					gZ := int(entities[1][i].Z)
+
+					if !(gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre) && grid[gX][gY][gZ][1] == 0 {
+						entities[1][i].targetX = entities[1][i].X + float64(dx)
+						entities[1][i].targetY = entities[1][i].Y + float64(dy)
+						entities[1][i].targetZ = entities[1][i].Z
+					}
 				}
-
-				gX := int(entities[1][i].X) + dx + gridCentre
-				gY := int(entities[1][i].Y) + dy + gridCentre
-				gZ := int(entities[1][i].Z)
-
-				if !(gX < 0 || gY < 0 || gX >= 2*gridCentre || gY >= 2*gridCentre) && grid[gX][gY][gZ][1] == 0 {
-					entities[1][i].targetX = entities[1][i].X + float64(dx)
-					entities[1][i].targetY = entities[1][i].Y + float64(dy)
-					entities[1][i].targetZ = entities[1][i].Z
-				}
-
 			}
 
 		}
@@ -249,10 +354,11 @@ func resetEntities() {
 	for i := range entities[1] {
 		script, err := ioutil.ReadFile("scripts/" + entities[1][i].Class + ".lua")
 		check(err)
-		entities[1][i].script = "do\n" +string(script) + "\nend\n"
-		entities[1][i].flags = make(map[string]float64)
-		entities[1][i].timers = make(map[string]time.Time)
 		entities[1][i].active = true
+		entities[1][i].new = true
+		entities[1][i].script = string(script)
+		entities[1][i].flags = make(map[string]string)
+		entities[1][i].timers = make(map[string]time.Time)
 		entities[1][i].direction = 'S'
 		entities[1][i].distance = 0
 		entities[1][i].velocity = 0

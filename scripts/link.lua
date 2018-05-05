@@ -1,3 +1,12 @@
+#if_new
+
+SetFocus(GetId(), true)
+
+#if_on_tile
+
+--local a, b, c = GetPosition(GetId(), true)
+--print(a .. ", " .. b .. ", " .. c)
+
 if KeyPressed("up", false) then
     SetVelocity(GetId(), 'N', 5, 1)
 end
@@ -68,4 +77,7 @@ elseif direction == 'W' then
     end
 end
 
-SetFocus(GetId(), true)
+
+#always
+
+--print("ping")

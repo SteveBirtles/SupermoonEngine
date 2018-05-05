@@ -66,6 +66,7 @@ func APICreate(L *lua.LState) int {
 
 	e := Entity{Id: entityDynamicID,
 		active: true,
+		new: true,
 		firstSprite: -1,
 		velocity: 0,
 		direction: 'S',
@@ -81,8 +82,8 @@ func APICreate(L *lua.LState) int {
 		targetY: y,
 		targetZ: z,
 		progress: 0,
-		script: "do\n" +string(script) + "\nend\n",
-		flags: make(map[string]float64),
+		script: string(script),
+		flags: make(map[string]string),
 		timers: make(map[string]time.Time),
 	}
 
@@ -364,8 +365,8 @@ func APIReset(L *lua.LState) int {
 		if e.Id == uint32(id) {
 			script, err := ioutil.ReadFile("scripts/" + entities[1][i].Class + ".lua")
 			check(err)
-			entities[1][i].script = "do\n" +string(script) + "\nend\n"
-			entities[1][i].flags = make(map[string]float64)
+			entities[1][i].script = string(script)
+			entities[1][i].flags = make(map[string]string)
 			entities[1][i].timers = make(map[string]time.Time)
 			return 0
 		}
@@ -501,15 +502,22 @@ func APISetView(L *lua.LState) int {
 func APIGetPosition(L *lua.LState) int {
 
 	id := L.ToInt(1)
+	snap := L.ToBool(2)
 
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
 
 		if e.Id == uint32(id) {
-			L.Push(lua.LNumber(e.X))
-			L.Push(lua.LNumber(e.Y))
-			L.Push(lua.LNumber(e.Z))
+			if snap {
+				L.Push(lua.LNumber(e.onTileX))
+				L.Push(lua.LNumber(e.onTileY))
+				L.Push(lua.LNumber(e.onTileZ))
+			} else {
+				L.Push(lua.LNumber(e.X))
+				L.Push(lua.LNumber(e.Y))
+				L.Push(lua.LNumber(e.Z))
+			}
 			return 3
 		}
 
@@ -626,7 +634,7 @@ func APIKeyPressed(L *lua.LState) int {
 func APISetFlag(L *lua.LState) int {
 	id := uint32(L.ToInt(1))
 	flag := string(L.ToString(2))
-	value := float64(L.ToNumber(3))
+	value := string(L.ToString(3))
 
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if flag == "" { fmt.Println("Lua error: flag not specified") }
@@ -652,9 +660,9 @@ func APIGetFlag(L *lua.LState) int {
 		if e.Id == id {
 			value, ok := e.flags[flag]
 			if ok {
-				L.Push(lua.LNumber(value))
+				L.Push(lua.LString(value))
 			} else {
-				L.Push(lua.LNumber(0))
+				L.Push(lua.LString(""))
 			}
 			break
 		}
