@@ -59,6 +59,7 @@ var (
 	aspect                             = 0.5
 	viewDirection               = 0
 	compass                         = [4]string{"North", "East", "South", "West"}
+	reverseCompass                         = map[byte]int{'N':0 , 'E':1, 'S':2, 'W':3}
 	hScale                           = 64.0
 	vScale                                             = hScale * aspect
 	lastTileX                                      = outsideGrid

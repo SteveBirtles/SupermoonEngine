@@ -2,10 +2,16 @@
 
 SetFocus(GetId(), true)
 
-#if_on_tile
+SetSprite(GetId(), 'N', 12)
+Animate(GetId(), 'N', 40, 49, 15, false)
+SetSprite(GetId(), 'E', 13)
+Animate(GetId(), 'E', 50, 59, 15, false)
+SetSprite(GetId(), 'S', 10)
+Animate(GetId(), 'S', 20, 29, 15, false)
+SetSprite(GetId(), 'W', 11)
+Animate(GetId(), 'W', 30, 39, 15, false)
 
---local a, b, c = GetPosition(GetId(), true)
---print(a .. ", " .. b .. ", " .. c)
+#always
 
 if KeyPressed("up", false) then
     SetVelocity(GetId(), 'N', 5, 1)
@@ -22,62 +28,3 @@ end
 if KeyPressed("right", false) then
     SetVelocity(GetId(), 'E', 5, 1)
 end
-
-if KeyPressed("space", true) then
-    SetPosition(GetId(), 0, 0, 0)
-end
-
-if KeyPressed("c", true) then
-    local a, b, c = GetPosition(GetId())
-    Create(a + 2, b, c, "link")
-end
-
-if KeyPressed("s", true) then
-    local s = GetScript(GetId())
-    print(s)
-end
-
-if KeyPressed("k", true) then
-    Delete(GetId())
-end
-
-if KeyPressed("enter", true) then
-    local ids = Nearby(GetId(), 10)
-    print("Entities:")
-    for i = 1, #ids do
-        print (ids[i])
-    end
-end
-
-local direction, _, distance = GetVelocity(GetId())
-
-if direction == 'N' then
-    if distance == 0 then
-        SetSprite(GetId(), 12)
-    else
-        Animate(GetId(), 40, 49, 15)
-    end
-elseif direction == 'E' then
-    if distance == 0 then
-        SetSprite(GetId(), 13)
-    else
-        Animate(GetId(), 50, 59, 15)
-    end
-elseif direction == 'S' then
-    if distance == 0 then
-        SetSprite(GetId(), 10)
-    else
-        Animate(GetId(), 20, 29, 15)
-    end
-elseif direction == 'W' then
-    if distance == 0 then
-        SetSprite(GetId(), 11)
-    else
-        Animate(GetId(), 30, 39, 15)
-    end
-end
-
-
-#always
-
---print("ping")

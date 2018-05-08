@@ -47,11 +47,12 @@ type Entity struct {
 	targetY float64
 	targetZ float64
 
-	progress float64
-	onTile bool
-	onTileX float64
-	onTileY float64
-	onTileZ float64
+	progress   float64
+	onTile     bool
+	onTileX    float64
+	onTileY    float64
+	onTileZ    float64
+	justOnTile bool
 
 	nextDirection byte
 	nextVelocity float64 // velocity
@@ -65,10 +66,11 @@ type Entity struct {
 	flags  map[string]string // entity flags map
 	timers map[string]time.Time
 
-	firstSprite    int
-	animated       bool
-	lastSprite     int
-	animationSpeed float64
+	sprite          [4]int
+	animationSpeed  [4]float64
+	firstSprite     [4]int
+	lastSprite      [4]int
+	staticAnimation [4]bool
 }
 
 func preRenderEntities() {
@@ -195,7 +197,7 @@ func updateEntities() {
 					if line == "#if_new" {
 						inBlock = 1
 						continue
-					} else if strings.HasPrefix(line, "#if_on_tile") {
+					} else if strings.HasPrefix(line, "#if_step") {
 						inBlock = 2
 						continue
 					} else if strings.HasPrefix(line, "#if_focus") {
@@ -234,7 +236,7 @@ func updateEntities() {
 					case 1:
 						if !e.new { includeLine = false }
 					case 2:
-						if !e.onTile { includeLine = false }
+						if !e.justOnTile { includeLine = false }
 					case 3:
 						if e.Id != focusEntity { includeLine = false }
 					case 4:
@@ -283,6 +285,7 @@ func updateEntities() {
 
 			if entities[1][i].progress+entities[1][i].velocity/60 > 1 {
 
+				entities[1][i].justOnTile = true
 				entities[1][i].progress = 0
 				entities[1][i].X = entities[1][i].targetX
 				entities[1][i].Y = entities[1][i].targetY
@@ -290,6 +293,7 @@ func updateEntities() {
 				entities[1][i].lastX = entities[1][i].targetX
 				entities[1][i].lastY = entities[1][i].targetY
 				entities[1][i].lastZ = entities[1][i].targetZ
+
 
 			} else if entities[1][i].targetX != entities[1][i].lastX || entities[1][i].targetY != entities[1][i].lastY || entities[1][i].targetZ != entities[1][i].lastZ {
 
@@ -302,10 +306,14 @@ func updateEntities() {
 
 			if entities[1][i].progress == 0 {
 
-				entities[1][i].onTile = true
-				entities[1][i].onTileX = entities[1][i].X
-				entities[1][i].onTileY = entities[1][i].Y
-				entities[1][i].onTileZ = entities[1][i].Z
+				if entities[1][i].onTile {
+					entities[1][i].justOnTile = false
+				} else {
+					entities[1][i].onTile = true
+					entities[1][i].onTileX = entities[1][i].X
+					entities[1][i].onTileY = entities[1][i].Y
+					entities[1][i].onTileZ = entities[1][i].Z
+				}
 
 				if entities[1][i].nextDirection != 0 && entities[1][i].distance > 0 {
 

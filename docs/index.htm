@@ -129,8 +129,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">GetTile(x, y, z) ⇨ base, front</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Get the values of the tiles at the given co-ordinates.</h6>
+                <p class="card-text text-info">Example usage:<br />local b, f = GetTile(0, 0, 0)</p>
               </div>
             </div>
           </div>
@@ -139,8 +139,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">SetTile(x, y, z, base, front)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Set the tile values at the given co-ordinate.</h6>
+                <p class="card-text text-info">Set front to be 0 if only base tile wanted.</p>
               </div>
             </div>
           </div>
@@ -149,8 +149,9 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">Nearby(id, radius) ⇨ ids</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Return an array of the entity ids within a radius of the given id.</h6>
+                <p class="card-text text-info">Example usage:<br />ids = Nearby(GetId(), 10)<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end
+                </p>
               </div>
             </div>
           </div>
@@ -163,8 +164,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">Create(x, y, z, class) ⇨ id</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Create a new entity at the given co-ordinates with the given class.</h6>
+                <p class="card-text text-info">Returns the id of the newly created entity.</p>
               </div>
             </div>
           </div>
@@ -173,8 +174,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">Delete(id)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Delete the entity with the given id.</h6>
+                <p class="card-text text-info">It is perfectly safe to self destruct.<br />i.e. Delete(GetId())</p>
               </div>
             </div>
           </div>
@@ -183,7 +184,7 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">EndGame()</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <h6 class="card-subtitle mb-2 text-muted">Immediately leave gameplay mode and return to the previous mode.</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
@@ -196,8 +197,8 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">GetFlag(id, flag)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <h5 class="card-title">GetFlag(id, key) ⇨ flag</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Retrieve the value of the flag with the given key belonging to the entity with the given id.</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
@@ -206,7 +207,7 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">SetFlag(id, flag, value)</h5>
+                <h5 class="card-title">SetFlag(id, key, value)</h5>
                 <h6 class="card-subtitle mb-2 text-muted"></h6>
                 <p class="card-text text-info"></p>
               </div>
@@ -265,17 +266,17 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">GetVelocity(id) ⇨ direction, velocity, distance</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <h6 class="card-subtitle mb-2 text-muted">Returns the direction (N, S, E or W), the velocity in tiles per second, and the distance remaining in tiles of the entity with the given id.</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
           </div>
 
           <div class="col-sm-4">
-            <div class="card">
+            <div class="card text-danger">
               <div class="card-body">
                 <h5 class="card-title">PathFind(id, targetid, searchdepth, vel)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                  <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
@@ -430,40 +431,125 @@
 
         </div>
        
-         <div class="row mb-4 text-danger">
+         <div class="row mb-4">
 
           <div class="col-sm-4">
-            <div class="card">
+            <div class="card text-danger">
               <div class="card-body">
                 <h5 class="card-title">DisplayDialogue(text, csvoptions) ⇨ option</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
           </div>
 
           <div class="col-sm-4">
-            <div class="card">
+            <div class="card text-danger">
               <div class="card-body">
                 <h5 class="card-title">PlaySound(sound)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
           </div>
 
           <div class="col-sm-4">
-            <div class="card">
+            <div class="card text-danger">
               <div class="card-body">
                 <h5 class="card-title">PlayMusic(music, looping)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
+                <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
                 <p class="card-text text-info"></p>
               </div>
             </div>
           </div>
 
         </div>
+
+          <div class="row mb-4 text-primary">
+
+              <div class="col-sm-12">
+                  <div class="card">
+                      <div class="card-body">
+                          <h5 class="card-title"><h3>Meta-Directives</h3></h5>
+                          <h6 class="card-subtitle mb-2 text-muted">Meta-directives are processed by the game engine before script execution. Careful use of meta-directives can greatly enhance script run times as whole chunks of script will be skipped over.</h6>
+                          <p class="card-text text-info">Please note, only one meta-directive can be active at once.</p>
+                      </div>
+                  </div>
+              </div>
+
+          </div>
+
+          <div class="row mb-4 text-primary">
+
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">#if_new</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-directive to only execute the following code if an entity has just been created.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">#if_focus</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-directive to only execute the following code if an entity is the focus.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">#if_step</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-directive to only execute the following code if an entity has just arrived on a tile.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mb-4 text-primary">
+
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">#if_flag key value</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-directive to only execute the following code if an entity has a flag with the given value.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">#if_timer key time</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-directive to only execute the following code if an entity has a timer with a value exceeding the given time.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">#always</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-Directive to to return script execution to normal.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
       </div>
+
+    </div>
       
     </div>
 

@@ -67,7 +67,7 @@ func APICreate(L *lua.LState) int {
 	e := Entity{Id: entityDynamicID,
 		active: true,
 		new: true,
-		firstSprite: -1,
+		sprite: [4]int{-1, -1, -1, -1},
 		velocity: 0,
 		direction: 'S',
 		distance: 0,
@@ -379,20 +379,19 @@ func APIReset(L *lua.LState) int {
 func APISetSprite(L *lua.LState) int {
 
 	id := L.ToInt(1)
-	sprite := L.ToInt(2)
+	directions := strings.ToUpper(L.ToString(2))
+	sprite := L.ToInt(3)
 
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
-
 		if e.Id == uint32(id) {
-
-			entities[1][i].firstSprite = sprite
-			entities[1][i].animated = false
-
-			return 0
+			for _, direction := range []byte(directions) {
+				if d, ok := reverseCompass[direction]; ok {
+					entities[1][i].sprite[d] = sprite
+				}
+			}
 		}
-
 	}
 
 	return 0
@@ -402,24 +401,25 @@ func APISetSprite(L *lua.LState) int {
 func APIAnimate(L *lua.LState) int {
 
 	id := L.ToInt(1)
-	firstSprite := L.ToInt(2)
-	lastSprite := L.ToInt(3)
-	speed := float64(L.ToNumber(4))
+	directions := strings.ToUpper(L.ToString(2))
+	firstSprite := L.ToInt(3)
+	lastSprite := L.ToInt(4)
+	speed := float64(L.ToNumber(5))
+	static := L.ToBool(6)
 
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for i, e := range entities[1] {
-
 		if e.Id == uint32(id) {
-
-			entities[1][i].firstSprite = firstSprite
-			entities[1][i].lastSprite = lastSprite
-			entities[1][i].animationSpeed = speed
-			entities[1][i].animated = true
-
-			return 0
+			for _, direction := range []byte(directions) {
+				if d, ok := reverseCompass[direction]; ok {
+					entities[1][i].firstSprite[d] = firstSprite
+					entities[1][i].lastSprite[d] = lastSprite
+					entities[1][i].animationSpeed[d] = speed
+					entities[1][i].staticAnimation[d] = static
+				}
+			}
 		}
-
 	}
 
 	return 0
@@ -433,12 +433,10 @@ func APIGetScript(L *lua.LState) int {
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
 	for _, e := range entities[1] {
-
 		if e.Id == uint32(id) {
 			L.Push(lua.LString(e.script))
 			return 1
 		}
-
 	}
 
 	L.Push(lua.LString(""))

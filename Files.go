@@ -33,7 +33,7 @@ func load() {
 			check(err2)
 			for i := range entities[0] {
 				entities[0][i].active = true
-				entities[0][i].firstSprite = -1
+				entities[0][i].sprite = [4]int{-1, -1, -1, -1}
 				entities[0][i].velocity = 0
 				entities[0][i].direction = 'S'
 				entities[0][i].distance = 0

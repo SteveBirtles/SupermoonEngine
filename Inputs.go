@@ -865,7 +865,7 @@ func processEditorDirectives() {
 			e := Entity{Id: entityUID,
 				active: true,
 				new: true,
-				firstSprite: -1,
+				firstSprite: [4]int{-1, -1, -1, -1},
 				velocity: 0,
 				direction: 'S',
 				distance: 0,

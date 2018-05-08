@@ -45,11 +45,15 @@ func renderEntities(i float64, j float64, i0 float64, j0 float64) {
 				k := e.Z
 				spriteNo := -1
 
+				d := reverseCompass[e.direction]
+
+				moving := e.distance > 0 || e.nextDistance > 0 || e.progress != 0 || e.justOnTile
+
 				if !editing {
-					if e.animated && e.animationSpeed > 0 {
-						spriteNo = e.firstSprite + int(math.Mod(float64(gameFrame) * e.animationSpeed / 60.0, float64(e.lastSprite - e.firstSprite)))
+					if (e.staticAnimation[d] || moving) && e.animationSpeed[d] > 0 {
+						spriteNo = e.firstSprite[d] + int(math.Mod(float64(gameFrame) * e.animationSpeed[d] / 60.0, float64(e.lastSprite[d] - e.firstSprite[d])))
 					} else {
-						spriteNo = e.firstSprite
+						spriteNo = e.sprite[d]
 					}
 				} else {
 					spriteNo = 0
