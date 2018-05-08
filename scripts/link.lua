@@ -11,20 +11,27 @@ Animate(GetId(), 'S', 20, 29, 15, false)
 SetSprite(GetId(), 'W', 11)
 Animate(GetId(), 'W', 30, 39, 15, false)
 
-#always
+#if_focus
 
-if KeyPressed("up", false) then
-    SetVelocity(GetId(), 'N', 5, 1)
+local speed = 5
+local slow = KeyPressed("leftshift", false)
+
+if slow then
+    speed = 2
 end
 
-if KeyPressed("down", false) then
-    SetVelocity(GetId(), 'S', 5, 1)
+if KeyPressed("up", slow) then
+    SetVelocity(GetId(), 'N', speed, 1)
 end
 
-if KeyPressed("left", false) then
-    SetVelocity(GetId(), 'W', 5, 1)
+if KeyPressed("down", slow) then
+    SetVelocity(GetId(), 'S', speed, 1)
 end
 
-if KeyPressed("right", false) then
-    SetVelocity(GetId(), 'E', 5, 1)
+if KeyPressed("left", slow) then
+    SetVelocity(GetId(), 'W', speed, 1)
+end
+
+if KeyPressed("right", slow) then
+    SetVelocity(GetId(), 'E', speed, 1)
 end
