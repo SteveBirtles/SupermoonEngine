@@ -18,13 +18,13 @@ const tileSheetWidth = 2048
 const tileSheetHeight = 1024
 const totalTiles = (tileSheetWidth /128)*(tileSheetHeight /128)
 
-const spriteSheetWidth = 1280
-const spriteSheetHeight = 1280
+const spriteSheetWidth = 2048
+const spriteSheetHeight = 2048
 const totalSprites = (spriteSheetWidth /128)*(spriteSheetHeight /128)
 
 
 var (
-	windowTitlePrefix = "OrthoEngine"
+	windowTitlePrefix = "Supermoon Engine"
 	frameCounter      = 0
 	gameFrame         = 0
 	undoFrame         = 1
@@ -39,7 +39,7 @@ var (
 	tileOverlayWidth  uint16
 	tileOverlayHeight uint16
 	spritePic         pixel.Picture
-	spriteTexture     [totalTiles]*pixel.Sprite
+	spriteTexture     [totalSprites]*pixel.Sprite
 	imGrid            *imdraw.IMDraw
 	imUI              *imdraw.IMDraw
 	tileBatch         *pixel.Batch

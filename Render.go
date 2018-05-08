@@ -56,7 +56,7 @@ func renderEntities(i float64, j float64, i0 float64, j0 float64) {
 						spriteNo = e.sprite[d]
 					}
 				} else {
-					spriteNo = 0
+					spriteNo = totalSprites-1
 				}
 
 				if spriteNo > -1 {
