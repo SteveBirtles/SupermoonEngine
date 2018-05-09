@@ -10,6 +10,7 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/colornames"
 	"github.com/faiface/pixel"
+	"time"
 )
 
 func floor(x float64) float64 {
@@ -38,7 +39,7 @@ func loadImageFile(path string) (image.Image, error) {
 func startFrame() {
 
 	win.Clear(colornames.Black)
-
+	frameStart = time.Now()
 	textRenderer.Clear()
 	textLine = 0
 
@@ -75,10 +76,14 @@ func endFrame() {
 	select {
 	case <-second:
 		undoFrame++
+		executionLastSecond = cumulativeExecution
+		cumulativeExecution = 0
 		win.SetTitle(fmt.Sprintf("%s | FPS: %d", windowTitlePrefix, frameCounter))
 		frameCounter = 0
 	default:
 	}
+
+	frameLength = time.Now().Sub(frameStart).Seconds()
 
 }
 

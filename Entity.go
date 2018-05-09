@@ -7,6 +7,8 @@ import (
 	"math"
 	"strings"
 	"strconv"
+	"sort"
+	"fmt"
 )
 
 var (
@@ -22,7 +24,20 @@ var (
 	focusEntity             uint32
 	modalEntity             uint32
 	currentEntity           uint32
+	entityCount				int
+	activeEntityCount		int
+	entityExecutionTime		[]execTime
+	sortedEntityExecutionTimes	[]execTime
+	totalExecutionTime			float64
+	cumulativeExecution			float64
+	executionLastSecond			float64
 )
+
+type execTime struct {
+	id   uint32
+	time float64
+	class string
+}
 
 type Entity struct {
 
@@ -182,11 +197,30 @@ func updateEntities() {
 
 		//fmt.Print("--------------------------------------------------------------------------\n")
 
+		entityCount = 0
+		activeEntityCount = 0
+		totalExecutionTime = 0
+		entityExecutionTime	= make([]execTime, 0)
+
+		entityIds := make([]uint32, 0)
+		sortedEntityExecutionTimes = make([]execTime, 0)
+
 		for i, e := range entities[1] {
+
+			for _, id := range entityIds {
+				if id == e.Id {
+					fmt.Printf("Entity id clash: %d", id)
+				}
+			}
+			entityIds = append(entityIds, e.Id)
+
+			entityCount++
 
 			//fmt.Printf("%d (%d, %d, %d) %s\n", e.Id, int(e.targetX), int(e.targetY), int(e.targetZ), e.Class)
 
 			if modalEntity == 0 && e.active || modalEntity > 0 && e.Id == modalEntity && !e.deleteMe {
+
+				activeEntityCount++
 
 				script := ""
 
@@ -272,10 +306,16 @@ func updateEntities() {
 
 				}
 
+				startTime := time.Now()
+
 				if script != "" {
 					currentEntity = e.Id
 					executeLua(L, "do\n"+script+"\nend\n")
 				}
+
+				t := time.Now().Sub(startTime)
+				entityExecutionTime = append(entityExecutionTime, execTime{e.Id, t.Seconds(), e.Class})
+				totalExecutionTime += t.Seconds()
 
 				entities[1][i].new = entities[1][i].resetNew
 				entities[1][i].resetNew = false
@@ -284,6 +324,16 @@ func updateEntities() {
 			}
 		}
 
+		cumulativeExecution += totalExecutionTime
+
+		for _, e := range entityExecutionTime {
+			sortedEntityExecutionTimes = append(sortedEntityExecutionTimes, execTime{e.id, e.time, e.class})
+		}
+
+		sort.Slice(sortedEntityExecutionTimes, func(i, j int) bool {
+			return sortedEntityExecutionTimes[i].time > sortedEntityExecutionTimes[j].time
+		})
+
 		for i := 0; i < len(entities[1]); {
 			if entities[1][i].deleteMe {
 				entities[1] = append(entities[1][:i], entities[1][i+1:]...)
@@ -291,7 +341,6 @@ func updateEntities() {
 				i++
 			}
 		}
-
 
 	default:
 	}

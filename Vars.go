@@ -24,12 +24,14 @@ const totalSprites = (spriteSheetWidth /128)*(spriteSheetHeight /128)
 
 
 var (
-	windowTitlePrefix = "Supermoon Engine"
-	frameCounter      = 0
-	gameFrame         = 0
-	undoFrame         = 1
-	second            = time.Tick(time.Second)
-	luaTick			  = time.Tick(time.Second/10)
+	windowTitlePrefix  = "Supermoon Engine"
+	frameCounter            = 0
+	gameFrame                  = 0
+	undoFrame                  = 1
+	frameLength       float64
+	frameStart        time.Time
+	second                        = time.Tick(time.Second)
+	luaTick           			  = time.Tick(time.Second/10)
 	win               *pixelgl.Window
 	textRenderer      *text.Text
 	textLine          int

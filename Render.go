@@ -474,7 +474,8 @@ func renderHelp() {
 		print("PgUp/Dn : Prev/Next page")
 		print("Backspace : Delete entity")
 		print("H : Additional help")
-
+		print("")
+		print("Tab : Toggle play mode")
 
 	} else {
 
@@ -511,6 +512,19 @@ func renderHelp() {
 		print("Ctrl+Alt+Q : Quit without saving")
 
 	}
+
+}
+
+func renderEntityStats() {
+
+	print(fmt.Sprintf("Entities : %d (%d active)", entityCount, activeEntityCount))
+
+	for i, e := range sortedEntityExecutionTimes {
+		if i >= 5 { break }
+		print(fmt.Sprintf("%d : \t%4.2fms - \t%s", e.id, e.time*1000, e.class))
+	}
+
+	print (fmt.Sprintf("Total : %4.2fms (%4.2f%%)", totalExecutionTime*1000, executionLastSecond*100))
 
 }
 
@@ -563,6 +577,8 @@ func render() {
 	if editing {
 		renderTileOverlay()
 		renderHelp()
+	} else {
+		renderEntityStats()
 	}
 
 }
