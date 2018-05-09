@@ -35,3 +35,10 @@ end
 if KeyPressed("right", slow) then
     SetVelocity(GetId(), 'E', speed, 1)
 end
+
+
+if KeyPressed("p", true) then
+    print("Becoming pac man!...")
+    SetClass(GetId(), "pacman")
+    Reset(GetId())
+end

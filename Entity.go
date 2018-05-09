@@ -36,8 +36,9 @@ type Entity struct {
 
 	//not exported:
 
-	active bool
-	new bool
+	active   bool
+	new      bool
+	resetNew bool
 
 	lastX float64
 	lastY float64
@@ -270,7 +271,8 @@ func updateEntities() {
 					executeLua(L, "do\n"+script+"\nend\n")
 				}
 
-				entities[1][i].new = false
+				entities[1][i].new = entities[1][i].resetNew
+				entities[1][i].resetNew = false
 				entities[1][i].onTile = false
 
 			}

@@ -368,6 +368,7 @@ func APIReset(L *lua.LState) int {
 			entities[1][i].script = string(script)
 			entities[1][i].flags = make(map[string]string)
 			entities[1][i].timers = make(map[string]time.Time)
+			entities[1][i].resetNew = true
 			return 0
 		}
 

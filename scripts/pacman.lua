@@ -13,25 +13,26 @@ Animate(GetId(), 'W', 16, 17, 8, false)
 
 #if_focus
 
-local speed = 5
-local slow = KeyPressed("leftshift", false)
+local speed = 8
 
-if slow then
-    speed = 2
-end
-
-if KeyPressed("up", slow) then
+if KeyPressed("up", false) then
     SetVelocity(GetId(), 'N', speed, 1)
 end
 
-if KeyPressed("down", slow) then
+if KeyPressed("down", false) then
     SetVelocity(GetId(), 'S', speed, 1)
 end
 
-if KeyPressed("left", slow) then
+if KeyPressed("left", false) then
     SetVelocity(GetId(), 'W', speed, 1)
 end
 
-if KeyPressed("right", slow) then
+if KeyPressed("right", false) then
     SetVelocity(GetId(), 'E', speed, 1)
+end
+
+if KeyPressed("l", true) then
+    print("Becoming link!...")
+    SetClass(GetId(), "link")
+    Reset(GetId())
 end
