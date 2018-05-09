@@ -38,7 +38,6 @@ func initiateAPI() {
 	linkToLua(L, APISetSprite, "SetSprite")
 	linkToLua(L, APIAnimate, "Animate")
 
-
 	linkToLua(L, APICreate, "Create")
 	linkToLua(L, APIDelete, "Delete")
 	linkToLua(L, APIGetClass, "GetClass")
@@ -99,17 +98,11 @@ func APIDelete(L *lua.LState) int {
 	id := uint32(L.ToNumber(1))
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 
-	index := -1
-
 	for i, e := range entities[1] {
 		if e.Id == id {
-			index = i
+			entities[1][i].deleteMe = true
 			break
 		}
-	}
-
-	if index > -1 {
-		entities[1] = append(entities[1][:index], entities[1][index+1:]...)
 	}
 
 	return 0
@@ -214,12 +207,13 @@ func APINearby(L *lua.LState) int {
 func APIProximity(L *lua.LState) int {
 
 	id1 := L.ToInt(1)
-	id2 := L.ToInt(1)
+	id2 := L.ToInt(2)
 
-	if id1 == 0 { fmt.Println("Lua error: id1 not specified") }
-	if id2 == 0 { fmt.Println("Lua error: id2 not specified") }
-
-	if id1 != id2 {
+	if id1 == 0 {
+		fmt.Println("Lua error: id1 not specified")
+	} else if id2 == 0 {
+		fmt.Println("Lua error: id2 not specified")
+	} else if id1 != id2 {
 		for _, e1 := range entities[1] {
 			if e1.Id == uint32(id1) {
 				for _, e2 := range entities[1] {

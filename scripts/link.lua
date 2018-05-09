@@ -1,5 +1,7 @@
 #if_new
 
+print("Becoming link!...")
+
 SetFocus(GetId(), true)
 
 SetSprite(GetId(), 'N', 96)
@@ -11,7 +13,9 @@ Animate(GetId(), 'S', 65, 74, 15, false)
 SetSprite(GetId(), 'W', 80)
 Animate(GetId(), 'W', 81, 90, 15, false)
 
-#if_focus
+SetFlag(GetId(), "score", "0")
+
+#always
 
 local speed = 5
 local slow = KeyPressed("leftshift", false)
@@ -38,7 +42,11 @@ end
 
 
 if KeyPressed("p", true) then
-    print("Becoming pac man!...")
     SetClass(GetId(), "pacman")
     Reset(GetId())
+end
+
+if KeyPressed("c", true) then
+  local x, y, z = GetPosition(GetId())
+  Create(x+1, y, z, "pacman")
 end

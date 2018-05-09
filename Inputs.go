@@ -24,6 +24,7 @@ func processSystemInputs() {
 
 	if win.JustPressed(pixelgl.KeyTab) {
 
+		aspect = 0.5
 		scale = 0.5
 		hScale = 128 * scale
 		vScale = 128 * aspect * scale

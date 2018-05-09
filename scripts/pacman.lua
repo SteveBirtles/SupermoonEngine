@@ -1,6 +1,6 @@
 #if_new
 
-SetFocus(GetId(), true)
+print("Becoming pac man!...")
 
 SetSprite(GetId(), 'N', 32)
 Animate(GetId(), 'N', 32, 33, 8, false)
@@ -11,7 +11,7 @@ Animate(GetId(), 'S', 48, 49, 8, false)
 SetSprite(GetId(), 'W', 16)
 Animate(GetId(), 'W', 16, 17, 8, false)
 
-#if_focus
+#always
 
 local speed = 8
 
@@ -32,7 +32,6 @@ if KeyPressed("right", false) then
 end
 
 if KeyPressed("l", true) then
-    print("Becoming link!...")
     SetClass(GetId(), "link")
     Reset(GetId())
 end

@@ -39,6 +39,7 @@ type Entity struct {
 	active   bool
 	new      bool
 	resetNew bool
+	deleteMe bool
 
 	lastX float64
 	lastY float64
@@ -179,9 +180,13 @@ func updateEntities() {
 			gameKeyJustPressed[k] = false
 		}
 
+		//fmt.Print("--------------------------------------------------------------------------\n")
+
 		for i, e := range entities[1] {
-			if modalEntity == 0 && e.active || modalEntity > 0 && e.Id == modalEntity {
-				currentEntity = e.Id
+
+			//fmt.Printf("%d (%d, %d, %d) %s\n", e.Id, int(e.targetX), int(e.targetY), int(e.targetZ), e.Class)
+
+			if modalEntity == 0 && e.active || modalEntity > 0 && e.Id == modalEntity && !e.deleteMe {
 
 				script := ""
 
@@ -268,6 +273,7 @@ func updateEntities() {
 				}
 
 				if script != "" {
+					currentEntity = e.Id
 					executeLua(L, "do\n"+script+"\nend\n")
 				}
 
@@ -277,6 +283,15 @@ func updateEntities() {
 
 			}
 		}
+
+		for i := 0; i < len(entities[1]); {
+			if entities[1][i].deleteMe {
+				entities[1] = append(entities[1][:i], entities[1][i+1:]...)
+			} else {
+				i++
+			}
+		}
+
 
 	default:
 	}

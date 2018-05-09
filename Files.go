@@ -32,6 +32,9 @@ func load() {
 		if err2 != io.EOF {
 			check(err2)
 			for i := range entities[0] {
+				if entities[0][i].Id > entityUID {
+					entityUID = entities[0][i].Id
+				}
 				entities[0][i].active = true
 				entities[0][i].sprite = [4]int{-1, -1, -1, -1}
 				entities[0][i].velocity = 0
