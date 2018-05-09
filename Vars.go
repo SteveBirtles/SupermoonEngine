@@ -19,7 +19,7 @@ const tileSheetHeight = 1024
 const totalTiles = (tileSheetWidth /128)*(tileSheetHeight /128)
 
 const spriteSheetWidth = 2048
-const spriteSheetHeight = 2048
+const spriteSheetHeight = 3072
 const totalSprites = (spriteSheetWidth /128)*(spriteSheetHeight /128)
 
 

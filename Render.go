@@ -51,7 +51,7 @@ func renderEntities(i float64, j float64, i0 float64, j0 float64) {
 
 				if !editing {
 					if (e.staticAnimation[d] || moving) && e.animationSpeed[d] > 0 {
-						spriteNo = e.firstSprite[d] + int(math.Mod(float64(gameFrame) * e.animationSpeed[d] / 60.0, float64(e.lastSprite[d] - e.firstSprite[d])))
+						spriteNo = e.firstSprite[d] + int(math.Mod(float64(gameFrame) * e.animationSpeed[d] / 60.0, float64(e.lastSprite[d] - e.firstSprite[d] + 1)))
 					} else {
 						spriteNo = e.sprite[d]
 					}

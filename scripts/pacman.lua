@@ -2,14 +2,14 @@
 
 SetFocus(GetId(), true)
 
-SetSprite(GetId(), 'N', 96)
-Animate(GetId(), 'N', 97, 106, 15, false)
-SetSprite(GetId(), 'E', 112)
-Animate(GetId(), 'E', 113, 122, 15, false)
-SetSprite(GetId(), 'S', 64)
-Animate(GetId(), 'S', 65, 74, 15, false)
-SetSprite(GetId(), 'W', 80)
-Animate(GetId(), 'W', 81, 90, 15, false)
+SetSprite(GetId(), 'N', 32)
+Animate(GetId(), 'N', 32, 33, 8, false)
+SetSprite(GetId(), 'E', 0)
+Animate(GetId(), 'E', 0, 1, 8, false)
+SetSprite(GetId(), 'S', 48)
+Animate(GetId(), 'S', 48, 49, 8, false)
+SetSprite(GetId(), 'W', 16)
+Animate(GetId(), 'W', 16, 17, 8, false)
 
 #if_focus
 
