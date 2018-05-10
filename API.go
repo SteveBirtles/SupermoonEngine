@@ -22,7 +22,7 @@ func initiateAPI() {
 	linkToLua(L, APISetFocus, "SetFocus")
 	linkToLua(L, APIGetFocus, "GetFocus")
 	linkToLua(L, APISetModal, "SetModal")
-	linkToLua(L, APISetClassActive, "SetClassActive")
+	linkToLua(L, APISetActive, "SetActive")
 	linkToLua(L, APISetView, "SetView")
 	linkToLua(L, APIGetPosition, "GetPosition")
 	linkToLua(L, APIGetVelocity, "GetVelocity")
@@ -182,6 +182,7 @@ func APINearby(L *lua.LState) int {
 
 	id := L.ToInt(1)
 	radius := L.ToInt(2)
+	class := L.ToString(3)
 
 	if id == 0 { fmt.Println("Lua error: Id not specified") }
 	if radius == 0 { fmt.Println("Lua error: radius 0 or not specified") }
@@ -190,9 +191,10 @@ func APINearby(L *lua.LState) int {
 		if e1.Id == uint32(id) {
 			for _, e2 := range entities[1] {
 				if e2.Id != uint32(id) {
-
-					if math.Pow(float64(e2.X-e1.X), 2) + math.Pow(float64(e2.Y-e1.Y), 2) <= math.Pow(float64(radius), 2) {
-						ids.Append(lua.LNumber(int(e2.Id)))
+					if class == "" || class == e2.Class {
+						if math.Pow(float64(e2.X-e1.X), 2) + math.Pow(float64(e2.Y-e1.Y), 2) <= math.Pow(float64(radius), 2) {
+							ids.Append(lua.LNumber(int(e2.Id)))
+						}
 					}
 				}
 			}
@@ -287,7 +289,7 @@ func APISetModal(L *lua.LState) int {
 }
 
 
-func APISetClassActive(L *lua.LState) int {
+func APISetActive(L *lua.LState) int {
 
 	class := L.ToString(1)
 	radius := L.ToInt(2)
@@ -769,4 +771,3 @@ func APIxxx(L *lua.LState) int {
 	return 0
 }
 */
-

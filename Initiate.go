@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
 	"io/ioutil"
+	"time"
 )
 
 func initiateEngine() {
@@ -91,6 +92,5 @@ func initiateEngine() {
 			b = 1
 		}
 	}
-
 
 }

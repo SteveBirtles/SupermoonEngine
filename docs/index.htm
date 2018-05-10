@@ -1,5 +1,5 @@
 <html>
-  
+
   <head>
     <title>The Supermoon Engine</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -7,11 +7,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </head>
-  
+
   <body class="bg-secondary">
-    
+
     <div class="container bg-white pt-4 mb-4">
-    
+
       <div class="jumbotron text-center p-4">
         <h1 class="display-3">The Supermoon Engine</h1>
         <p class="lead">An orthographic tile based game engine written in Go with Lua scripting.</p>
@@ -23,16 +23,16 @@
 
       <div class="container m-4">
           <div class="row mr-4">
-              <div class="col-sm-3">
+              <div class="col-sm-6 col-xl-3 mb-2">
                 <a class="btn btn-outline-primary w-100" href="https://github.com/stevebirtles/supermoonengine">The GitHub repository</a>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6 col-xl-3 mb-2">
                   <a class="btn btn-outline-secondary w-100" href="https://github.com/faiface/pixel">The pixel game library</a>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6 col-xl-3 mb-2">
                   <a class="btn btn-outline-warning w-100" href="https://golang.org/">Download Go</a>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6 col-xl-3 mb-2">
                   <a class="btn btn-outline-warning w-100" href="http://tdm-gcc.tdragon.net/download">TDM-GCC-64 for Windows</a>
               </div>
           </div>
@@ -55,7 +55,7 @@
       <h1 class="display-4 m-4 text-center">Lua API guide</h1>
 
       <div class="container">
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -89,9 +89,9 @@
           </div>
 
         </div>
-       
+
         <div class="row mb-4">
-          
+
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
@@ -101,7 +101,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
@@ -123,7 +123,7 @@
           </div>
 
         </div>
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -149,18 +149,18 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Nearby(id, radius) ⇨ ids</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Return an array of the entity ids within a radius of the given id.</h6>
-                <p class="card-text text-info">Example usage:<br />ids = Nearby(GetId(), 10)<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end
+                <h5 class="card-title">Nearby(id, radius, class) ⇨ ids</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Return an array of the entity ids within a radius of the given id and of a given class.</h6>
+                <p class="card-text text-info">Provide empty string for class if all entities wanted.<br />Example usage:<br />ids = Nearby(GetId(), 10, '')<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end
                 </p>
               </div>
             </div>
           </div>
 
         </div>
-        
+
         <div class="row mb-4">
-          
+
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
@@ -192,7 +192,7 @@
           </div>
 
         </div>
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -226,7 +226,7 @@
           </div>
 
         </div>
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -260,7 +260,7 @@
           </div>
 
         </div>
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -294,7 +294,7 @@
           </div>
 
         </div>
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -320,15 +320,15 @@
           <div class="col-sm-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">SetClassActive(class, radius)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Sets the distance from the focus entity for which entities of the given class will be active.</h6>
+                <h5 class="card-title">SetActive(class, radius)</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Sets the distance from the focus entity or focus point for which entities of the given class will be active.</h6>
                 <p class="card-text text-info">Set distance to be 256 to make them always active. Set distance to 0 to be totally inactive.</p>
               </div>
             </div>
           </div>
 
          </div>
-        
+
         <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -362,7 +362,7 @@
           </div>
 
         </div>
-        
+
          <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -396,8 +396,8 @@
           </div>
 
         </div>
-        
-        
+
+
          <div class="row mb-4">
 
           <div class="col-sm-4">
@@ -431,13 +431,13 @@
           </div>
 
         </div>
-       
+
          <div class="row mb-4">
 
           <div class="col-sm-4">
             <div class="card text-danger">
               <div class="card-body">
-                <h5 class="card-title">DisplayDialogue(text, csvoptions) ⇨ option</h5>
+                <h5 class="card-title">Dialogue(text, csvoptions) ⇨ option</h5>
                 <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
                 <p class="card-text text-info"></p>
               </div>
@@ -551,10 +551,9 @@
       </div>
 
     </div>
-      
+
     </div>
 
   </body>
-  
+
 </html>
- 

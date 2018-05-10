@@ -1,7 +1,7 @@
 #if_new
 
 SetSprite(GetId(), 'NESW', 261)
-SetClassActive("pineapple", 4)
+SetActive("pineapple", 4)
 
 #always
 
