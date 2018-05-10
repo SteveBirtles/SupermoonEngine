@@ -1,486 +1,497 @@
 <html>
 
-  <head>
+<head>
     <title>The Supermoon Engine</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </head>
+</head>
 
-  <body class="bg-secondary" style="line-height: 1">
+<body class="bg-secondary" style="line-height: 1">
 
-    <div class="container bg-white pt-4 mb-4">
+<div class="container bg-white pt-4 mb-4">
 
-      <div class="jumbotron text-center p-4">
+    <div class="jumbotron text-center p-4">
         <h1 class="display-3">The Supermoon Engine</h1>
         <p class="lead">An orthographic tile based game engine written in Go with Lua scripting.</p>
         <hr class="my-4">
         <p>Developed by Steve Birtles for students at <a href="http://www.farnborough.ac.uk">The Sixth Form College Farnborough</a>.</p>
-      </div>
+    </div>
 
-      <h1 class="display-4 m-4 text-center">How to get the Supermoon engine</h1>
+    <h1 class="display-4 m-4 text-center">How to get the Supermoon engine</h1>
 
-      <div class="container m-4">
-          <div class="row mr-4">
-              <div class="col-sm-6 col-xl-3 mb-2">
+    <div class="container m-4">
+        <div class="row mr-4">
+            <div class="col-sm-6 col-xl-3 mb-2">
                 <a class="btn btn-outline-primary w-100" href="https://github.com/stevebirtles/supermoonengine">The GitHub repository</a>
-              </div>
-              <div class="col-sm-6 col-xl-3 mb-2">
-                  <a class="btn btn-outline-secondary w-100" href="https://github.com/faiface/pixel">The pixel game library</a>
-              </div>
-              <div class="col-sm-6 col-xl-3 mb-2">
-                  <a class="btn btn-outline-warning w-100" href="https://golang.org/">Download Go</a>
-              </div>
-              <div class="col-sm-6 col-xl-3 mb-2">
-                  <a class="btn btn-outline-warning w-100" href="http://tdm-gcc.tdragon.net/download">TDM-GCC-64 for Windows</a>
-              </div>
-          </div>
-
-          <div class="row mr-4">
-              <div class="col-sm-12 pt-4">
-                  <p>Already got Go and GCC setup? Run <code>go get -u github.com/stevebirtles/supermoonengine</code> from the command line (ideally <a style="font-weight: bold;" href="https://git-scm.com/downloads">bash</a>).</p>
-                  <p>The same command can be used at any time to update the code to the latest version (that's what the <code>-u</code> is for.)</p>
-                  <p>If that didn't work, you might need to set up your path with <code>PATH=$PATH:/c/go/bin/:/c/TDM-GCC-64/bin/</code></p>
-                  <p>Navigate to the code with <code>cd ~/go/src/github.com/stevebirtles/supermoonengine/</code></p>
-                  <p>Then run <code>go build -o sme.exe *.go</code> (omit the .exe if not on Windows) to compile followed by <code>./sme.exe</code> to run.</p>
-                  <p class="pt-4">Alternatively, you can download a compiled version for Windows <a style="font-weight: bold;" href="https://drive.google.com/open?id=1uMlYPd2QXFGeUwx4v75imTtB9vamObHw">here</a>, although it may be a few versions out of date.</p>
-              </div>
-          </div>
-
-      </div>
-
-      <hr />
-
-      <h1 class="display-4 m-4 text-center">Lua API guide</h1>
-
-      <div class="container">
-
-        <div class="row mb-4">
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetId()</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Get the id of the entity whose script is currently executing.</h6>
-                <p class="card-text text-info">Behaves like 'this.id' in Java or JavaScript.</p>
-              </div>
             </div>
-          </div>
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetFocus(id, follow)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Set the camera to centre its view on the entity with the given id.</h6>
-                <p class="card-text text-info">Set follow to true and the camera will follow the entity around. Set id to 0 to stop following.</p>
-              </div>
+            <div class="col-sm-6 col-xl-3 mb-2">
+                <a class="btn btn-outline-secondary w-100" href="https://github.com/faiface/pixel">The pixel game library</a>
             </div>
-          </div>
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetFocus() ⇨ id</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Get the id of the entity currently being followed as the focus.</h6>
-                <p class="card-text text-info">Returns 0 is no entity being followed.</p>
-              </div>
+            <div class="col-sm-6 col-xl-3 mb-2">
+                <a class="btn btn-outline-warning w-100" href="https://golang.org/">Download Go</a>
             </div>
-          </div>
+            <div class="col-sm-6 col-xl-3 mb-2">
+                <a class="btn btn-outline-warning w-100" href="http://tdm-gcc.tdragon.net/download">TDM-GCC-64 for Windows</a>
+            </div>
+        </div>
+
+        <div class="row mr-4">
+            <div class="col-sm-12 pt-4">
+                <p>Already got Go and GCC setup? Run <code>go get -u github.com/stevebirtles/supermoonengine</code> from the command line (ideally <a style="font-weight: bold;" href="https://git-scm.com/downloads">bash</a>).</p>
+                <p>The same command can be used at any time to update the code to the latest version (that's what the <code>-u</code> is for.)</p>
+                <p>If that didn't work, you might need to set up your path with <code>PATH=$PATH:/c/go/bin/:/c/TDM-GCC-64/bin/</code></p>
+                <p>Navigate to the code with <code>cd ~/go/src/github.com/stevebirtles/supermoonengine/</code></p>
+                <p>Then run <code>go build -o sme.exe *.go</code> (omit the .exe if not on Windows) to compile followed by <code>./sme.exe</code> to run.</p>
+                <p class="pt-4">Alternatively, you can download a compiled version for Windows <a style="font-weight: bold;" href="https://drive.google.com/open?id=1uMlYPd2QXFGeUwx4v75imTtB9vamObHw">here</a>, although it may be a few versions out of date.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <hr />
+
+    <div class="container">
+
+        <div class="row mb-4 text-primary">
+
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title"><h1>Lua API guide</h1></span>
+                        <h6 class="card-subtitle mb-2 text-muted">All game entities are assigned a class which corresponds to a Lua file, e.g. entity class is 'player' ⇨ entity uses 'player.lua'</h6>
+                        <p class="card-text text-info">The game engine runs at 60 frames per second visually with the entities' Lua scripts being run at a rate of 10 executions per second.</p>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetModal(id)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Causes all other entities apart from the given id to freeze.</h6>
-                <p class="card-text text-info">Use id of 0 to return things to normal.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetId()</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Get the id of the entity whose script is currently executing.</h6>
+                        <p class="card-text text-info">Behaves like 'this.id' in Java or JavaScript.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetView(direction, zoom)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Set the camera's view direction and zoom level.</h6>
-                <p class="card-text text-info">Direction is N, E, S or W. Zoom is 0.2 to 2.0 with a default of 0.5.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetFocus(id, follow)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Set the camera to centre its view on the entity with the given id.</h6>
+                        <p class="card-text text-info">Set follow to true and the camera will follow the entity around. Set id to 0 to stop following.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">LoadMap(map, entities)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Load a map file with a given filename.</h6>
-                <p class="card-text text-info">Set entities to false if you want to keep their current state, setting it to true will load the map's entities.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetFocus() ⇨ id</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Get the id of the entity currently being followed as the focus.</h6>
+                        <p class="card-text text-info">Returns 0 is no entity being followed.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetTile(x, y, z) ⇨ base, front</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Get the values of the tiles at the given co-ordinates.</h6>
-                <p class="card-text text-info">Example usage:<br /><code>local b, f = GetTile(0, 0, 0)</code></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetSprite(id) ⇨ sprite</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Returns the currently displayed sprite no for the entity with the given id.</h6>
+                        <p class="card-text text-info">Please note, sprites can change faster than the Lua scripts execute if a rapid animation is used.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetTile(x, y, z, base, front)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Set the tile values at the given co-ordinate.</h6>
-                <p class="card-text text-info">Set front to be 0 if only base tile wanted.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetSprite(id, direction(s), sprite)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Nearby(id, radius, class) ⇨ ids</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Return an array of the entity ids within a radius of the given id and of a given class.</h6>
-                <p class="card-text text-info">Provide empty string for class if all entities wanted.<br />Example usage:<br /><code>local ids = Nearby(GetId(), 10, '')<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end</code>
-                </p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Animate(id, direction(s), first, last, speed, static)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Create(x, y, z, class) ⇨ id</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Create a new entity at the given co-ordinates with the given class.</h6>
-                <p class="card-text text-info">Returns the id of the newly created entity.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetPosition(id) ⇨ x, y, z</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Retrieves the co-ordinates of the entity with given id.</h6>
+                        <p class="card-text text-info">Example usage:<br/><code>local x, y, z = GetPosition(GetId())</code></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Delete(id)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Delete the entity with the given id.</h6>
-                <p class="card-text text-info">It is perfectly safe to self destruct.<br />i.e. <code>Delete(GetId())</code></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetPosition(id, x, y, z)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Immediately teleport the entity with the given id to the given co-ordinates.</h6>
+                        <p class="card-text text-info">This command will also stop any movement and set the entity's velocity to zero.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">EndGame()</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Immediately leave gameplay mode and return to the previous mode.</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Proximity(id1, id2)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetFlag(id, key) ⇨ flag</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Retrieve the value of the flag with the given key belonging to the entity with the given id.</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetVelocity(id) ⇨ direction, velocity, distance</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Returns the direction (N, S, E or W), the velocity in tiles per second, and the distance remaining in tiles of the entity with the given id.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetFlag(id, key, value)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Set the value of the flag with the given key which belonging to the given entity.</h6>
-                <p class="card-text text-info">Flags are stored as strings but will auto-cast to numbers if possible. e.g.<br/><code>local x = GetFlag(id, "x")<br/>SetFlag(id, "x", x+1)</code></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetVelocity(id, direction, velocity, distance)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">ListFlags(id) ⇨ list</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Return an array of the flag keys (strings) which belong to the entity with the given id.</h6>
-                <p class="card-text text-info">Example usage:<br/><code>local keys = GetKeys(GetId())<br/>for i = 1, #keys do<br />&nbsp;&nbsp;print (GetFlag(GetId(), keys[i]))<br />end</code></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card text-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">PathFind(id, targetid, searchdepth, vel)</h5>
+                        <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetPosition(id) ⇨ x, y, z</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Retrieves the co-ordinates of the entity with given id.</h6>
-                <p class="card-text text-info">Example usage:<br/><code>local x, y, z = GetPosition(GetId())</code></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetModal(id)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Causes all other entities apart from the given id to freeze.</h6>
+                        <p class="card-text text-info">Use id of 0 to return things to normal.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetPosition(id, x, y, z)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Immediately teleport the entity with the given id to the given co-ordinates.</h6>
-                <p class="card-text text-info">This command will also stop any movement and set the entity's velocity to zero.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetView(direction, zoom)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Set the camera's view direction and zoom level.</h6>
+                        <p class="card-text text-info">Direction is N, E, S or W. Zoom is 0.2 to 2.0 with a default of 0.5.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetVelocity(id, direction, velocity, distance)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">LoadMap(map, entities)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Load a map file with a given filename.</h6>
+                        <p class="card-text text-info">Set entities to false if you want to keep their current state, setting it to true will load the map's entities.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetVelocity(id) ⇨ direction, velocity, distance</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Returns the direction (N, S, E or W), the velocity in tiles per second, and the distance remaining in tiles of the entity with the given id.</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetTile(x, y, z) ⇨ base, front</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Get the values of the tiles at the given co-ordinates.</h6>
+                        <p class="card-text text-info">Example usage:<br /><code>local b, f = GetTile(0, 0, 0)</code></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card text-danger">
-              <div class="card-body">
-                <h5 class="card-title">PathFind(id, targetid, searchdepth, vel)</h5>
-                  <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetTile(x, y, z, base, front)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Set the tile values at the given co-ordinate.</h6>
+                        <p class="card-text text-info">Set front to be 0 if only base tile wanted.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Proximity(id1, id2)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Nearby(id, radius, class) ⇨ ids</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Return an array of the entity ids within a radius of the given id and of a given class.</h6>
+                        <p class="card-text text-info">Provide empty string for class if all entities wanted.<br />Example usage:<br /><code>local ids = Nearby(GetId(), 10, '')<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end</code>
+                        </p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetClass(id) ⇨ class</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetFlag(id, key) ⇨ flag</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Retrieve the value of the flag with the given key belonging to the entity with the given id.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetClass(id, class)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetFlag(id, key, value)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Set the value of the flag with the given key which belonging to the given entity.</h6>
+                        <p class="card-text text-info">Flags are stored as strings but will auto-cast to numbers if possible. e.g.<br/><code>local x = GetFlag(id, "x")<br/>SetFlag(id, "x", x+1)</code></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetActive(class, radius)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Sets the distance from the focus entity or focus point for which entities of the given class will be active.</h6>
-                <p class="card-text text-info">Set distance to be 256 to make them always active. Set distance to 0 to be totally inactive.</p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">ListFlags(id) ⇨ list</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Return an array of the flag keys (strings) which belong to the entity with the given id.</h6>
+                        <p class="card-text text-info">Example usage:<br/><code>local keys = GetKeys(GetId())<br/>for i = 1, #keys do<br />&nbsp;&nbsp;print (GetFlag(GetId(), keys[i]))<br />end</code></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-         </div>
+        </div>
 
         <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetScript(id) ⇨ script</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetClass(id) ⇨ class</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Override(id, script)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetClass(id, class)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Reset(id)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">SetActive(class, radius)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Sets the distance from the focus entity or focus point for which entities of the given class will be active.</h6>
+                        <p class="card-text text-info">Set distance to be 256 to make them always active. Set distance to 0 to be totally inactive.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
-         <div class="row mb-4">
+        <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">StartTimer(id, name)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetScript(id) ⇨ script</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetTimer(id, name) ⇨ seconds</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Override(id, script)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">KeyPressed(key, just) ⇨ boolean</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Reset(id)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
+        <div class="row mb-4">
 
-         <div class="row mb-4">
-
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">GetSprite(id) ⇨ sprite</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">StartTimer(id, name)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">SetSprite(id, sprite)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GetTimer(id, name) ⇨ seconds</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Animate(id, first, last, speed)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">KeyPressed(key, just) ⇨ boolean</h5>
+                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
-         <div class="row mb-4">
+        <div class="row mb-4">
 
-          <div class="col-sm-4">
-            <div class="card text-danger">
-              <div class="card-body">
-                <h5 class="card-title">Dialogue(text, csvoptions) ⇨ option</h5>
-                <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Create(x, y, z, class) ⇨ id</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Create a new entity at the given co-ordinates with the given class.</h6>
+                        <p class="card-text text-info">Returns the id of the newly created entity.</p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card text-danger">
-              <div class="card-body">
-                <h5 class="card-title">PlaySound(sound)</h5>
-                <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Delete(id)</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Delete the entity with the given id.</h6>
+                        <p class="card-text text-info">It is perfectly safe to self destruct.<br />i.e. <code>Delete(GetId())</code></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="col-sm-4">
-            <div class="card text-danger">
-              <div class="card-body">
-                <h5 class="card-title">PlayMusic(music, looping)</h5>
-                <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
-                <p class="card-text text-info"></p>
-              </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">EndGame()</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Immediately leave gameplay mode and return to the previous mode.</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
 
-          <div class="row mb-4 text-primary">
+        <div class="row mb-4">
 
-              <div class="col-sm-12">
-                  <div class="card">
-                      <div class="card-body">
-                          <h5 class="card-title"><h3>Meta-Directives</h3></h5>
-                          <h6 class="card-subtitle mb-2 text-muted">Meta-directives are processed by the game engine before script execution. Careful use of meta-directives can greatly enhance script run times as whole chunks of script will be skipped over.</h6>
-                          <p class="card-text text-info">Please note, only one meta-directive can be active at once.</p>
-                      </div>
-                  </div>
-              </div>
+            <div class="col-sm-4">
+                <div class="card text-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Dialogue(text, csvoptions) ⇨ option</h5>
+                        <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
 
-          </div>
+            <div class="col-sm-4">
+                <div class="card text-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">PlaySound(sound)</h5>
+                        <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
 
-          <div class="row mb-4 text-primary">
+            <div class="col-sm-4">
+                <div class="card text-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">PlayMusic(music, looping)</h5>
+                        <h6 class="card-subtitle mb-2 text-danger">Feature coming soon...</h6>
+                        <p class="card-text text-info"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mb-4 text-secondary">
+
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="card-title"><h3>Meta-Directives</h3></span>
+                        <h6 class="card-subtitle mb-2 text-muted">Meta-directives are processed by the game engine before script execution. Careful use of meta-directives can greatly enhance script run times as whole chunks of script will be skipped over.</h6>
+                        <p class="card-text text-info">Please note, only one meta-directive can be active at once.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mb-4 text-primary">
 
             <div class="col-sm-4">
                 <div class="card">
@@ -548,12 +559,12 @@
 
         </div>
 
-      </div>
-
     </div>
 
-    </div>
+</div>
 
-  </body>
+</div>
+
+</body>
 
 </html>
