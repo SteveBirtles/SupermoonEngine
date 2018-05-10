@@ -8,7 +8,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </head>
 
-  <body class="bg-secondary">
+  <body class="bg-secondary" style="line-height: 1">
 
     <div class="container bg-white pt-4 mb-4">
 
@@ -131,7 +131,7 @@
               <div class="card-body">
                 <h5 class="card-title">GetTile(x, y, z) ⇨ base, front</h5>
                 <h6 class="card-subtitle mb-2 text-muted">Get the values of the tiles at the given co-ordinates.</h6>
-                <p class="card-text text-info">Example usage:<br />local b, f = GetTile(0, 0, 0)</p>
+                <p class="card-text text-info">Example usage:<br /><code>local b, f = GetTile(0, 0, 0)</code></p>
               </div>
             </div>
           </div>
@@ -151,7 +151,7 @@
               <div class="card-body">
                 <h5 class="card-title">Nearby(id, radius, class) ⇨ ids</h5>
                 <h6 class="card-subtitle mb-2 text-muted">Return an array of the entity ids within a radius of the given id and of a given class.</h6>
-                <p class="card-text text-info">Provide empty string for class if all entities wanted.<br />Example usage:<br />ids = Nearby(GetId(), 10, '')<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end
+                <p class="card-text text-info">Provide empty string for class if all entities wanted.<br />Example usage:<br /><code>local ids = Nearby(GetId(), 10, '')<br />for i = 1, #ids do<br />&nbsp;&nbsp;print (ids[i])<br />end</code>
                 </p>
               </div>
             </div>
@@ -176,7 +176,7 @@
               <div class="card-body">
                 <h5 class="card-title">Delete(id)</h5>
                 <h6 class="card-subtitle mb-2 text-muted">Delete the entity with the given id.</h6>
-                <p class="card-text text-info">It is perfectly safe to self destruct.<br />i.e. Delete(GetId())</p>
+                <p class="card-text text-info">It is perfectly safe to self destruct.<br />i.e. <code>Delete(GetId())</code></p>
               </div>
             </div>
           </div>
@@ -209,8 +209,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">SetFlag(id, key, value)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Set the value of the flag with the given key which belonging to the given entity.</h6>
+                <p class="card-text text-info">Flags are stored as strings but will auto-cast to numbers if possible. e.g.<br/><code>local x = GetFlag(id, "x")<br/>SetFlag(id, "x", x+1)</code></p>
               </div>
             </div>
           </div>
@@ -219,8 +219,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">ListFlags(id) ⇨ list</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Return an array of the flag keys (strings) which belong to the entity with the given id.</h6>
+                <p class="card-text text-info">Example usage:<br/><code>local keys = GetKeys(GetId())<br/>for i = 1, #keys do<br />&nbsp;&nbsp;print (GetFlag(GetId(), keys[i]))<br />end</code></p>
               </div>
             </div>
           </div>
@@ -233,8 +233,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">GetPosition(id) ⇨ x, y, z</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Retrieves the co-ordinates of the entity with given id.</h6>
+                <p class="card-text text-info">Example usage:<br/><code>local x, y, z = GetPosition(GetId())</code></p>
               </div>
             </div>
           </div>
@@ -243,8 +243,8 @@
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">SetPosition(id, x, y, z)</h5>
-                <h6 class="card-subtitle mb-2 text-muted"></h6>
-                <p class="card-text text-info"></p>
+                <h6 class="card-subtitle mb-2 text-muted">Immediately teleport the entity with the given id to the given co-ordinates.</h6>
+                <p class="card-text text-info">This command will also stop any movement and set the entity's velocity to zero.</p>
               </div>
             </div>
           </div>
