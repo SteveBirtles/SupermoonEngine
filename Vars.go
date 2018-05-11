@@ -102,6 +102,7 @@ var (
 	quit                   = 0
 	help                   = false
 	editing				   = true
+	entityDebugData 	   = false
 
 	gameKeyDownStart            map[pixelgl.Button]bool
 	gameKeyDownEnd              map[pixelgl.Button]bool

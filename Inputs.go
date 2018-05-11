@@ -44,6 +44,10 @@ func processSystemInputs() {
 
 	}
 
+	if win.JustPressed(pixelgl.KeyGraveAccent) {
+		entityDebugData = !entityDebugData
+	}
+
 }
 
 func processEditorToggles() {

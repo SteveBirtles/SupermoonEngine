@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"math"
 	"fmt"
-	"github.com/faiface/pixel/pixelgl"
 )
 
 var (
@@ -578,7 +577,7 @@ func render() {
 	if editing {
 		renderTileOverlay()
 		renderHelp()
-	} else if win.Pressed(pixelgl.KeyGraveAccent) {
+	} else if entityDebugData {
 		renderEntityStats()
 	}
 
