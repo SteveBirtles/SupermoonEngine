@@ -28,14 +28,14 @@ var (
 	activeEntityCount		int
 	entityExecutionTime		[]execTime
 	sortedEntityExecutionTimes	[]execTime
-	totalExecutionTime			float64
-	cumulativeExecution			float64
-	executionLastSecond			float64
+	totalExecutionTime			int64
+	cumulativeExecution			int64
+	executionLastSecond			int64
 )
 
 type execTime struct {
 	id   uint32
-	time float64
+	time int64
 	class string
 }
 
@@ -306,16 +306,16 @@ func updateEntities() {
 
 				}
 
-				startTime := time.Now()
+				startTime := time.Now().UnixNano()
 
 				if script != "" {
 					currentEntity = e.Id
 					executeLua(L, "do\n"+script+"\nend\n")
 				}
 
-				t := time.Now().Sub(startTime)
-				entityExecutionTime = append(entityExecutionTime, execTime{e.Id, t.Seconds(), e.Class})
-				totalExecutionTime += t.Seconds()
+				t := time.Now().UnixNano() - startTime
+				entityExecutionTime = append(entityExecutionTime, execTime{e.Id, t, e.Class})
+				totalExecutionTime += t
 
 				entities[1][i].new = entities[1][i].resetNew
 				entities[1][i].resetNew = false

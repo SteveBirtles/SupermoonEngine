@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"fmt"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 var (
@@ -521,10 +522,10 @@ func renderEntityStats() {
 
 	for i, e := range sortedEntityExecutionTimes {
 		if i >= 5 { break }
-		print(fmt.Sprintf("%d : \t%4.2fms - \t%s", e.id, e.time*1000, e.class))
+		print(fmt.Sprintf("%d : \t%4.2fms - \t%s", e.id, float64(e.time)/1000000, e.class))
 	}
 
-	print (fmt.Sprintf("Total : %4.2fms (%4.2f%%)", totalExecutionTime*1000, executionLastSecond*100))
+	print (fmt.Sprintf("Total : %4.2fms (%4.2f%%)", float64(totalExecutionTime)/1000000,  float64(executionLastSecond)/1000000))
 
 }
 
@@ -577,7 +578,7 @@ func render() {
 	if editing {
 		renderTileOverlay()
 		renderHelp()
-	} else {
+	} else if win.Pressed(pixelgl.KeyGraveAccent) {
 		renderEntityStats()
 	}
 
