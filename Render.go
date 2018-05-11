@@ -525,7 +525,7 @@ func renderEntityStats() {
 		print(fmt.Sprintf("%d : \t%4.2fms - \t%s", e.id, float64(e.time)/1000000, e.class))
 	}
 
-	print (fmt.Sprintf("Total : %4.2fms (%4.2f%%)", float64(totalExecutionTime)/1000000,  float64(executionLastSecond)/1000000))
+	print (fmt.Sprintf("Total : %4.2fms (%4.2f%%)", float64(totalExecutionTime)/1000000,  100*float64(executionLastSecond)/1000000000))
 
 }
 
