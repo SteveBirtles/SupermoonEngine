@@ -40,6 +40,13 @@ if KeyPressed("right", slow) then
     SetVelocity(GetId(), 'E', speed, 1)
 end
 
+if KeyPressed("j", true) then
+    PlaySound("jump.wav")
+end
+
+if KeyPressed("b", true) then
+    PlayMusic("bennyhill.mp3")
+end
 
 if KeyPressed("p", true) then
     SetClass(GetId(), "pacman")

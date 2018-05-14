@@ -47,6 +47,9 @@ func initiateAPI() {
 	linkToLua(L, APIReset, "Reset")
 	linkToLua(L, APIEndGame, "EndGame")
 
+	linkToLua(L, APIPlaySound, "PlaySound")
+	linkToLua(L, APIPlayMusic, "PlayMusic")
+
 	linkToLua(L, luaPrint, "print")
 
 }
@@ -760,6 +763,21 @@ func APIEndGame(_ *lua.LState) int {
 	editing = true
 	resetViewState()
 
+	return 0
+}
+
+
+func APIPlayMusic(L *lua.LState) int {
+
+	musicFilename := "resources/" + L.ToString(1)
+	go ASyncPlayMusic(musicFilename)
+	return 0
+}
+
+func APIPlaySound(L *lua.LState) int {
+
+	soundFilename := "resources/" + L.ToString(1)
+	go AsyncPlaySound(soundFilename)
 	return 0
 }
 

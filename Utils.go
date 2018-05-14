@@ -11,6 +11,10 @@ import (
 	"golang.org/x/image/colornames"
 	"github.com/faiface/pixel"
 	"time"
+	"github.com/faiface/beep/wav"
+	"github.com/faiface/beep/speaker"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/mp3"
 )
 
 func floor(x float64) float64 {
@@ -179,6 +183,44 @@ func copyGrid(source *[2*gridCentre][2*gridCentre][16][2]uint16, destination *[2
 				(*destination)[x][y][z][1] = (*source)[x][y][z][1]
 			}
 		}
+	}
+
+}
+
+
+func ASyncPlayMusic(musicFilename string) {
+
+	if file, err := os.Open(musicFilename); err == nil {
+
+		if  streamer, musicFormat, musicErr := mp3.Decode(file); musicErr == nil {
+			speaker.Init(musicFormat.SampleRate, musicFormat.SampleRate.N(time.Second/10))
+			speaker.Play(streamer)
+			beep.Loop(-1, streamer)
+		} else {
+			luaConsolePrint (fmt.Sprintf("Music error with %s: %s", musicFilename, musicErr))
+		}
+	} else {
+
+		luaConsolePrint (fmt.Sprintf("Music file %s not found.", musicFilename))
+
+	}
+
+}
+
+func AsyncPlaySound(soundFilename string) {
+
+	if file, err := os.Open(soundFilename); err == nil {
+
+		if  streamer, soundFormat, soundError := wav.Decode(file); soundError == nil {
+			speaker.Init(soundFormat.SampleRate, soundFormat.SampleRate.N(time.Second/10))
+			speaker.Play(streamer)
+		} else {
+			luaConsolePrint (fmt.Sprintf("Sound error with %s: %s", soundFilename, soundError))
+		}
+	} else {
+
+		luaConsolePrint (fmt.Sprintf("Sound file %s not found.", soundFilename))
+
 	}
 
 }
