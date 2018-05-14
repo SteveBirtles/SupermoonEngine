@@ -118,8 +118,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">SetSprite(id, direction(s), sprite)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Set the sprite number to be rendered for the given entity in the direction(s) given.</h6>
+                        <p class="card-text text-info">If you want the same sprite for all directions, pass 'NESW' as the direction, otherwise call this several times with 'N', 'S', 'E' and 'W' respectively.</p>
                     </div>
                 </div>
             </div>
@@ -128,8 +128,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Animate(id, direction(s), first, last, speed, static)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Set the animation sprites for the entity.</h6>
+                        <p class="card-text text-info">The animation will run at 'speed' frames per second from 'first' to 'last' inclusive. See SetSprite for clarification of the direction option. If you wish the animation to only occur when the entity is moving, set static to false, in which case the sprite given to SetSprite will be used when at rest.</p>
                     </div>
                 </div>
             </div>
@@ -162,8 +162,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Proximity(id1, id2)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Returns the distance between two entities, measured in tiles.</h6>
+                        <p class="card-text text-info">To test for overlap, test for proximity < 1.</p>
                     </div>
                 </div>
             </div>
@@ -186,8 +186,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">SetVelocity(id, direction, velocity, distance)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Sets the velocity of the entity to be 'velocity' squares per second in the given direction for the given distance.</h6>
+                        <p class="card-text text-info">Direction should be 'N', 'S', 'E' or 'W'. Distance should be a number of tiles to continue moving for before stopping.</p>
                     </div>
                 </div>
             </div>
@@ -313,7 +313,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">GetClass(id) ⇨ class</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
+                        <h6 class="card-subtitle mb-2 text-muted">Returns the class name of the entity with the given id.</h6>
                         <p class="card-text text-info"></p>
                     </div>
                 </div>
@@ -323,8 +323,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">SetClass(id, class)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Changes the class name of the entity with the given id.</h6>
+                        <p class="card-text text-info">This does not cause the script to be reloaded, use <code>Reset(id)</code> after changing the class to achieve this.</p>
                     </div>
                 </div>
             </div>
@@ -347,8 +347,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">GetScript(id) ⇨ script</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Returns the current script of the entity with the given id.</h6>
+                        <p class="card-text text-info">Unless overridden, the script will be that of the entity's class.</p>
                     </div>
                 </div>
             </div>
@@ -357,8 +357,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Override(id, script)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Replace the script of the entity with the given id with the given script.</h6>
+                        <p class="card-text text-info">This will only affect one entity, not all the entities of a class. The change is not immediate if the entity in question is currently being processed.</p>
                     </div>
                 </div>
             </div>
@@ -367,8 +367,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Reset(id)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Resets the entity's script to that of its class and resets the flags and timers of the entity.</h6>
+                        <p class="card-text text-info">The entity's current movement and sprites will not be reset. Use a #if_new meta-directive in the new class for that purpose.</p>
                     </div>
                 </div>
             </div>
@@ -381,8 +381,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">StartTimer(id, name)</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Starts a timer with a given name belonging to the entity with the given id.</h6>
+                        <p class="card-text text-info">Timers are light weight, you can have as many as you want with no slow down.</p>
                     </div>
                 </div>
             </div>
@@ -391,8 +391,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">GetTimer(id, name) ⇨ seconds</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Retrieve the elapsed time for the timer of given name belonging to the entity with the given id.</h6>
+                        <p class="card-text text-info">Timers are precise, a fractional number of seconds will be provided so test with > or <, don't use ==.</p>
                     </div>
                 </div>
             </div>
@@ -401,8 +401,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">KeyPressed(key, just) ⇨ boolean</h5>
-                        <h6 class="card-subtitle mb-2 text-muted"></h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2 text-muted">Returns true or false whether a key is/has been pressed.</h6>
+                        <p class="card-text text-info">If 'just' is true, the value true will only be returned once per key press, i.e. it will not repeat. Set 'just' to false for any sustained actions. Use simple letters or names of keys, e.g. 'a', 'up', 'space', 'rightshift', etc.</p>
                     </div>
                 </div>
             </div>
@@ -564,6 +564,8 @@
 </div>
 
 </div>
+
+<br/>
 
 </body>
 
