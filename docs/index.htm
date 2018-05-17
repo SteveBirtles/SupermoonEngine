@@ -42,6 +42,7 @@
                 <p>Already got Go and GCC setup? Run <code>go get -u github.com/stevebirtles/supermoonengine</code> from the command line (ideally <a style="font-weight: bold;" href="https://git-scm.com/downloads">bash</a>).</p>
                 <p>The same command can be used at any time to update the code to the latest version (that's what the <code>-u</code> is for.)</p>
                 <p>If that didn't work, you might need to set up your path with <code>PATH=$PATH:/c/go/bin/:/c/TDM-GCC-64/bin/</code></p>
+                <p>You might also need to run <code>sudo apt-get install libasound2-dev</code> on linux.</p>
                 <p>Navigate to the code with <code>cd ~/go/src/github.com/stevebirtles/supermoonengine/</code></p>
                 <p>Then run <code>go build -o sme.exe *.go</code> (omit the .exe if not on Windows) to compile followed by <code>./sme.exe</code> to run.</p>
                 <p class="pt-4">Alternatively, you can download a compiled version for Windows <a style="font-weight: bold;" href="https://drive.google.com/open?id=1uMlYPd2QXFGeUwx4v75imTtB9vamObHw">here</a>, although it may be a few versions out of date.</p>
@@ -469,8 +470,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">PlayMusic(music)</h5>
-                        <h6 class="card-subtitle mb-2">Almost the same as PlaySound but the file will play on loop.</h6>
-                        <p class="card-text text-info"></p>
+                        <h6 class="card-subtitle mb-2">Almost the same as PlaySound but only one piece of music will play at once and the file will play on loop.</h6>
+                        <p class="card-text text-info">Send a blank string to stop music playback.</p>
                     </div>
                 </div>
             </div>
