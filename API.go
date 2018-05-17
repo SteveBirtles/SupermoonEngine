@@ -769,15 +769,13 @@ func APIEndGame(_ *lua.LState) int {
 
 func APIPlayMusic(L *lua.LState) int {
 
-	musicFilename := "resources/" + L.ToString(1)
-	go ASyncPlayMusic(musicFilename)
+	go ASyncPlayMusic(L.ToString(1))
 	return 0
 }
 
 func APIPlaySound(L *lua.LState) int {
 
-	soundFilename := "resources/" + L.ToString(1)
-	go AsyncPlaySound(soundFilename)
+	go AsyncPlaySound(L.ToString(1))
 	return 0
 }
 

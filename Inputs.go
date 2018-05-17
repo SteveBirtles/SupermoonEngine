@@ -42,6 +42,10 @@ func processSystemInputs() {
 			resetEntities()
 		}
 
+		if music != nil {
+			music.Close()
+		}
+
 	}
 
 	if win.JustPressed(pixelgl.KeyGraveAccent) {

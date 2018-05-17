@@ -7,6 +7,8 @@ import (
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
 	"io/ioutil"
+	"github.com/faiface/beep/speaker"
+	"time"
 )
 
 func initiateEngine() {
@@ -91,5 +93,8 @@ func initiateEngine() {
 			b = 1
 		}
 	}
+
+	speaker.Init(sampleRate, sampleRate.N(time.Second/10))
+	speaker.Play(mixer)
 
 }
