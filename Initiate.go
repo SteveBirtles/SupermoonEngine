@@ -38,8 +38,8 @@ func initiateEngine() {
 	luaRenderer.Color = colornames.Orangered
 	luaRenderer.Orig = pixel.V(screenWidth*0.75, screenHeight-22)
 
-	tileOverlayWidth  = uint16((screenWidth) / 75)
-	tileOverlayHeight = totalTiles /tileOverlayWidth
+	tileOverlayWidth  = 16
+	tileOverlayHeight = totalTiles / tileOverlayWidth
 
 	textureImage, initError := loadImageFile("textures/tiles.png")
 	check(initError)
