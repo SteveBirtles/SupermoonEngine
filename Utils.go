@@ -223,10 +223,10 @@ func ASyncPlayMusic(musicFilename string) {
 			//halfVolume := effects.Volume{Base: 10, Volume: -1000}
 
 			if sampleRate != musicFormat.SampleRate {
-				mixer.Play(beep.Resample(3, musicFormat.SampleRate, sampleRate, m)) //halfVolume.Stream(m)))
+				mixer.Add(beep.Resample(3, musicFormat.SampleRate, sampleRate, m)) //halfVolume.Stream(m)))
 
 			} else {
-				mixer.Play(m) //halfVolume.Stream(m))
+				mixer.Add(m) //halfVolume.Stream(m))
 			}
 
 		} else {
@@ -249,9 +249,9 @@ func AsyncPlaySound(soundFilename string) {
 	if file, err := os.Open(soundFilename); err == nil {
 		if  s, soundFormat, soundError := wav.Decode(file); soundError == nil {
 			if sampleRate != soundFormat.SampleRate {
-				mixer.Play(beep.Resample(3, soundFormat.SampleRate, sampleRate, s))
+				mixer.Add(beep.Resample(3, soundFormat.SampleRate, sampleRate, s))
 			} else {
-				mixer.Play(s)
+				mixer.Add(s)
 			}
 		} else {
 			luaConsolePrint (fmt.Sprintf("Sound error with %s: %s", soundFilename, soundError))
